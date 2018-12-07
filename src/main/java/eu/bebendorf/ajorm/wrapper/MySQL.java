@@ -21,28 +21,24 @@ public class MySQL extends BaseSQL {
     }
 
     public Connection getConnection(){
-        if(c==null){
-            try {
-                Class.forName("com.mysql.jdbc.Driver");
-                c = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + port + "/" + this.database + "?user=" + this.username + "&password=" + this.password + "&autoReconnect=" + true + "&failOverReadOnly=false&maxReconnects=" + 5);
-            } catch (SQLException e) {
-                System.out.println("Fehler: bei openConnection()[MySQL.java]  SQLException   " + e.getMessage());
-            } catch (ClassNotFoundException e) {
-                System.out.println("Fehler: bei openConnection()[MySQL.java]  ClassNotFoundException");
-            }
-        }
         try {
             if(c==null||c.isClosed()){
                 try {
                     Class.forName("com.mysql.jdbc.Driver");
                     c = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + 3306 + "/" + this.database + "?user=" + this.username + "&password=" + this.password + "&autoReconnect=" + true + "&failOverReadOnly=false&maxReconnects=" + 5);
                 } catch (SQLException e) {
-                    System.out.println("Fehler: bei openConnection()[MySQL.java]  SQLException   " + e.getMessage());
+                    System.out.println("Fehler: bei getConnection()[MySQL.java]  SQLException   " + e.getMessage());
                 } catch (ClassNotFoundException e) {
-                    System.out.println("Fehler: bei openConnection()[MySQL.java]  ClassNotFoundException");
+                    System.out.println("Fehler: bei getConnection()[MySQL.java]  ClassNotFoundException");
                 }
             }
         } catch (SQLException e) {e.printStackTrace();}
+        try {
+            if(c!=null&&c.isClosed())
+                return null;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return c;
     }
 
