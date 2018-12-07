@@ -65,7 +65,7 @@ for(User user : db.getAllUsers())
 </dependency>
 ```
 ### Driver
-You also need to add the driver you want to use. AJORM comes with a wrapper for com.mysql.jdbc.Driver, but can also create an own wrapper implementing the interface SQL.
+You also need to add the driver you want to use. AJORM comes with a wrapper for com.mysql.jdbc.Driver, but you can also create an own wrapper implementing the interface SQL.
 ```xml
 <dependency>
     <groupId>mysql</groupId>
