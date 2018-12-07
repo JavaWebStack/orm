@@ -17,5 +17,17 @@
                 </configuration>
             </plugin>
         </plugins>
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ftp</artifactId>
+            </extension>
+        </extensions>
     </build>
+    <distributionManagement>
+        <repository>
+            <id>bebendorf</id>
+            <url>ftp://bebendorf.eu/</url>
+        </repository>
+    </distributionManagement>
 </project>
