@@ -25,7 +25,7 @@ public class MySQL extends BaseSQL {
             if(c==null||c.isClosed()){
                 try {
                     Class.forName("com.mysql.jdbc.Driver");
-                    c = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + 3306 + "/" + this.database + "?user=" + this.username + "&password=" + this.password + "&autoReconnect=" + true + "&failOverReadOnly=false&maxReconnects=" + 5);
+                    c = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database + "?user=" + this.username + "&password=" + this.password + "&autoReconnect=" + true + "&failOverReadOnly=false&maxReconnects=" + 5);
                 } catch (SQLException e) {
                     System.out.println("Fehler: bei getConnection()[MySQL.java]  SQLException   " + e.getMessage());
                 } catch (ClassNotFoundException e) {
