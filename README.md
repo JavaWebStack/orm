@@ -64,6 +64,17 @@ for(User user : db.getAllUsers())
   <version>1.0</version>
 </dependency>
 ```
+### Driver
+You also need to add the driver you want to use. AJORM comes with a wrapper for com.mysql.jdbc.Driver, but you can also create an own wrapper implementing the interface SQL.
+```xml
+<dependency>
+    <groupId>mysql</groupId>
+    <artifactId>mysql-connector-java</artifactId>
+    <version>8.0.13</version>
+    <scope>compile</scope>
+</dependency>
+```
+
 ### JitPack
 You can alternativly use jitpack if my repo is down or just not reliable enough for your needs.  
 https://jitpack.io/#JanHolger/AJORM
