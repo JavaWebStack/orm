@@ -51,7 +51,7 @@ for(User user : db.getAllUsers())
 
 ### Repository
 ```xml
-<respository>
+<repository>
   <id>bebendorf</id>
   <url>http://repo.bebendorf.eu/</url>
 </repository>
@@ -65,12 +65,12 @@ for(User user : db.getAllUsers())
 </dependency>
 ```
 ### Driver
-You also need to add the driver you want to use. AJORM comes with a wrapper for com.mysql.jdbc.Driver, but you can also create an own wrapper implementing the interface SQL.
+You also need to add the driver you want to use. AJORM comes with a wrapper for com.mysql.jdbc.Driver, but you can also create an own wrapper implementing the interface SQL. (For some reason I needed a pretty old driver version to connect to some servers, so I thought it would be better to link the old version here)
 ```xml
 <dependency>
     <groupId>mysql</groupId>
     <artifactId>mysql-connector-java</artifactId>
-    <version>8.0.13</version>
+    <version>5.1.6</version>
     <scope>compile</scope>
 </dependency>
 ```
