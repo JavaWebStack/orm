@@ -60,7 +60,7 @@ for(User user : db.getAllUsers())
 ```xml
 <dependency>
   <groupId>eu.bebendorf</groupId>
-  <artifactId>AJORM</artifactId>
+  <artifactId>ajorm</artifactId>
   <version>1.0</version>
 </dependency>
 ```
