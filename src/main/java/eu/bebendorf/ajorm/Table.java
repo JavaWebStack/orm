@@ -32,6 +32,10 @@ public class Table<ObjectType,KeyType> {
         return result.all();
     }
 
+    public ObjectType query(ObjectType object){
+        return builder().where().eq(getColName(keyField),getKeyValue(object)).query(object);
+    }
+
     public QueryBuilder builder(){
         return new QueryBuilder(this);
     }
@@ -87,6 +91,8 @@ public class Table<ObjectType,KeyType> {
             return ((Enum<?>)value).name();
         if(type.equals(UnixTime.class))
             return String.valueOf(((UnixTime)value).millis());
+        if(type.equals(boolean.class))
+            return ((boolean)value)?"1":"0";
         return String.valueOf(value);
     }
 
@@ -177,6 +183,18 @@ public class Table<ObjectType,KeyType> {
             return new QueryResult(objects);
         }
 
+        public ObjectType query(ObjectType object){
+            ResultSet rs = sql.read("SELECT * FROM `"+getTableName()+"`"+querySelector.toString()+";",parameters.toArray());
+            try {
+                if(rs.next())
+                    parseResult(rs, object);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            sql.close(rs);
+            return object;
+        }
+
         public int count(){
             ResultSet rs = sql.read("SELECT COUNT(*) FROM `"+getTableName()+"`"+querySelector.toString()+";",parameters.toArray());
             try {
@@ -245,42 +263,53 @@ public class Table<ObjectType,KeyType> {
             List<ObjectType> objects = new ArrayList<>();
             try {
                 while(resultSet.next()){
-                    ObjectType object = objectClass.newInstance();
-                    for(String fieldName : fieldReflection.keySet()){
-                        Field field = fieldReflection.get(fieldName);
-                        DatabaseField descriptor = fieldDescriptors.get(field);
-                        String colName = descriptor.columnName();
-                        if(colName.length()==0)
-                            colName = fieldName;
-                        Object value = null;
-                        if(field.getType().isEnum())
-                            value = Enum.valueOf((Class<Enum>) field.getType(), resultSet.getString(colName));
-                        if(field.getType().equals(int.class))
-                            value = resultSet.getInt(colName);
-                        if(field.getType().equals(short.class))
-                            value = resultSet.getShort(colName);
-                        if(field.getType().equals(double.class))
-                            value = resultSet.getDouble(colName);
-                        if(field.getType().equals(long.class))
-                            value = resultSet.getLong(colName);
-                        if(field.getType().equals(float.class))
-                            value = resultSet.getFloat(colName);
-                        if(field.getType().equals(Timestamp.class))
-                            value = resultSet.getTimestamp(colName);
-                        if(field.getType().equals(Date.class))
-                            value = resultSet.getDate(colName);
-                        if(field.getType().equals(Time.class))
-                            value = resultSet.getTime(colName);
-                        if(field.getType().equals(UnixTime.class))
-                            value = new UnixTime(resultSet.getLong(colName));
-                        if(value==null)
-                            value = resultSet.getString(colName);
-                        field.set(object,value);
-                    }
-                    objects.add(object);
+                    objects.add(parseResult(resultSet, objectClass.newInstance()));
                 }
             }catch(Exception ex){ex.printStackTrace();}
             return objects;
+        }
+
+        private ObjectType parseResult(ResultSet resultSet, ObjectType object){
+            try {
+                for(String fieldName : fieldReflection.keySet()){
+                    Field field = fieldReflection.get(fieldName);
+                    DatabaseField descriptor = fieldDescriptors.get(field);
+                    String colName = descriptor.columnName();
+                    if(colName.length()==0)
+                        colName = fieldName;
+                    field.set(object, getValue(resultSet, colName, field.getType()));
+                }
+            }catch(Exception ex){ex.printStackTrace();}
+            return object;
+        }
+
+        private Object getValue(ResultSet resultSet, String colName, Class type) throws SQLException {
+            Object value = null;
+            if(type.isEnum())
+                value = Enum.valueOf((Class<Enum>) type, resultSet.getString(colName));
+            if(type.equals(int.class))
+                value = resultSet.getInt(colName);
+            if(type.equals(short.class))
+                value = resultSet.getShort(colName);
+            if(type.equals(double.class))
+                value = resultSet.getDouble(colName);
+            if(type.equals(long.class))
+                value = resultSet.getLong(colName);
+            if(type.equals(boolean.class))
+                value = resultSet.getBoolean(colName);
+            if(type.equals(float.class))
+                value = resultSet.getFloat(colName);
+            if(type.equals(Timestamp.class))
+                value = resultSet.getTimestamp(colName);
+            if(type.equals(Date.class))
+                value = resultSet.getDate(colName);
+            if(type.equals(Time.class))
+                value = resultSet.getTime(colName);
+            if(type.equals(UnixTime.class))
+                value = new UnixTime(resultSet.getLong(colName));
+            if(value==null)
+                value = resultSet.getString(colName);
+            return value;
         }
 
     }
@@ -294,7 +323,7 @@ public class Table<ObjectType,KeyType> {
             return this.all;
         }
         public ObjectType first(){
-            return get(0);
+            return all.size()>0?get(0):null;
         }
         public ObjectType get(int index){
             return all.get(index);
