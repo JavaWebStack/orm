@@ -87,6 +87,8 @@ public class Table<ObjectType,KeyType> {
     }
 
     private String convert(Class type,Object value){
+        if(value==null)
+            return null;
         if(type.isEnum())
             return ((Enum<?>)value).name();
         if(type.equals(UnixTime.class))
@@ -169,6 +171,11 @@ public class Table<ObjectType,KeyType> {
 
         public QueryBuilder limit(int amount){
             querySelector.append(" LIMIT "+amount);
+            return this;
+        }
+
+        public QueryBuilder order(String column, boolean desc){
+            querySelector.append(" ORDER BY `"+column+"`"+(desc?" DESC":""));
             return this;
         }
 
@@ -285,6 +292,8 @@ public class Table<ObjectType,KeyType> {
 
         private Object getValue(ResultSet resultSet, String colName, Class type) throws SQLException {
             Object value = null;
+            if(resultSet.getString(colName) == null)
+                return null;
             if(type.isEnum())
                 value = Enum.valueOf((Class<Enum>) type, resultSet.getString(colName));
             if(type.equals(int.class))
