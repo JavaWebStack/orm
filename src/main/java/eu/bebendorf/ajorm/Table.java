@@ -115,7 +115,7 @@ public class Table<ObjectType,KeyType> {
         this.sql = sql;
         this.prefix = prefix;
         this.objectClass = clazz;
-        DatabaseTable tableInfo = objectClass.getDeclaredAnnotationsByType(DatabaseTable.class)[0];
+        DatabaseTable tableInfo = objectClass.getDeclaredAnnotation(DatabaseTable.class);
         this.tableName = tableInfo.value();
         for(Field field : objectClass.getDeclaredFields()){
             DatabaseField[] annotations = field.getDeclaredAnnotationsByType(DatabaseField.class);

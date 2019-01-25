@@ -16,33 +16,37 @@ public class EventBus<ObjectType> {
 
     public void check(Method method){
         method.setAccessible(true);
-        for(OnCreate on : method.getDeclaredAnnotationsByType(OnCreate.class))
-            if(on.after()) {
-                afterCreate.add(method);
-                break;
-            } else {
-                beforeCreate.add(method);
-                break;
-            }
-        for(OnUpdate on : method.getDeclaredAnnotationsByType(OnUpdate.class))
-            if(on.after()) {
-                afterUpdate.add(method);
-                break;
-            } else {
-                beforeUpdate.add(method);
-                break;
-            }
-        for(OnDelete on : method.getDeclaredAnnotationsByType(OnDelete.class))
-            if(on.after()) {
-                afterDelete.add(method);
-                break;
-            } else {
-                beforeDelete.add(method);
-                break;
-            }
+        {
+            OnCreate on = method.getDeclaredAnnotation(OnCreate.class);
+            if(on!=null)
+                if(on.after()) {
+                    afterCreate.add(method);
+                } else {
+                    beforeCreate.add(method);
+                }
+        }
+        {
+            OnUpdate on = method.getDeclaredAnnotation(OnUpdate.class);
+            if(on!=null)
+                if(on.after()) {
+                    afterUpdate.add(method);
+                } else {
+                    beforeUpdate.add(method);
+                }
+        }
+        {
+            OnDelete on = method.getDeclaredAnnotation(OnDelete.class);
+            if(on!=null)
+                if(on.after()) {
+                    afterDelete.add(method);
+                } else {
+                    beforeDelete.add(method);
+                }
+        }
     }
 
     public void check(Class clazz){
+        System.out.println("Check: "+clazz.getName());
         for(Method method : clazz.getDeclaredMethods())
             check(method);
     }
