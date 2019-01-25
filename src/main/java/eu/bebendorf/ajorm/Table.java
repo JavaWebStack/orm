@@ -1,5 +1,7 @@
 package eu.bebendorf.ajorm;
 
+import eu.bebendorf.ajorm.event.EventBus;
+
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,6 +18,7 @@ public class Table<ObjectType,KeyType> {
     private Map<Field, DatabaseField> fieldDescriptors = new HashMap<>();
     private String keyField;
     private Class<ObjectType> objectClass;
+    private EventBus<ObjectType> eventBus = new EventBus<>();
 
     public ObjectType queryById(KeyType id){
         QueryResult result = builder().where().eq(getColName(keyField),id).query();
@@ -41,11 +44,15 @@ public class Table<ObjectType,KeyType> {
     }
 
     public void create(ObjectType object){
+        eventBus.beforeCreate(object);
         builder().insert(object);
+        eventBus.afterCreate(object);
     }
 
     public void delete(ObjectType object){
+        eventBus.beforeDelete(object);
         deleteById(getKeyValue(object));
+        eventBus.afterDelete(object);
     }
 
     public void deleteById(KeyType id){
@@ -53,7 +60,9 @@ public class Table<ObjectType,KeyType> {
     }
 
     public void update(ObjectType object){
+        eventBus.beforeUpdate(object);
         builder().where().eq(getColName(keyField),getKeyValue(object)).update(object);
+        eventBus.afterUpdate(object);
     }
 
     public ObjectType reload(ObjectType object){
@@ -119,6 +128,11 @@ public class Table<ObjectType,KeyType> {
                     keyField = field.getName();
             }
         }
+    }
+
+    public Table<ObjectType, KeyType> events(){
+        eventBus.check(objectClass);
+        return this;
     }
 
     public class QueryBuilder {
