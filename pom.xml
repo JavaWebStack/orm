@@ -32,10 +32,20 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
     <distributionManagement>
         <repository>
             <id>bebendorf</id>
             <url>ftp://bebendorf.eu/</url>
         </repository>
     </distributionManagement>
+
+    <!--
+    <distributionManagement>
+        <repository>
+            <id>lockbyte</id>
+            <url>http://dev.einserver.net:4000/repository/internal</url>
+        </repository>
+    </distributionManagement>
+    -->
 </project>

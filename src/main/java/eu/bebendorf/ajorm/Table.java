@@ -151,6 +151,12 @@ public class Table<ObjectType,KeyType> {
             return this;
         }
 
+        public QueryBuilder c(String custom, Object... params){
+            querySelector.append(custom);
+            parameters.addAll(Arrays.asList(params));
+            return this;
+        }
+
         public QueryBuilder eq(String columnName,Object value){
             querySelector.append(" `"+columnName+"`=?");
             parameters.add(value);
