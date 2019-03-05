@@ -8,7 +8,7 @@ Another thing was that I wanted to have control over the JDBC Wrapper to have a 
 
 I finally decided to make an own ORM that fits my needs and here it is.
 
-## Example usage
+## Example usage 
 
 ### Model
 ```java
