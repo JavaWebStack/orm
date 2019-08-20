@@ -104,6 +104,8 @@ public class Table<ObjectType,KeyType> {
             return String.valueOf(((UnixTime)value).millis());
         if(type.equals(boolean.class))
             return ((boolean)value)?"1":"0";
+        if(type.equals(UUID.class))
+            return value.toString();
         return String.valueOf(value);
     }
 
@@ -336,6 +338,8 @@ public class Table<ObjectType,KeyType> {
                 value = resultSet.getTime(colName);
             if(type.equals(UnixTime.class))
                 value = new UnixTime(resultSet.getLong(colName));
+            if(type.equals(UUID.class))
+                value = UUID.fromString(resultSet.getString(colName));
             if(value==null)
                 value = resultSet.getString(colName);
             return value;

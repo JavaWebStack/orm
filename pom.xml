@@ -17,12 +17,6 @@
                 </configuration>
             </plugin>
         </plugins>
-        <extensions>
-            <extension>
-                <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-ftp</artifactId>
-            </extension>
-        </extensions>
     </build>
     <dependencies>
         <dependency>
@@ -36,16 +30,7 @@
     <distributionManagement>
         <repository>
             <id>bebendorf</id>
-            <url>ftp://bebendorf.eu/</url>
+            <url>https://repo.bebendorf.eu/</url>
         </repository>
     </distributionManagement>
-
-    <!--
-    <distributionManagement>
-        <repository>
-            <id>lockbyte</id>
-            <url>http://dev.einserver.net:4000/repository/internal</url>
-        </repository>
-    </distributionManagement>
-    -->
 </project>
