@@ -15,7 +15,7 @@ public class MigrationTool {
             StringBuilder entryBuilder = new StringBuilder("`"+cName+"` "+info.getSQLSizedType(fName));
             entryBuilder.append(" NOT NULL");
             if(info.isAutoIncrement(fName))
-                entryBuilder.append("AUTO INCREMENT");
+                entryBuilder.append(" AUTO_INCREMENT");
             entries.add(entryBuilder.toString());
             if(info.isPrimaryKey(fName)){
                 keyEntries.add("PRIMARY KEY (`"+cName+"`)");

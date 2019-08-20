@@ -10,17 +10,19 @@ import java.util.UUID;
 public class TableInfo {
 
     private Table table;
+    private List<String> fieldNames;
     private Map<String, Field> fields;
     private Map<Field, DatabaseField> infos;
 
-    public TableInfo(Table table, Map<String, Field> fields, Map<Field, DatabaseField> infos){
+    public TableInfo(Table table, List<String> fieldNames, Map<String, Field> fields, Map<Field, DatabaseField> infos){
         this.table = table;
+        this.fieldNames = fieldNames;
         this.fields = fields;
         this.infos = infos;
     }
 
     public List<String> getFieldNames(){
-        return new ArrayList<>(fields.keySet());
+        return fieldNames;
     }
 
     public String getColName(String name){
@@ -62,10 +64,6 @@ public class TableInfo {
             return "1";
         if(type.equals(int.class))
             return "11";
-        if(type.equals(double.class))
-            return "32,16";
-        if(type.equals(float.class))
-            return "16,7";
         if(type.equals(long.class))
             return "20";
         if(type.equals(UnixTime.class))
@@ -86,7 +84,8 @@ public class TableInfo {
             return null;
         String size = getSQLSize(type);
         if(size == null){
-            size = String.valueOf(getAnnotation(name).length());
+            int l = getAnnotation(name).length();
+            size = l != -1 ? String.valueOf(l) : null;
         }
         return size;
     }

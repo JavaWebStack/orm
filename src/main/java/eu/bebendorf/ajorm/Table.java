@@ -14,6 +14,7 @@ public class Table<ObjectType,KeyType> {
     private SQL sql;
     private String prefix;
     private String tableName;
+    private List<String> fieldNames;
     private Map<String, Field> fieldReflection = new HashMap<>();
     private Map<Field, DatabaseField> fieldDescriptors = new HashMap<>();
     private String keyField;
@@ -74,7 +75,7 @@ public class Table<ObjectType,KeyType> {
     }
 
     public TableInfo getInfo(){
-        return new TableInfo(fieldReflection, fieldDescriptors);
+        return new TableInfo(this, fieldNames, fieldReflection, fieldDescriptors);
     }
 
     public void migrate(){
@@ -131,10 +132,12 @@ public class Table<ObjectType,KeyType> {
         this.objectClass = clazz;
         DatabaseTable tableInfo = objectClass.getDeclaredAnnotation(DatabaseTable.class);
         this.tableName = tableInfo.value();
+        fieldNames = new ArrayList<>();
         for(Field field : objectClass.getDeclaredFields()){
             DatabaseField[] annotations = field.getDeclaredAnnotationsByType(DatabaseField.class);
             if(annotations.length>0){
                 field.setAccessible(true);
+                fieldNames.add(field.getName());
                 DatabaseField colInfo = annotations[0];
                 fieldReflection.put(field.getName(),field);
                 fieldDescriptors.put(field,colInfo);
