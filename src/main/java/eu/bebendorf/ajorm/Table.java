@@ -170,19 +170,21 @@ public class Table<ObjectType,KeyType> {
 
         public QueryBuilder c(String custom, Object... params){
             querySelector.append(custom);
-            parameters.addAll(Arrays.asList(params));
+            for(Object param : params){
+                parameters.add(sqlSafe(param));
+            }
             return this;
         }
 
         public QueryBuilder eq(String columnName,Object value){
             querySelector.append(" `"+columnName+"`=?");
-            parameters.add(value);
+            parameters.add(sqlSafe(value));
             return this;
         }
 
         public QueryBuilder like(String columnName,Object search){
             querySelector.append(" `"+columnName+"` LIKE ?");
-            parameters.add(search);
+            parameters.add(sqlSafe(search));
             return this;
         }
 
@@ -214,6 +216,13 @@ public class Table<ObjectType,KeyType> {
         public QueryBuilder order(String column, boolean desc){
             querySelector.append(" ORDER BY `"+column+"`"+(desc?" DESC":""));
             return this;
+        }
+
+        private Object sqlSafe(Object object){
+            if(object.getClass().equals(UUID.class)){
+                return object.toString();
+            }
+            return object;
         }
 
         public void delete(){
