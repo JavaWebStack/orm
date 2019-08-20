@@ -54,6 +54,9 @@ public class TableInfo {
             return "TIMESTAMP";
         if(type.equals(UnixTime.class))
             return "BIGINT";
+        if(type.isEnum()){
+            return "ENUM";
+        }
         return null;
     }
 
@@ -82,6 +85,14 @@ public class TableInfo {
         Class<?> type = getJavaType(name);
         if(type == null)
             return null;
+        if(type.isEnum()){
+            List<String> values = new ArrayList<>();
+            for(Object v : type.getEnumConstants()){
+                Enum<?> vObject = (Enum<?>) v;
+                values.add("'"+vObject.name()+"'");
+            }
+            return String.join(",", values);
+        }
         String size = getSQLSize(type);
         if(size == null){
             int l = getAnnotation(name).length();
