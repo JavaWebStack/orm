@@ -7,9 +7,10 @@ import java.lang.annotation.RetentionPolicy;
 public @interface DatabaseField {
 
     String columnName() default "";
-    boolean unyque() default false;
+    boolean unique() default false;
     boolean primary() default false;
     boolean id() default false;
     boolean ai() default false;
+    int length() default -1;
 
 }

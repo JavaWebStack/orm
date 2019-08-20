@@ -69,15 +69,23 @@ public class Table<ObjectType,KeyType> {
         return queryById(getKeyValue(object));
     }
 
-    private String getTableName(){
+    public String getTableName(){
         return prefix+tableName;
+    }
+
+    public TableInfo getInfo(){
+        return new TableInfo(fieldReflection, fieldDescriptors);
+    }
+
+    public void migrate(){
+        MigrationTool.migrate(this);
     }
 
     public String getKeyColName(){
         return getColName(keyField);
     }
 
-    private String getColName(String fieldName){
+    public String getColName(String fieldName){
         Field field = fieldReflection.get(fieldName);
         DatabaseField descriptor = fieldDescriptors.get(field);
         String colName = descriptor.columnName();
@@ -107,6 +115,10 @@ public class Table<ObjectType,KeyType> {
         if(type.equals(UUID.class))
             return value.toString();
         return String.valueOf(value);
+    }
+
+    public SQL getConnection(){
+        return sql;
     }
 
     public Table(SQL sql, Class<ObjectType> clazz){
