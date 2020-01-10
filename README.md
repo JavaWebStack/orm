@@ -27,7 +27,6 @@ class User {
   }
 }
 ```
-```
 ### Usage
 ```java
 //Create connection, initialize tables
