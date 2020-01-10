@@ -14,9 +14,10 @@ I finally decided to make an own ORM that fits my needs and here it is.
 ```java
 @DatabaseTable("users")
 class User {
-  @DatabaseField(id = true, ai = true)
+  public static Table<User, Integer> repo;
+  @DatabaseField(id = true, primary = true, ai = true)
   int id;
-  @DatabaseField
+  @DatabaseField(length = 30)
   String name;
   public User(){
     
@@ -26,24 +27,16 @@ class User {
   }
 }
 ```
-### Repository
-```java
-class Database {
-  public Table users;
-  public Database(SQL sql){
-    this.users = new Table<User,Integer>(sql,User.class);
-  }
-  public List<User> getAllUsers(){
-    return users.queryForAll();
-  }
-}
 ```
 ### Usage
 ```java
 //Create connection, initialize tables
-Database db = new Database(new MySQL("localhost",3306,"mydb","myuser","changeme1234"));
+SQL sql = new MySQL("localhost",3306,"mydb","myuser","changeme1234");
+User.repo = new Table<>(sql, User.class);
+//Create the table if it doesn't exist (optional)
+User.repo.migrate();
 //Print all usernames
-for(User user : db.getAllUsers())
+for(User user : User.repo.queryForAll())
   System.out.println(user.name);
 ```
 
