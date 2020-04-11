@@ -21,7 +21,7 @@ public abstract class BaseSQL implements SQL {
                 ResultSet rs = ps.getGeneratedKeys();
                 int id = 0;
                 if(rs.next()){
-                    id = rs.getInt(0);
+                    id = rs.getInt(1);
                 }
                 rs.close();
                 ps.close();
