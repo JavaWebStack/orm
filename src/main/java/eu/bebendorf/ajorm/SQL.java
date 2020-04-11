@@ -7,7 +7,7 @@ public interface SQL {
 
     Connection getConnection();
     ResultSet read(String queryString,Object... parameters);
-    void write(String queryString,Object... parameters);
+    int write(String queryString,Object... parameters);
     void close(ResultSet resultSet);
 
 }

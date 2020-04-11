@@ -4,6 +4,7 @@ import eu.bebendorf.ajorm.SQL;
 
 import java.sql.*;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public abstract class BaseSQL implements SQL {
@@ -12,12 +13,26 @@ public abstract class BaseSQL implements SQL {
 
     public abstract Connection getConnection();
 
-    public void write(String queryString,Object... parameters){
+    public int write(String queryString,Object... parameters){
         try {
-            PreparedStatement ps = setParams(getConnection().prepareStatement(queryString),parameters);
-            ps.executeUpdate();
-            ps.close();
+            if(queryString.toLowerCase(Locale.ROOT).startsWith("insert")){
+                PreparedStatement ps = setParams(getConnection().prepareStatement(queryString, Statement.RETURN_GENERATED_KEYS),parameters);
+                ps.executeUpdate();
+                ResultSet rs = ps.getGeneratedKeys();
+                int id = 0;
+                if(rs.next()){
+                    id = rs.getInt(0);
+                }
+                rs.close();
+                ps.close();
+                return id;
+            }else{
+                PreparedStatement ps = setParams(getConnection().prepareStatement(queryString),parameters);
+                ps.executeUpdate();
+                ps.close();
+            }
         } catch (SQLException e) {e.printStackTrace();}
+        return 0;
     }
 
     public ResultSet read(String queryString, Object... parameters){

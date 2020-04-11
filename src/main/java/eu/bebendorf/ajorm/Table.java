@@ -283,7 +283,7 @@ public class Table<ObjectType,KeyType> {
             String insertData = "";
             String insertKeys = "";
             for(String colName : data.keySet()){
-                if(idColName.equals(colName) && fieldDescriptors.get(fieldReflection.get(keyField)).ai())
+                if(idColName.equals(colName) && data.get(idColName).equals("0") && fieldDescriptors.get(fieldReflection.get(keyField)).ai())
                     continue;
                 insertKeys+=",`"+colName+"`";
                 insertData+=",?";
@@ -294,7 +294,14 @@ public class Table<ObjectType,KeyType> {
                 insertData = insertData.substring(1);
             if(insertKeys.length()>0)
                 insertKeys = insertKeys.substring(1);
-            sql.write("INSERT INTO `"+getTableName()+"` ("+insertKeys+") VALUES ("+insertData+");",parameters.toArray());
+            int id = sql.write("INSERT INTO `"+getTableName()+"` ("+insertKeys+") VALUES ("+insertData+");",parameters.toArray());
+            if(data.get(idColName).equals("0")){
+                try {
+                    fieldReflection.get(keyField).set(object, id);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         private Map<String,String> parseObject(ObjectType object){
