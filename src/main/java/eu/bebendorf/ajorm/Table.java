@@ -252,7 +252,7 @@ public class Table<ObjectType,KeyType> {
             ResultSet rs = sql.read("SELECT COUNT(*) FROM `"+getTableName()+"`"+querySelector.toString()+";",parameters.toArray());
             try {
                 if(rs.next())
-                    return rs.getInt(0);
+                    return rs.getInt(1);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
