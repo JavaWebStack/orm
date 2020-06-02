@@ -158,12 +158,14 @@ public class Table<ObjectType,KeyType> {
 
         private StringBuilder querySelector = new StringBuilder();
         private List<Object> parameters = new ArrayList<>();
+        private boolean inWhere = false;
 
         public QueryBuilder(Table table){
             this.table = table;
         }
 
         public QueryBuilder where(){
+            inWhere = true;
             querySelector.append(" WHERE");
             return this;
         }
@@ -177,13 +179,33 @@ public class Table<ObjectType,KeyType> {
         }
 
         public QueryBuilder eq(String columnName,Object value){
+            if(!inWhere)
+                where();
             querySelector.append(" `"+columnName+"`=?");
             parameters.add(sqlSafe(value));
             return this;
         }
 
         public QueryBuilder like(String columnName,Object search){
+            if(!inWhere)
+                where();
             querySelector.append(" `"+columnName+"` LIKE ?");
+            parameters.add(sqlSafe(search));
+            return this;
+        }
+
+        public QueryBuilder lt(String columnName,Object search){
+            if(!inWhere)
+                where();
+            querySelector.append(" `"+columnName+"` < ?");
+            parameters.add(sqlSafe(search));
+            return this;
+        }
+
+        public QueryBuilder gt(String columnName,Object search){
+            if(!inWhere)
+                where();
+            querySelector.append(" `"+columnName+"` > ?");
             parameters.add(sqlSafe(search));
             return this;
         }
@@ -199,11 +221,15 @@ public class Table<ObjectType,KeyType> {
         }
 
         public QueryBuilder isNull(String columnName){
+            if(!inWhere)
+                where();
             querySelector.append(" `"+columnName+"` IS NULL");
             return this;
         }
 
         public QueryBuilder notNull(String columnName){
+            if(!inWhere)
+                where();
             querySelector.append(" `"+columnName+"` IS NOT NULL");
             return this;
         }

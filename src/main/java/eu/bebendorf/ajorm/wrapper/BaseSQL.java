@@ -48,8 +48,12 @@ public abstract class BaseSQL implements SQL {
     private PreparedStatement setParams(PreparedStatement st, Object... parameters) throws SQLException {
         int i = 1;
         for(Object object : parameters){
+            if(object == null)
+                st.setObject(i, null);
             Class type = object.getClass();
-            if(type.equals(String.class))
+            if(type.isEnum())
+                st.setString(i,((Enum) object).name());
+            else if(type.equals(String.class))
                 st.setString(i,(String)object);
             else if(type.equals(int.class)||type.equals(Integer.class))
                 st.setInt(i,(int)object);
