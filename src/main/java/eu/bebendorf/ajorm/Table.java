@@ -181,6 +181,8 @@ public class Table<ObjectType,KeyType> {
         public QueryBuilder eq(String columnName,Object value){
             if(!inWhere)
                 where();
+            if(value == null)
+                return isNull(columnName);
             querySelector.append(" `"+columnName+"`=?");
             parameters.add(sqlSafe(value));
             return this;
