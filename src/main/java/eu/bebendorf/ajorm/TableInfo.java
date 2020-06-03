@@ -131,6 +131,13 @@ public class TableInfo {
         return info.ai();
     }
 
+    public boolean isNotNull(String name){
+        DatabaseField info = getAnnotation(name);
+        if(info == null)
+            return false;
+        return info.notNull();
+    }
+
     public boolean isPrimaryKey(String name){
         DatabaseField info = getAnnotation(name);
         if(info == null)

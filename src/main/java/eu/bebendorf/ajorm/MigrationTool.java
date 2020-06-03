@@ -13,7 +13,8 @@ public class MigrationTool {
         for(String fName : info.getFieldNames()){
             String cName = info.getColName(fName);
             StringBuilder entryBuilder = new StringBuilder("`"+cName+"` "+info.getSQLSizedType(fName));
-            entryBuilder.append(" NOT NULL");
+            if(info.isNotNull(fName))
+                entryBuilder.append(" NOT NULL");
             if(info.isAutoIncrement(fName))
                 entryBuilder.append(" AUTO_INCREMENT");
             entries.add(entryBuilder.toString());

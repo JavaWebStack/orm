@@ -11,6 +11,7 @@ public @interface DatabaseField {
     boolean primary() default false;
     boolean id() default false;
     boolean ai() default false;
+    boolean notNull() default false;
     int length() default -1;
 
 }
