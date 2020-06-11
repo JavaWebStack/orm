@@ -113,6 +113,8 @@ public class Table<ObjectType,KeyType> {
             return String.valueOf(((UnixTime)value).millis());
         if(type.equals(boolean.class))
             return ((boolean)value)?"1":"0";
+        if(type.equals(Boolean.class))
+            return ((Boolean)value)?"1":"0";
         if(type.equals(UUID.class))
             return value.toString();
         return String.valueOf(value);
@@ -377,17 +379,17 @@ public class Table<ObjectType,KeyType> {
                 return null;
             if(type.isEnum())
                 value = Enum.valueOf((Class<Enum>) type, resultSet.getString(colName));
-            if(type.equals(int.class))
+            if(type.equals(int.class) || type.equals(Integer.class))
                 value = resultSet.getInt(colName);
-            if(type.equals(short.class))
+            if(type.equals(short.class) || type.equals(Short.class))
                 value = resultSet.getShort(colName);
-            if(type.equals(double.class))
+            if(type.equals(double.class) || type.equals(Double.class))
                 value = resultSet.getDouble(colName);
-            if(type.equals(long.class))
+            if(type.equals(long.class) || type.equals(Long.class))
                 value = resultSet.getLong(colName);
-            if(type.equals(boolean.class))
+            if(type.equals(boolean.class) || type.equals(Boolean.class))
                 value = resultSet.getBoolean(colName);
-            if(type.equals(float.class))
+            if(type.equals(float.class) || type.equals(Float.class))
                 value = resultSet.getFloat(colName);
             if(type.equals(Timestamp.class))
                 value = resultSet.getTimestamp(colName);
