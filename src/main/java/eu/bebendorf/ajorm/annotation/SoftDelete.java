@@ -1,4 +1,4 @@
-package eu.bebendorf.ajorm.event;
+package eu.bebendorf.ajorm.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface OnUpdate {
-    boolean after() default true;
+@Target(ElementType.TYPE)
+public @interface SoftDelete {
+    String value() default "deletedAt";
 }

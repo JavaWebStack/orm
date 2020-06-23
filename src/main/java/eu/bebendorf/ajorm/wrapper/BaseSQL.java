@@ -1,7 +1,5 @@
 package eu.bebendorf.ajorm.wrapper;
 
-import eu.bebendorf.ajorm.SQL;
-
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Locale;
@@ -49,7 +47,7 @@ public abstract class BaseSQL implements SQL {
         int i = 1;
         for(Object object : parameters){
             if(object == null) {
-                st.setObject(i, null);
+                st.setNull(i, Types.NULL);
                 i++;
                 continue;
             }

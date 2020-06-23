@@ -8,35 +8,41 @@ Another thing was that I wanted to have control over the JDBC Wrapper to have a 
 
 I finally decided to make an own ORM that fits my needs and here it is.
 
-## Example usage 
+## Documentation
+Docs for version 2 will follow as soon as version 2 is fully stable.
 
-### Model
+### Example usage 
+
+#### Model
 ```java
-@DatabaseTable("users")
+@Dates @SoftDelete
 class User {
-  public static Table<User, Integer> repo;
-  @DatabaseField(id = true, primary = true, ai = true)
+  @Column
   int id;
-  @DatabaseField(length = 30)
+  @Column
   String name;
-  public User(){
-    
-  }
-  public User(String name){
-    this.name = name;
-  }
+  @Column
+  Timestamp createdAt;
+  @Column
+  Timestamp updatedAt;
+  @Column
+  Timestamp deletedAt;
 }
 ```
-### Usage
+#### Usage
 ```java
-//Create connection, initialize tables
+//Create connection, initialize repos
 SQL sql = new MySQL("localhost",3306,"mydb","myuser","changeme1234");
-User.repo = new Table<>(sql, User.class);
+AJORMConfig config = new AJORMConfig().setDefaultSize(255); //optional
+Repo<User> repo = AJORM.register(User.class, sql, config);
+
 //Create the table if it doesn't exist (optional)
-User.repo.migrate();
+repo.migrate();
+
 //Print all usernames
-for(User user : User.repo.queryForAll())
-  System.out.println(user.name);
+for(User user : Repo.get(User.class).all()){
+    System.out.println(user.name);
+}
 ```
 
 ## Maven
@@ -44,16 +50,16 @@ for(User user : User.repo.queryForAll())
 ### Repository
 ```xml
 <repository>
-  <id>bebendorf</id>
-  <url>http://repo.bebendorf.eu/</url>
+    <id>jitpack.io</id>
+    <url>https://jitpack.io</url>
 </repository>
 ```
 ### Dependency
 ```xml
 <dependency>
-  <groupId>eu.bebendorf</groupId>
-  <artifactId>ajorm</artifactId>
-  <version>1.0</version>
+    <groupId>com.github.JanHolger</groupId>
+    <artifactId>AJORM</artifactId>
+    <version>COMMIT_HASH</version>
 </dependency>
 ```
 ### Driver
@@ -66,7 +72,3 @@ You also need to add the driver you want to use. AJORM comes with a wrapper for 
     <scope>compile</scope>
 </dependency>
 ```
-
-### JitPack
-You can alternativly use jitpack if my repo is down or just not reliable enough for your needs.  
-https://jitpack.io/#JanHolger/AJORM

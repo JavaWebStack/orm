@@ -1,164 +1,207 @@
 package eu.bebendorf.ajorm;
 
+import eu.bebendorf.ajorm.annotation.Column;
+import eu.bebendorf.ajorm.annotation.Dates;
+import eu.bebendorf.ajorm.annotation.SoftDelete;
+import eu.bebendorf.ajorm.annotation.Table;
+import eu.bebendorf.ajorm.exception.AJORMConfigurationException;
+import eu.bebendorf.ajorm.mapper.DefaultMapper;
+import eu.bebendorf.ajorm.mapper.TypeMapper;
+import eu.bebendorf.ajorm.util.Helper;
+import eu.bebendorf.ajorm.util.KeyType;
+
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.sql.Timestamp;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 public class TableInfo {
 
-    private Table table;
-    private List<String> fieldNames;
-    private Map<String, Field> fields;
-    private Map<Field, DatabaseField> infos;
+    private String idField = "id";
+    private final String tableName;
+    private final List<String> fieldNames = new ArrayList<>();
+    private final Map<String, Field> fields = new HashMap<>();
+    private final Map<String, String> fieldToColumn = new HashMap<>();
+    private final Map<String, Column> fieldConfigs = new HashMap<>();
+    private final Map<String, Class<?>> sqlTypes = new HashMap<>();
+    private final AJORMConfig config;
+    private SoftDelete softDelete;
+    private Dates dates;
+    private final Class<? extends Model> modelClass;
+    private String primaryKey;
+    private final List<String> uniqueKeys = new ArrayList<>();
+    private final Constructor<?> constructor;
 
-    public TableInfo(Table table, List<String> fieldNames, Map<String, Field> fields, Map<Field, DatabaseField> infos){
-        this.table = table;
-        this.fieldNames = fieldNames;
-        this.fields = fields;
-        this.infos = infos;
+    public TableInfo(Class<? extends Model> model, AJORMConfig config) throws AJORMConfigurationException {
+        this.config = config;
+        this.modelClass = model;
+        if(model.isAnnotationPresent(Table.class)){
+            Table table = model.getDeclaredAnnotationsByType(Table.class)[0];
+            tableName = table.value();
+        }else{
+            tableName = Helper.toSnakeCase(model.getSimpleName())+"s";
+        }
+        try {
+            constructor = model.getConstructor();
+            constructor.setAccessible(true);
+        } catch (NoSuchMethodException e) {
+            throw new AJORMConfigurationException("The model class has no empty constructor!");
+        }
+        for(Field field : model.getDeclaredFields()){
+            if(Modifier.isStatic(field.getModifiers()))
+                continue;
+            if(!field.isAnnotationPresent(Column.class))
+                continue;
+            field.setAccessible(true);
+            String fieldName = field.getName();
+            fieldNames.add(fieldName);
+            Column fieldConfig = field.getDeclaredAnnotationsByType(Column.class)[0];
+            if(fieldConfig.column().length() > 0){
+                fieldToColumn.put(fieldName, fieldConfig.column());
+            }else{
+                fieldToColumn.put(fieldName, config.isCamelToSnakeCase()?Helper.toSnakeCase(fieldName):fieldName);
+            }
+            fields.put(fieldName, field);
+            fieldConfigs.put(fieldName, fieldConfig);
+            for(TypeMapper mapper : config.getTypeMappers()){
+                Class<?> type = mapper.getTargetType(field.getType());
+                if(type != null) {
+                    sqlTypes.put(fieldName, type);
+                    break;
+                }
+            }
+            if(!sqlTypes.containsKey(fieldName))
+                throw new AJORMConfigurationException("Couldn't find type-mapper for '"+fieldName+"'!");
+            if(fieldConfig.id()) {
+                idField = fieldName;
+            }
+            if(fieldConfig.key() == KeyType.PRIMARY){
+                if(primaryKey != null && !primaryKey.equals(fieldName))
+                    throw new AJORMConfigurationException("Multiple primary key fields!");
+                primaryKey = fieldName;
+            }
+            if(fieldConfig.key() == KeyType.UNIQUE)
+                uniqueKeys.add(fieldName);
+        }
+        if(!fields.containsKey(idField))
+            throw new AJORMConfigurationException("No id field found!");
+        if(config.isIdPrimaryKey()){
+            if(primaryKey == null)
+                primaryKey = idField;
+        }
+        if(model.isAnnotationPresent(SoftDelete.class)){
+            softDelete = model.getDeclaredAnnotationsByType(SoftDelete.class)[0];
+            if(!fields.containsKey(softDelete.value()))
+                throw new AJORMConfigurationException("Missing soft-delete field '"+softDelete.value()+"'");
+        }
+        if(model.isAnnotationPresent(Dates.class)){
+            dates = model.getDeclaredAnnotationsByType(Dates.class)[0];
+            if(!fields.containsKey(dates.create()))
+                throw new AJORMConfigurationException("Missing dates field '"+dates.create()+"'");
+            if(!fields.containsKey(dates.update()))
+                throw new AJORMConfigurationException("Missing dates field '"+dates.update()+"'");
+        }
     }
 
-    public List<String> getFieldNames(){
+    public boolean isSoftDelete(){
+        return softDelete != null;
+    }
+
+    public boolean hasDates(){
+        return dates != null;
+    }
+
+    public boolean isAutoIncrement(){
+        return fieldConfigs.get(idField).ai();
+    }
+
+    public String getSoftDeleteField(){
+        return softDelete.value();
+    }
+
+    public String getCreatedField(){
+        return dates.create();
+    }
+
+    public String getUpdatedField(){
+        return dates.update();
+    }
+
+    public List<String> getFields(){
         return fieldNames;
     }
 
-    public String getColName(String name){
-        return table.getColName(name);
+    public Field getField(String fieldName){
+        return fields.get(fieldName);
     }
 
-    public Class<?> getJavaType(String name){
-        if(!fields.containsKey(name))
-            return null;
-        return fields.get(name).getType();
+    public String getColumnName(String fieldName){
+        return fieldToColumn.get(fieldName);
     }
 
-    private static String getSQLType(Class<?> type){
-        if(type.equals(String.class))
-            return "TEXT";
-        if(type.equals(UUID.class))
-            return "VARCHAR";
-        if(type.equals(boolean.class))
-            return "INT";
-        if(type.equals(int.class))
-            return "INT";
-        if(type.equals(double.class))
-            return "DOUBLE";
-        if(type.equals(float.class))
-            return "FLOAT";
-        if(type.equals(long.class))
-            return "BIGINT";
-        if(type.equals(Timestamp.class))
-            return "TIMESTAMP";
-        if(type.equals(UnixTime.class))
-            return "BIGINT";
-        if(type.isEnum()){
-            return "ENUM";
-        }
-        return null;
+    public Class<?> getTargetType(String fieldName){
+        return sqlTypes.get(fieldName);
     }
 
-    private static String getSQLSize(Class<?> type){
-        if(type.equals(UUID.class))
-            return "36";
-        if(type.equals(boolean.class))
-            return "1";
-        if(type.equals(int.class))
-            return "11";
-        if(type.equals(long.class))
-            return "20";
-        if(type.equals(UnixTime.class))
-            return "20";
-        return null;
+    public String getRawTableName(){
+        return tableName;
     }
 
-    public String getSQLType(String name){
-        Class<?> type = getJavaType(name);
-        if(type == null)
-            return null;
-        return getSQLType(type);
+    public String getTablePrefix(){
+        return config.getTablePrefix();
     }
 
-    public String getSQLSize(String name){
-        Class<?> type = getJavaType(name);
-        if(type == null)
-            return null;
-        if(type.isEnum()){
-            List<String> values = new ArrayList<>();
-            for(Object v : type.getEnumConstants()){
-                Enum<?> vObject = (Enum<?>) v;
-                values.add("'"+vObject.name()+"'");
-            }
-            return String.join(",", values);
-        }
-        String size = getSQLSize(type);
-        if(size == null){
-            int l = getAnnotation(name).length();
-            size = l != -1 ? String.valueOf(l) : null;
-        }
+    public String getTableName(){
+        return config.getTablePrefix()+tableName;
+    }
+
+    public int getSQLSize(String fieldName){
+        int size = fieldConfigs.get(fieldName).size();
+        if(size == -1)
+            size = config.getDefaultSize();
         return size;
     }
 
-    public String getSQLSizedType(String name){
-        String type = getSQLType(name);
-        if(type == null)
-            return null;
-        String size = getSQLSize(name);
-        if(size != null){
-            if(type.equals("TEXT")){
-                type = "VARCHAR";
-            }
-            return type+"("+size+")";
+    public String getSQLType(String fieldName){
+        for(TypeMapper mapper : config.getTypeMappers()){
+            String type = mapper.getSQLType(getField(fieldName).getType(), getSQLSize(fieldName));
+            if(type != null)
+                return type;
         }
-        return type;
+        return new DefaultMapper().getSQLType(String.class, 0);
     }
 
-    private DatabaseField getAnnotation(String name){
-        if(!fields.containsKey(name))
-            return null;
-        Field f = fields.get(name);
-        if(!infos.containsKey(f))
-            return null;
-        return infos.get(f);
+    public Class<? extends Model> getModelClass(){
+        return modelClass;
     }
 
-    public boolean isAutoIncrement(String name){
-        DatabaseField info = getAnnotation(name);
-        if(info == null)
+    public AJORMConfig getConfig(){
+        return config;
+    }
+
+    public String getPrimaryKey(){
+        return primaryKey;
+    }
+
+    public List<String> getUniqueKeys(){
+        return uniqueKeys;
+    }
+
+    public String getIdField(){
+        return idField;
+    }
+
+    public boolean isNotNull(String fieldName){
+        if(idField.equals(fieldName))
             return false;
-        return info.ai();
+        return false;
     }
 
-    public boolean isNotNull(String name){
-        DatabaseField info = getAnnotation(name);
-        if(info == null)
-            return false;
-        return info.notNull();
+    public Constructor<?> getModelConstructor(){
+        return constructor;
     }
-
-    public boolean isPrimaryKey(String name){
-        DatabaseField info = getAnnotation(name);
-        if(info == null)
-            return false;
-        return info.primary();
-    }
-
-    public boolean isUniqueKey(String name){
-        DatabaseField info = getAnnotation(name);
-        if(info == null)
-            return false;
-        return info.unique();
-    }
-
-    public boolean isId(String name){
-        DatabaseField info = getAnnotation(name);
-        if(info == null)
-            return false;
-        return info.id();
-    }
-
-
 
 }
