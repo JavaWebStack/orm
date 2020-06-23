@@ -16,7 +16,7 @@ Docs for version 2 will follow as soon as version 2 is fully stable.
 #### Model
 ```java
 @Dates @SoftDelete
-class User {
+class User extends Model {
   @Column
   int id;
   @Column
