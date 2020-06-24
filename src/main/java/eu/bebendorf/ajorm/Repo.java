@@ -6,6 +6,7 @@ import eu.bebendorf.ajorm.wrapper.SQL;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class Repo<T extends Model> {
 
@@ -86,6 +87,10 @@ public class Repo<T extends Model> {
 
     public List<T> all(){
         return query().all();
+    }
+
+    public Stream<T> stream(){
+        return query().stream();
     }
 
     private int getId(T entry){

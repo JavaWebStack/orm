@@ -10,6 +10,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class QueryBuilder<T extends Model> {
 
@@ -233,7 +234,10 @@ public class QueryBuilder<T extends Model> {
             isNull(info.getSoftDeleteField());
         if(conditions.size() > 0){
             sb.append(" WHERE");
-            for(Condition condition : conditions){
+            for(int i=0; i < conditions.size(); i++){
+                if(i>0)
+                    sb.append(" AND");
+                Condition condition = conditions.get(i);
                 sb.append(" `");
                 sb.append(info.getColumnName(condition.fieldName));
                 sb.append("` ");
@@ -251,6 +255,10 @@ public class QueryBuilder<T extends Model> {
         for(String fieldName : info.getFields())
             setValue(fieldName, t, getValue(rs, info.getTargetType(fieldName), info.getColumnName(fieldName)));
         return t;
+    }
+
+    public Stream<T> stream(){
+        return all().stream();
     }
 
     private List<T> parseResults(ResultSet rs){
