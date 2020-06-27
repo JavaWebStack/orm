@@ -33,9 +33,11 @@ public class MySQL extends BaseSQL {
     public Connection getConnection(){
         long now = System.currentTimeMillis();
         if(now > lastQuery+timeout){
-            try {
-                c.close();
-            } catch (SQLException throwables) {}
+            if(c != null){
+                try {
+                    c.close();
+                } catch (SQLException throwables) {}
+            }
             c = null;
         }
         lastQuery = now;
