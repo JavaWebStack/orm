@@ -2,7 +2,6 @@ package eu.bebendorf.ajorm;
 
 import eu.bebendorf.ajorm.mapper.TypeMapper;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.sql.SQLException;

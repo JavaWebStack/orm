@@ -9,13 +9,13 @@ import java.util.concurrent.Executors;
 public class MySQL extends BaseSQL {
 
     private Connection c = null;
-    private String host;
-    private int port;
-    private String database;
-    private String username;
-    private String password;
-    private Executor timeoutExecutor;
-    private int timeout;
+    private final String host;
+    private final int port;
+    private final String database;
+    private final String username;
+    private final String password;
+    private final long timeout;
+    private long lastQuery = 0;
 
     public MySQL(String host, int port, String database, String username, String password) {
         this(host, port, database, username, password, 60);
@@ -27,17 +27,23 @@ public class MySQL extends BaseSQL {
         this.database = database;
         this.username = username;
         this.password = password;
-        this.timeout = timeout;
-        timeoutExecutor = Executors.newSingleThreadExecutor();
+        this.timeout = timeout * 1000L;
     }
 
     public Connection getConnection(){
+        long now = System.currentTimeMillis();
+        if(now > lastQuery+timeout){
+            try {
+                c.close();
+            } catch (SQLException throwables) {}
+            c = null;
+        }
+        lastQuery = now;
         try {
             if(c==null||c.isClosed()){
                 try {
                     Class.forName("com.mysql.jdbc.Driver");
                     c = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database + "?user=" + this.username + "&password=" + this.password + "&autoReconnect=" + true + "&failOverReadOnly=false&maxReconnects=" + 5 + "&UseUnicode=yes&characterEncoding=UTF-8");
-                    c.setNetworkTimeout(timeoutExecutor, timeout);
                 } catch (SQLException e) {
                     System.out.println("Fehler: bei getConnection()[MySQL.java]  SQLException   " + e.getMessage());
                 } catch (ClassNotFoundException e) {
