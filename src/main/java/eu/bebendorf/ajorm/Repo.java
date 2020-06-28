@@ -93,6 +93,10 @@ public class Repo<T extends Model> {
         return query().stream();
     }
 
+    public int count(){
+        return query().count();
+    }
+
     private int getId(T entry){
         if(entry == null)
             return 0;

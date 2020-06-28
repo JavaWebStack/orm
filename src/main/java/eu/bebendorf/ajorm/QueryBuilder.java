@@ -118,6 +118,27 @@ public class QueryBuilder<T extends Model> {
         return results;
     }
 
+    public int count(){
+        List<Object> params = new ArrayList<>();
+        StringBuilder sb = new StringBuilder("SELECT COUNT(*) FROM `");
+        sb.append(info.getTableName());
+        sb.append("`");
+        QueryPart where = makeWhere();
+        sb.append(where.query);
+        params.addAll(where.params);
+        sb.append(";");
+        ResultSet rs = repository.getConnection().read(sb.toString(), params.toArray());
+        int count = -1;
+        try {
+            rs.next();
+            count = rs.getInt(1);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        repository.getConnection().close(rs);
+        return count;
+    }
+
     public T refresh(T entry){
         withDeleted = true;
         List<Object> params = new ArrayList<>();
