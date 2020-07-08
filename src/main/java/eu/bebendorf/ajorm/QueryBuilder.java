@@ -203,7 +203,11 @@ public class QueryBuilder<T extends Model> {
         StringBuilder sb = new StringBuilder("UPDATE `");
         sb.append(info.getTableName());
         sb.append("` SET ");
+        boolean first = true;
         for(String fieldName : info.getFields()){
+            if(!first)
+                sb.append(",");
+            first = false;
             if(fieldName.equals(info.getIdField()))
                 continue;
             sb.append("`");
