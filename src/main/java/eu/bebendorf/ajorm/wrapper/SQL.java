@@ -9,5 +9,6 @@ public interface SQL {
     ResultSet read(String queryString, Object... parameters);
     int write(String queryString, Object... parameters);
     void close(ResultSet resultSet);
+    void setDebugMode(boolean debugMode);
 
 }

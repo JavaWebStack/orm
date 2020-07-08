@@ -8,10 +8,18 @@ import java.util.Map;
 public abstract class BaseSQL implements SQL {
 
     private Map<ResultSet,Statement> statementMap = new HashMap<>();
+    private boolean debugMode = false;
+
+    public void setDebugMode(boolean debugMode) {
+        this.debugMode = debugMode;
+    }
 
     public abstract Connection getConnection();
 
+
     public int write(String queryString,Object... parameters){
+        if(debugMode)
+            System.out.println(queryString);
         try {
             if(queryString.toLowerCase(Locale.ROOT).startsWith("insert")){
                 PreparedStatement ps = setParams(getConnection().prepareStatement(queryString, Statement.RETURN_GENERATED_KEYS),parameters);
@@ -34,6 +42,8 @@ public abstract class BaseSQL implements SQL {
     }
 
     public ResultSet read(String queryString, Object... parameters){
+        if(debugMode)
+            System.out.println(queryString);
         try {
             PreparedStatement ps = setParams(getConnection().prepareStatement(queryString),parameters);
             ResultSet rs = ps.executeQuery();

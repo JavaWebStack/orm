@@ -12,6 +12,7 @@ public class AJORMConfig {
     private int defaultSize = 0;
     private boolean idPrimaryKey = true;
     private List<TypeMapper> typeMappers = new ArrayList<>();
+    private boolean debugMode = false;
     public AJORMConfig(){
         typeMappers.add(new DefaultMapper());
     }
@@ -49,5 +50,13 @@ public class AJORMConfig {
     }
     public boolean isIdPrimaryKey() {
         return idPrimaryKey;
+    }
+
+    public void setDebugMode(boolean debugMode) {
+        this.debugMode = debugMode;
+    }
+
+    public boolean isDebugMode() {
+        return debugMode;
     }
 }
