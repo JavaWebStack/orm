@@ -25,6 +25,8 @@ public class DefaultMapper implements TypeMapper {
             return Long.valueOf((long)source);
         if(type.equals(double.class))
             return Double.valueOf((double)source);
+        if(type.equals(float.class))
+            return Float.valueOf((float)source);
         if(type.equals(UUID.class))
             return source.toString();
         return source;
@@ -45,6 +47,8 @@ public class DefaultMapper implements TypeMapper {
             return ((Integer) source).intValue();
         if(type.equals(double.class))
             return ((Double) source).doubleValue();
+        if(type.equals(float.class))
+            return ((Float) source).floatValue();
         return source;
     }
 
@@ -57,6 +61,8 @@ public class DefaultMapper implements TypeMapper {
             return Integer.class;
         if(type.equals(double.class))
             return Double.class;
+        if(type.equals(float.class))
+            return Float.class;
         if(type.equals(long.class))
             return Long.class;
         if(type.equals(Date.class))
@@ -73,6 +79,8 @@ public class DefaultMapper implements TypeMapper {
             return "BIGINT";
         if(type.equals(Double.class) || type.equals(double.class))
             return "DOUBLE";
+        if(type.equals(Float.class) || type.equals(float.class))
+            return "FLOAT";
         if(type.equals(Timestamp.class))
             return "TIMESTAMP";
         if(type.equals(Date.class))
