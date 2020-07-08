@@ -205,11 +205,11 @@ public class QueryBuilder<T extends Model> {
         sb.append("` SET ");
         boolean first = true;
         for(String fieldName : info.getFields()){
+            if(fieldName.equals(info.getIdField()))
+                continue;
             if(!first)
                 sb.append(",");
             first = false;
-            if(fieldName.equals(info.getIdField()))
-                continue;
             sb.append("`");
             sb.append(info.getColumnName(fieldName));
             sb.append("`=?");
