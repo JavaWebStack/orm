@@ -35,6 +35,8 @@ public class DefaultMapper implements TypeMapper {
     public Object mapToJava(Object source, Class<?> type) {
         if(source == null)
             return null;
+        if(type.isEnum())
+            return Enum.valueOf((Class<Enum>) type, (String) source);
         if(type.equals(UUID.class))
             return UUID.fromString((String) source);
         if(type.equals(Date.class))
@@ -54,6 +56,8 @@ public class DefaultMapper implements TypeMapper {
 
     public Class<?> getTargetType(Class<?> type){
         if(type.equals(UUID.class))
+            return String.class;
+        if(type.isEnum())
             return String.class;
         if(type.equals(Boolean.class) || type.equals(boolean.class))
             return Integer.class;
