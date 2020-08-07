@@ -55,23 +55,25 @@ public class DefaultMapper implements TypeMapper {
     }
 
     public Class<?> getTargetType(Class<?> type){
+        if(type.equals(String.class))
+            return String.class;
         if(type.equals(UUID.class))
             return String.class;
         if(type.isEnum())
             return String.class;
         if(type.equals(Boolean.class) || type.equals(boolean.class))
             return Integer.class;
-        if(type.equals(int.class))
+        if(type.equals(int.class) || type.equals(Integer.class))
             return Integer.class;
-        if(type.equals(double.class))
+        if(type.equals(double.class) || type.equals(Double.class))
             return Double.class;
-        if(type.equals(float.class))
+        if(type.equals(float.class) || type.equals(Float.class))
             return Float.class;
-        if(type.equals(long.class))
+        if(type.equals(long.class) || type.equals(Long.class))
             return Long.class;
-        if(type.equals(Date.class))
+        if(type.equals(Date.class) || type.equals(Timestamp.class))
             return Timestamp.class;
-        return type;
+        return null;
     }
 
     public String getSQLType(Class<?> type, int size){
