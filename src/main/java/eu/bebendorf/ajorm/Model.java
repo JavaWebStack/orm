@@ -6,6 +6,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Model {
 
@@ -118,6 +119,29 @@ public class Model {
             Repo<?> ownRepo = Repo.get(getClass());
             Integer id = (Integer) ownRepo.getInfo().getField(ownRepo.getInfo().getIdField()).get(this);
             return Repo.get(child).where(fieldName, id);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public <T extends Model> List<T> belongsToMany(Class<T> other, Class<? extends Model> pivot){
+        return belongsToMany(other, pivot, Helper.pascalToCamelCase(getClass().getSimpleName())+"Id", Helper.pascalToCamelCase(other.getSimpleName())+"Id");
+    }
+
+    public <T extends Model> List<T> belongsToMany(Class<T> other, Class<? extends Model> pivot, String selfFieldName, String otherFieldName){
+        try {
+            Repo<?> selfRepo = Repo.get(getClass());
+            Repo<T> otherRepo = Repo.get(other);
+            Field otherField = Repo.get(pivot).getInfo().getField(otherFieldName);
+            Integer id = (Integer) selfRepo.getInfo().getField(selfRepo.getInfo().getIdField()).get(this);
+            return Repo.get(pivot).where(selfFieldName, id).stream().map(p -> {
+                try {
+                    Integer otherId = (Integer) otherField.get(p);
+                    return otherRepo.get(otherId);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            }).collect(Collectors.toList());
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
