@@ -1,7 +1,11 @@
 package eu.bebendorf.ajorm;
 
+import eu.bebendorf.ajorm.util.Helper;
+
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 
 public class Model {
 
@@ -59,6 +63,62 @@ public class Model {
         try {
             refreshMethod.invoke(AJORM.repo(getClass()), this);
         } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public <T extends Model> T belongsTo(Class<T> parent){
+        return belongsTo(parent, Helper.pascalToCamelCase(parent.getSimpleName())+"Id");
+    }
+
+    public <T extends Model> T belongsTo(Class<T> parent, String fieldName){
+        try {
+            Integer id = (Integer) Repo.get(getClass()).getInfo().getField(fieldName).get(this);
+            if(id == null)
+                return null;
+            return Repo.get(parent).get(id);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public <T extends Model> void assignTo(Class<T> parent, T value){
+        assignTo(parent, value, Helper.pascalToCamelCase(parent.getSimpleName())+"Id");
+    }
+
+    public <T extends Model> void assignTo(Class<T> parent, T value, String fieldName){
+        try {
+            Field f = Repo.get(getClass()).getInfo().getField(fieldName);
+            if(value == null){
+                f.set(this, null);
+            }else{
+                Repo<T> repo = Repo.get(parent);
+                Integer id = (Integer) repo.getInfo().getField(repo.getInfo().getIdField()).get(value);
+                f.set(this, id);
+            }
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public <T extends Model> List<T> hasMany(Class<T> child){
+        return hasManyRelation(child).all();
+    }
+
+    public <T extends Model> List<T> hasMany(Class<T> child, String fieldName){
+        return hasManyRelation(child, fieldName).all();
+    }
+
+    public <T extends Model> QueryBuilder<T> hasManyRelation(Class<T> child){
+        return hasManyRelation(child, Helper.pascalToCamelCase(getClass().getSimpleName())+"Id");
+    }
+
+    public <T extends Model> QueryBuilder<T> hasManyRelation(Class<T> child, String fieldName){
+        try {
+            Repo<?> ownRepo = Repo.get(getClass());
+            Integer id = (Integer) ownRepo.getInfo().getField(ownRepo.getInfo().getIdField()).get(this);
+            return Repo.get(child).where(fieldName, id);
+        } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }

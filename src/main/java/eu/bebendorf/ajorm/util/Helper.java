@@ -16,4 +16,8 @@ public class Helper {
         return sb.toString();
     }
 
+    public static String pascalToCamelCase(String source){
+        return Character.toLowerCase(source.charAt(0))+source.substring(1);
+    }
+
 }
