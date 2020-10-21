@@ -5,6 +5,7 @@ import eu.bebendorf.ajorm.util.MigrationTool;
 import eu.bebendorf.ajorm.wrapper.SQL;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -16,6 +17,7 @@ public class Repo<T extends Model> {
 
     private final TableInfo info;
     private SQL connection;
+    private List<Observer<T>> observers = new ArrayList<>();
 
     public Repo(Class<T> clazz, SQL connection, AJORMConfig config) throws AJORMConfigurationException {
         this.info = new TableInfo(clazz, config);
@@ -43,15 +45,25 @@ public class Repo<T extends Model> {
     }
 
     public void create(T entry){
+        observers.forEach(o -> o.saving(entry));
+        observers.forEach(o -> o.creating(entry));
         query().create(entry);
+        observers.forEach(o -> o.created(entry));
+        observers.forEach(o -> o.saved(entry));
     }
 
     public void update(T entry){
+        observers.forEach(o -> o.saving(entry));
+        observers.forEach(o -> o.updating(entry));
         where(info.getIdField(), getId(entry)).update(entry);
+        observers.forEach(o -> o.updated(entry));
+        observers.forEach(o -> o.saved(entry));
     }
 
     public void delete(T entry){
+        observers.forEach(o -> o.deleting(entry));
         Timestamp timestamp = where(info.getIdField(), getId(entry)).delete();
+        observers.forEach(o -> o.deleted(entry));
         if(timestamp != null){
             try {
                 info.getField(info.getSoftDeleteField()).set(entry, timestamp);
@@ -64,7 +76,9 @@ public class Repo<T extends Model> {
     public void restore(T entry){
         if(!info.isSoftDelete())
             return;
+        observers.forEach(o -> o.restoring(entry));
         where(info.getIdField(), getId(entry)).restore();
+        observers.forEach(o -> o.restored(entry));
         try {
             info.getField(info.getSoftDeleteField()).set(entry, null);
         } catch (IllegalAccessException e) {
@@ -114,8 +128,14 @@ public class Repo<T extends Model> {
         return null;
     }
 
-    public void migrate(){
+    public Repo<T> observe(Observer<T> observer){
+        observers.add(observer);
+        return this;
+    }
+
+    public Repo<T> migrate(){
         MigrationTool.migrate(connection, info);
+        return this;
     }
 
     public SQL getConnection(){
