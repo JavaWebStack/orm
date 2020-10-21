@@ -35,8 +35,7 @@ public class Repo<T extends Model> {
     }
 
     public void save(T entry){
-        int id = getId(entry);
-        if(id > 0){
+        if(entry.doesEntryExist()){
             update(entry);
         }else{
             create(entry);
@@ -81,7 +80,7 @@ public class Repo<T extends Model> {
         return where(info.getIdField(), getId(entry)).refresh(entry);
     }
 
-    public T get(int id){
+    public T get(Object id){
         return where(info.getIdField(), id).get();
     }
 
@@ -97,15 +96,22 @@ public class Repo<T extends Model> {
         return query().count();
     }
 
-    private int getId(T entry){
+    private Object getId(T entry){
         if(entry == null)
-            return 0;
+            return null;
         try {
-            return (Integer) info.getField(info.getIdField()).get(entry);
+            Object id = info.getField(info.getIdField()).get(entry);
+            if(id == null)
+                return null;
+            if(id.getClass().equals(Integer.class)){
+                int intId = (Integer) id;
+                if(intId == 0)
+                    return null;
+            }
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
-        return 0;
+        return null;
     }
 
     public void migrate(){

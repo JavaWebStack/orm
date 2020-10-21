@@ -28,6 +28,16 @@ public class Model {
         }
     }
 
+    private boolean entryExists = false;
+
+    boolean doesEntryExist(){
+        return entryExists;
+    }
+
+    void setEntryExists(boolean exists){
+        this.entryExists = exists;
+    }
+
     public void save(){
         try {
             saveMethod.invoke(AJORM.repo(getClass()), this);

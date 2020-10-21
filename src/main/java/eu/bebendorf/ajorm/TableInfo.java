@@ -87,6 +87,8 @@ public class TableInfo {
                 uniqueKeys.add(fieldName);
         }
         if(!fields.containsKey(idField))
+            idField = "uuid";
+        if(!fields.containsKey(idField))
             throw new AJORMConfigurationException("No id field found!");
         if(config.isIdPrimaryKey()){
             if(primaryKey == null)
@@ -192,6 +194,10 @@ public class TableInfo {
 
     public String getIdField(){
         return idField;
+    }
+
+    public Class<?> getIdType(){
+        return getField(getIdField()).getType();
     }
 
     public boolean isNotNull(String fieldName){

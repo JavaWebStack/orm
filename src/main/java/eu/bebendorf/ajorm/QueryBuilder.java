@@ -249,6 +249,7 @@ public class QueryBuilder<T extends Model> {
         int id = repository.getConnection().write(sb.toString(), params.toArray());
         if(info.isAutoIncrement())
             setValue(info.getIdField(), entry, id);
+        entry.setEntryExists(true);
     }
 
     private QueryPart makeWhere(){
@@ -276,6 +277,7 @@ public class QueryBuilder<T extends Model> {
     }
 
     private T parseResult(ResultSet rs, T t){
+        t.setEntryExists(true);
         for(String fieldName : info.getFields())
             setValue(fieldName, t, getValue(rs, info.getTargetType(fieldName), info.getColumnName(fieldName)));
         return t;
