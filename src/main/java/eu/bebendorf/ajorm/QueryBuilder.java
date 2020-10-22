@@ -236,7 +236,7 @@ public class QueryBuilder<T extends Model> {
         List<String> values = new ArrayList<>();
         for(String fieldName : info.getFields()){
             Object value = getValue(fieldName, entry);
-            if(fieldName.equals(info.getIdField()) && info.isAutoIncrement() && ((Integer)value) < 1)
+            if(fieldName.equals(info.getIdField()) && info.isAutoIncrement() && value == null)
                 continue;
             cols.add("`"+info.getColumnName(fieldName)+"`");
             values.add("?");
