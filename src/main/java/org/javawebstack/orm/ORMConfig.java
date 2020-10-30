@@ -1,38 +1,38 @@
-package eu.bebendorf.ajorm;
+package org.javawebstack.orm;
 
-import eu.bebendorf.ajorm.mapper.DefaultMapper;
-import eu.bebendorf.ajorm.mapper.TypeMapper;
+import org.javawebstack.orm.mapper.DefaultMapper;
+import org.javawebstack.orm.mapper.TypeMapper;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AJORMConfig {
+public class ORMConfig {
     private String tablePrefix = "";
     private boolean camelToSnakeCase = true;
     private int defaultSize = 0;
     private boolean idPrimaryKey = true;
     private List<TypeMapper> typeMappers = new ArrayList<>();
     private boolean debugMode = false;
-    public AJORMConfig(){
+    public ORMConfig(){
         typeMappers.add(new DefaultMapper());
     }
-    public AJORMConfig setTablePrefix(String tablePrefix){
+    public ORMConfig setTablePrefix(String tablePrefix){
         this.tablePrefix = tablePrefix;
         return this;
     }
-    public AJORMConfig setCamelToSnakeCase(boolean camelToSnakeCase){
+    public ORMConfig setCamelToSnakeCase(boolean camelToSnakeCase){
         this.camelToSnakeCase = camelToSnakeCase;
         return this;
     }
-    public AJORMConfig setDefaultSize(int defaultSize){
+    public ORMConfig setDefaultSize(int defaultSize){
         this.defaultSize = defaultSize;
         return this;
     }
-    public AJORMConfig addTypeMapper(TypeMapper typeMapper){
+    public ORMConfig addTypeMapper(TypeMapper typeMapper){
         typeMappers.add(typeMapper);
         return this;
     }
-    public AJORMConfig setIdPrimaryKey(boolean idPrimaryKey){
+    public ORMConfig setIdPrimaryKey(boolean idPrimaryKey){
         this.idPrimaryKey = idPrimaryKey;
         return this;
     }

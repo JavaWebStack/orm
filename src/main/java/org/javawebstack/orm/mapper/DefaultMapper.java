@@ -1,4 +1,4 @@
-package eu.bebendorf.ajorm.mapper;
+package org.javawebstack.orm.mapper;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;

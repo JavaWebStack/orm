@@ -1,4 +1,4 @@
-package eu.bebendorf.ajorm;
+package org.javawebstack.orm;
 
 public interface Observer<T extends Model> {
 

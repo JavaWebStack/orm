@@ -1,10 +1,8 @@
-package eu.bebendorf.ajorm.wrapper;
+package org.javawebstack.orm.wrapper;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 public class MySQL extends BaseSQL {
 

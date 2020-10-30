@@ -1,6 +1,6 @@
-package eu.bebendorf.ajorm.annotation;
+package org.javawebstack.orm.annotation;
 
-import eu.bebendorf.ajorm.util.KeyType;
+import org.javawebstack.orm.util.KeyType;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

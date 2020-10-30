@@ -1,6 +1,6 @@
-package eu.bebendorf.ajorm;
+package org.javawebstack.orm;
 
-import eu.bebendorf.ajorm.mapper.TypeMapper;
+import org.javawebstack.orm.mapper.TypeMapper;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;

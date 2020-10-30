@@ -1,6 +1,6 @@
-package eu.bebendorf.ajorm;
+package org.javawebstack.orm;
 
-import eu.bebendorf.ajorm.util.Helper;
+import org.javawebstack.orm.util.Helper;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -40,7 +40,7 @@ public class Model {
 
     public void save(){
         try {
-            saveMethod.invoke(AJORM.repo(getClass()), this);
+            saveMethod.invoke(ORM.repo(getClass()), this);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
@@ -48,7 +48,7 @@ public class Model {
 
     public void delete(){
         try {
-            deleteMethod.invoke(AJORM.repo(getClass()), this);
+            deleteMethod.invoke(ORM.repo(getClass()), this);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
@@ -56,7 +56,7 @@ public class Model {
 
     public void finalDelete(){
         try {
-            finalDeleteMethod.invoke(AJORM.repo(getClass()), this);
+            finalDeleteMethod.invoke(ORM.repo(getClass()), this);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
@@ -64,7 +64,7 @@ public class Model {
 
     public void restore(){
         try {
-            restoreMethod.invoke(AJORM.repo(getClass()), this);
+            restoreMethod.invoke(ORM.repo(getClass()), this);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
@@ -72,7 +72,7 @@ public class Model {
 
     public void refresh(){
         try {
-            refreshMethod.invoke(AJORM.repo(getClass()), this);
+            refreshMethod.invoke(ORM.repo(getClass()), this);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }

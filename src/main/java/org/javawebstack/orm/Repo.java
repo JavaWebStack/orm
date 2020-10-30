@@ -1,8 +1,8 @@
-package eu.bebendorf.ajorm;
+package org.javawebstack.orm;
 
-import eu.bebendorf.ajorm.exception.AJORMConfigurationException;
-import eu.bebendorf.ajorm.util.MigrationTool;
-import eu.bebendorf.ajorm.wrapper.SQL;
+import org.javawebstack.orm.exception.ORMConfigurationException;
+import org.javawebstack.orm.util.MigrationTool;
+import org.javawebstack.orm.wrapper.SQL;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -12,14 +12,14 @@ import java.util.stream.Stream;
 public class Repo<T extends Model> {
 
     public static <T extends Model> Repo<T> get(Class<T> model){
-        return AJORM.repo(model);
+        return ORM.repo(model);
     }
 
     private final TableInfo info;
     private SQL connection;
     private List<Observer<T>> observers = new ArrayList<>();
 
-    public Repo(Class<T> clazz, SQL connection, AJORMConfig config) throws AJORMConfigurationException {
+    public Repo(Class<T> clazz, SQL connection, ORMConfig config) throws ORMConfigurationException {
         this.info = new TableInfo(clazz, config);
         this.connection = connection;
     }

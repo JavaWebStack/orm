@@ -1,14 +1,14 @@
-package eu.bebendorf.ajorm;
+package org.javawebstack.orm;
 
-import eu.bebendorf.ajorm.annotation.Column;
-import eu.bebendorf.ajorm.annotation.Dates;
-import eu.bebendorf.ajorm.annotation.SoftDelete;
-import eu.bebendorf.ajorm.annotation.Table;
-import eu.bebendorf.ajorm.exception.AJORMConfigurationException;
-import eu.bebendorf.ajorm.mapper.DefaultMapper;
-import eu.bebendorf.ajorm.mapper.TypeMapper;
-import eu.bebendorf.ajorm.util.Helper;
-import eu.bebendorf.ajorm.util.KeyType;
+import org.javawebstack.orm.annotation.Column;
+import org.javawebstack.orm.annotation.Dates;
+import org.javawebstack.orm.annotation.SoftDelete;
+import org.javawebstack.orm.annotation.Table;
+import org.javawebstack.orm.exception.ORMConfigurationException;
+import org.javawebstack.orm.mapper.DefaultMapper;
+import org.javawebstack.orm.mapper.TypeMapper;
+import org.javawebstack.orm.util.Helper;
+import org.javawebstack.orm.util.KeyType;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -27,7 +27,7 @@ public class TableInfo {
     private final Map<String, String> fieldToColumn = new HashMap<>();
     private final Map<String, Column> fieldConfigs = new HashMap<>();
     private final Map<String, Class<?>> sqlTypes = new HashMap<>();
-    private final AJORMConfig config;
+    private final ORMConfig config;
     private SoftDelete softDelete;
     private Dates dates;
     private final Class<? extends Model> modelClass;
@@ -35,7 +35,7 @@ public class TableInfo {
     private final List<String> uniqueKeys = new ArrayList<>();
     private final Constructor<?> constructor;
 
-    public TableInfo(Class<? extends Model> model, AJORMConfig config) throws AJORMConfigurationException {
+    public TableInfo(Class<? extends Model> model, ORMConfig config) throws ORMConfigurationException {
         this.config = config;
         this.modelClass = model;
         if(model.isAnnotationPresent(Table.class)){
@@ -48,7 +48,7 @@ public class TableInfo {
             constructor = model.getConstructor();
             constructor.setAccessible(true);
         } catch (NoSuchMethodException e) {
-            throw new AJORMConfigurationException("The model class has no empty constructor!");
+            throw new ORMConfigurationException("The model class has no empty constructor!");
         }
         for(Field field : model.getDeclaredFields()){
             if(Modifier.isStatic(field.getModifiers()))
@@ -74,13 +74,13 @@ public class TableInfo {
                 }
             }
             if(!sqlTypes.containsKey(fieldName))
-                throw new AJORMConfigurationException("Couldn't find type-mapper for '"+fieldName+"'!");
+                throw new ORMConfigurationException("Couldn't find type-mapper for '"+fieldName+"'!");
             if(fieldConfig.id()) {
                 idField = fieldName;
             }
             if(fieldConfig.key() == KeyType.PRIMARY){
                 if(primaryKey != null && !primaryKey.equals(fieldName))
-                    throw new AJORMConfigurationException("Multiple primary key fields!");
+                    throw new ORMConfigurationException("Multiple primary key fields!");
                 primaryKey = fieldName;
             }
             if(fieldConfig.key() == KeyType.UNIQUE)
@@ -89,7 +89,7 @@ public class TableInfo {
         if(!fields.containsKey(idField))
             idField = "uuid";
         if(!fields.containsKey(idField))
-            throw new AJORMConfigurationException("No id field found!");
+            throw new ORMConfigurationException("No id field found!");
         if(config.isIdPrimaryKey()){
             if(primaryKey == null)
                 primaryKey = idField;
@@ -97,14 +97,14 @@ public class TableInfo {
         if(model.isAnnotationPresent(SoftDelete.class)){
             softDelete = model.getDeclaredAnnotationsByType(SoftDelete.class)[0];
             if(!fields.containsKey(softDelete.value()))
-                throw new AJORMConfigurationException("Missing soft-delete field '"+softDelete.value()+"'");
+                throw new ORMConfigurationException("Missing soft-delete field '"+softDelete.value()+"'");
         }
         if(model.isAnnotationPresent(Dates.class)){
             dates = model.getDeclaredAnnotationsByType(Dates.class)[0];
             if(!fields.containsKey(dates.create()))
-                throw new AJORMConfigurationException("Missing dates field '"+dates.create()+"'");
+                throw new ORMConfigurationException("Missing dates field '"+dates.create()+"'");
             if(!fields.containsKey(dates.update()))
-                throw new AJORMConfigurationException("Missing dates field '"+dates.update()+"'");
+                throw new ORMConfigurationException("Missing dates field '"+dates.update()+"'");
         }
     }
 
@@ -180,7 +180,7 @@ public class TableInfo {
         return modelClass;
     }
 
-    public AJORMConfig getConfig(){
+    public ORMConfig getConfig(){
         return config;
     }
 

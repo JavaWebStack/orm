@@ -1,4 +1,4 @@
-package eu.bebendorf.ajorm.util;
+package org.javawebstack.orm.util;
 
 public enum KeyType {
     NONE,

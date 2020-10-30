@@ -1,8 +1,8 @@
-package eu.bebendorf.ajorm.util;
+package org.javawebstack.orm.util;
 
-import eu.bebendorf.ajorm.Repo;
-import eu.bebendorf.ajorm.TableInfo;
-import eu.bebendorf.ajorm.wrapper.SQL;
+import org.javawebstack.orm.Repo;
+import org.javawebstack.orm.TableInfo;
+import org.javawebstack.orm.wrapper.SQL;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
