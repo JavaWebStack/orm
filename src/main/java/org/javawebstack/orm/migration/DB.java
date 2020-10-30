@@ -210,7 +210,7 @@ public class DB {
                 sb.append(';');
                 sql.write(sb.toString());
             }
-            
+
             String definition(){
                 StringBuilder sb = new StringBuilder('`');
                 sb.append(name);
