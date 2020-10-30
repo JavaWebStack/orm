@@ -35,22 +35,52 @@ public class DB {
             return tablePrefix + name;
         }
 
-        public Column column(String name){
+        public Column column(String name, SQLType type, String size){
             for(Column column : columns){
                 if(column.name.equals(name))
                     return column;
             }
-            Column column = new Column(name);
+            Column column = new Column(name, type, size);
             columns.add(column);
             return column;
         }
 
-        public Column id(){
-            return column("id").integer().autoIncrement().primary();
+        public Column column(String name, SQLType type){
+            return column(name, type, null);
         }
 
+        public Column string(String name){
+            return string(name, 255);
+        }
+        public Column string(String name, int size){
+            return column(name, SQLType.VARCHAR, String.valueOf(size));
+        }
+        public Column text(String name, int size){
+            return column(name, SQLType.TEXT, String.valueOf(size));
+        }
+        public Column text(String name){
+            return column(name, SQLType.TEXT);
+        }
+        public Column id(){
+            return integer("id").autoIncrement().primary();
+        }
+        public Column integer(String name, int size){
+            return column(name, SQLType.INT, String.valueOf(size));
+        }
+        public Column integer(String name){
+            return column(name, SQLType.INT);
+        }
+        public Column bool(String name){
+            return column(name, SQLType.TINYINT, "1");
+        }
+        public Column uuid(String name){
+            return column(name, SQLType.VARCHAR, "36");
+        }
         public Column uuid(){
-            return column("uuid").uuid().primary();
+            return uuid("uuid").primary();
+        }
+        public Column enums(String name, String... values){
+            return column(name, SQLType.ENUM, String.join(",", values));
         }
 
         public void rename(String to){
@@ -87,51 +117,12 @@ public class DB {
             private boolean nullable = false;
             private String after;
             private String name;
-            private SQLType type;
-            private String size;
-            public Column(String name){
+            private final SQLType type;
+            private final String size;
+            public Column(String name, SQLType type, String size){
                 this.name = name;
-            }
-            public Column string(){
-                return string(255);
-            }
-            public Column string(int size){
-                type = SQLType.VARCHAR;
-                this.size = String.valueOf(size);
-                return this;
-            }
-            public Column text(int size){
-                type = SQLType.TEXT;
-                this.size = String.valueOf(size);
-                return this;
-            }
-            public Column text(){
-                type = SQLType.TEXT;
-                return this;
-            }
-            public Column integer(int size){
-                type = SQLType.INT;
-                this.size = String.valueOf(size);
-                return this;
-            }
-            public Column integer(){
-                type = SQLType.INT;
-                return this;
-            }
-            public Column bool(){
-                type = SQLType.TINYINT;
-                this.size = "1";
-                return this;
-            }
-            public Column uuid(){
-                type = SQLType.VARCHAR;
-                this.size = "36";
-                return this;
-            }
-            public Column enums(String... values){
-                type = SQLType.ENUM;
-                this.size = String.join(",", values);
-                return this;
+                this.type = type;
+                this.size = size;
             }
             public Column primary(){
                 this.primary = true;
