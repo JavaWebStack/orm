@@ -26,17 +26,6 @@ public class ORM {
         return register(model, sql, new ORMConfig());
     }
 
-    public static <T extends Model> Repo<T> registerAndMigrate(Class<T> model, SQL sql, ORMConfig config) throws ORMConfigurationException {
-        Repo<T> repo = new Repo<>(model, sql, config);
-        repo.migrate();
-        repositories.put(model, repo);
-        return repo;
-    }
-
-    public static <T extends Model> Repo<T> registerAndMigrate(Class<T> model, SQL sql) throws ORMConfigurationException {
-        return registerAndMigrate(model, sql, new ORMConfig());
-    }
-
     public static void unregister(Class<? extends Model> model){
         repositories.remove(model);
     }

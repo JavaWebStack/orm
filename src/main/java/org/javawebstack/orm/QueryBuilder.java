@@ -323,6 +323,8 @@ public class QueryBuilder<T extends Model> {
                 return rs.getLong(columnName);
             if(sqlType.equals(Double.class))
                 return rs.getDouble(columnName);
+            if(sqlType.equals(Float.class))
+                return rs.getFloat(columnName);
             if(sqlType.equals(Timestamp.class))
                 return rs.getTimestamp(columnName);
         } catch (SQLException e) {

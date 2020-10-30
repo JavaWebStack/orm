@@ -5,7 +5,6 @@ import org.javawebstack.orm.annotation.Dates;
 import org.javawebstack.orm.annotation.SoftDelete;
 import org.javawebstack.orm.annotation.Table;
 import org.javawebstack.orm.exception.ORMConfigurationException;
-import org.javawebstack.orm.mapper.DefaultMapper;
 import org.javawebstack.orm.mapper.TypeMapper;
 import org.javawebstack.orm.util.Helper;
 import org.javawebstack.orm.util.KeyType;
@@ -67,7 +66,7 @@ public class TableInfo {
             fields.put(fieldName, field);
             fieldConfigs.put(fieldName, fieldConfig);
             for(TypeMapper mapper : config.getTypeMappers()){
-                Class<?> type = mapper.getTargetType(field.getType());
+                Class<?> type = mapper.getInternalType(field.getType());
                 if(type != null) {
                     sqlTypes.put(fieldName, type);
                     break;
@@ -158,22 +157,6 @@ public class TableInfo {
 
     public String getTableName(){
         return config.getTablePrefix()+tableName;
-    }
-
-    public int getSQLSize(String fieldName){
-        int size = fieldConfigs.get(fieldName).size();
-        if(size == -1)
-            size = config.getDefaultSize();
-        return size;
-    }
-
-    public String getSQLType(String fieldName){
-        for(TypeMapper mapper : config.getTypeMappers()){
-            String type = mapper.getSQLType(getField(fieldName).getType(), getSQLSize(fieldName));
-            if(type != null)
-                return type;
-        }
-        return new DefaultMapper().getSQLType(String.class, 0);
     }
 
     public Class<? extends Model> getModelClass(){

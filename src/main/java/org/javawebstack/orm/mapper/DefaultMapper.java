@@ -1,5 +1,7 @@
 package org.javawebstack.orm.mapper;
 
+import org.javawebstack.orm.SQLType;
+
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -54,7 +56,7 @@ public class DefaultMapper implements TypeMapper {
         return source;
     }
 
-    public Class<?> getTargetType(Class<?> type){
+    public Class<?> getInternalType(Class<?> type){
         if(type.equals(String.class))
             return String.class;
         if(type.equals(UUID.class))
@@ -73,36 +75,6 @@ public class DefaultMapper implements TypeMapper {
             return Long.class;
         if(type.equals(Date.class) || type.equals(Timestamp.class))
             return Timestamp.class;
-        return null;
-    }
-
-    public String getSQLType(Class<?> type, int size){
-        if(type.equals(String.class))
-            return size>0?"VARCHAR("+size+")":"TEXT";
-        if(type.equals(Integer.class) || type.equals(int.class))
-            return "INT";
-        if(type.equals(Long.class) || type.equals(long.class))
-            return "BIGINT";
-        if(type.equals(Double.class) || type.equals(double.class))
-            return "DOUBLE";
-        if(type.equals(Float.class) || type.equals(float.class))
-            return "FLOAT";
-        if(type.equals(Timestamp.class))
-            return "TIMESTAMP";
-        if(type.equals(Date.class))
-            return getSQLType(Timestamp.class, size);
-        if(type.equals(Boolean.class) || type.equals(boolean.class))
-            return "TINYINT";
-        if(type.equals(UUID.class))
-            return getSQLType(String.class, 36);
-        if(type.isEnum()){
-            List<String> values = new ArrayList<>();
-            for(Object v : type.getEnumConstants()){
-                Enum<?> vObject = (Enum<?>) v;
-                values.add("'"+vObject.name()+"'");
-            }
-            return "ENUM("+String.join(",", values)+")";
-        }
         return null;
     }
 

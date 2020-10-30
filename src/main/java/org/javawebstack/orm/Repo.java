@@ -1,7 +1,7 @@
 package org.javawebstack.orm;
 
 import org.javawebstack.orm.exception.ORMConfigurationException;
-import org.javawebstack.orm.util.MigrationTool;
+import org.javawebstack.orm.migration.DB;
 import org.javawebstack.orm.wrapper.SQL;
 
 import java.sql.Timestamp;
@@ -16,8 +16,8 @@ public class Repo<T extends Model> {
     }
 
     private final TableInfo info;
-    private SQL connection;
-    private List<Observer<T>> observers = new ArrayList<>();
+    private final SQL connection;
+    private final List<Observer<T>> observers = new ArrayList<>();
 
     public Repo(Class<T> clazz, SQL connection, ORMConfig config) throws ORMConfigurationException {
         this.info = new TableInfo(clazz, config);
@@ -130,11 +130,6 @@ public class Repo<T extends Model> {
 
     public Repo<T> observe(Observer<T> observer){
         observers.add(observer);
-        return this;
-    }
-
-    public Repo<T> migrate(){
-        MigrationTool.migrate(connection, info);
         return this;
     }
 
