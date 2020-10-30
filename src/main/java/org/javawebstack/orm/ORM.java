@@ -3,12 +3,14 @@ package org.javawebstack.orm;
 import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.javawebstack.orm.wrapper.SQL;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ORM {
 
-    private static Map<Class<?>, Repo<?>> repositories = new HashMap<>();
+    private static final Map<Class<? extends Model>, Repo<?>> repositories = new HashMap<>();
 
     public static <T extends Model> Repo<T> repo(Class<T> model){
         return (Repo<T>) repositories.get(model);
@@ -41,6 +43,10 @@ public class ORM {
 
     public static void unregister(Repo<?> model){
         repositories.remove(model.getInfo().getModelClass());
+    }
+
+    public static List<Class<? extends Model>> getModels(){
+        return new ArrayList<>(repositories.keySet());
     }
 
 }
