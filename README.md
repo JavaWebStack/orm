@@ -1,5 +1,5 @@
-# AJORM
-Another Java ORM
+# JavaWebStack ORM
+Object Relational Mapping of JavaWebStack
 
 ## Introduction
 When it came to using an ORM Lib in java I used ORMLite before. It worked quite well, but I didn't like the query builder.
@@ -33,8 +33,8 @@ class User extends Model {
 ```java
 //Create connection, initialize repos
 SQL sql = new MySQL("localhost",3306,"mydb","myuser","changeme1234");
-AJORMConfig config = new AJORMConfig().setDefaultSize(255); //optional
-Repo<User> repo = AJORM.register(User.class, sql, config);
+ORMConfig config = new ORMConfig().setDefaultSize(255); //optional
+Repo<User> repo = ORM.register(User.class, sql, config);
 
 //Create the table if it doesn't exist (optional)
 repo.migrate();
@@ -57,13 +57,13 @@ for(User user : Repo.get(User.class).all()){
 ### Dependency
 ```xml
 <dependency>
-    <groupId>com.github.JanHolger</groupId>
-    <artifactId>AJORM</artifactId>
+    <groupId>com.github.JavaWebStack</groupId>
+    <artifactId>ORM</artifactId>
     <version>COMMIT_HASH</version>
 </dependency>
 ```
 ### Driver
-You also need to add the driver you want to use. AJORM comes with a wrapper for com.mysql.jdbc.Driver, but you can also create an own wrapper implementing the interface SQL. (For some reason I needed a pretty old driver version to connect to some servers, so I thought it would be better to link the old version here)
+You also need to add the driver you want to use. JavaWebStack ORM comes with a wrapper for com.mysql.jdbc.Driver, but you can also create an own wrapper implementing the interface SQL. (For some reason I needed a pretty old driver version to connect to some servers, so I thought it would be better to link the old version here)
 ```xml
 <dependency>
     <groupId>mysql</groupId>
