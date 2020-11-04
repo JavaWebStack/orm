@@ -1,7 +1,7 @@
 package org.javawebstack.orm;
 
 import org.javawebstack.orm.exception.ORMConfigurationException;
-import org.javawebstack.orm.migration.DB;
+import org.javawebstack.orm.migration.AutoMigrator;
 import org.javawebstack.orm.wrapper.SQL;
 
 import java.sql.Timestamp;
@@ -131,6 +131,10 @@ public class Repo<T extends Model> {
     public Repo<T> observe(Observer<T> observer){
         observers.add(observer);
         return this;
+    }
+
+    public void autoMigrate(){
+        AutoMigrator.migrate(this);
     }
 
     public SQL getConnection(){

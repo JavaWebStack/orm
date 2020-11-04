@@ -25,7 +25,8 @@ public class TableInfo {
     private final Map<String, Field> fields = new HashMap<>();
     private final Map<String, String> fieldToColumn = new HashMap<>();
     private final Map<String, Column> fieldConfigs = new HashMap<>();
-    private final Map<String, Class<?>> sqlTypes = new HashMap<>();
+    private final Map<String, SQLType> sqlTypes = new HashMap<>();
+    private final Map<String, String> sqlTypeParameters = new HashMap<>();
     private final ORMConfig config;
     private SoftDelete softDelete;
     private Dates dates;
@@ -66,9 +67,10 @@ public class TableInfo {
             fields.put(fieldName, field);
             fieldConfigs.put(fieldName, fieldConfig);
             for(TypeMapper mapper : config.getTypeMappers()){
-                Class<?> type = mapper.getInternalType(field.getType());
-                if(type != null) {
-                    sqlTypes.put(fieldName, type);
+                SQLType sqlType = mapper.getType(field.getType(), fieldConfig.size());
+                if(sqlType != null) {
+                    sqlTypes.put(fieldName, sqlType);
+                    sqlTypeParameters.put(fieldName, mapper.getTypeParameters(field.getType(), fieldConfig.size()));
                     break;
                 }
             }
@@ -143,8 +145,12 @@ public class TableInfo {
         return fieldToColumn.get(fieldName);
     }
 
-    public Class<?> getTargetType(String fieldName){
+    public SQLType getType(String fieldName){
         return sqlTypes.get(fieldName);
+    }
+
+    public String getTypeParameters(String fieldName){
+        return sqlTypeParameters.get(fieldName);
     }
 
     public String getRawTableName(){
@@ -181,6 +187,10 @@ public class TableInfo {
 
     public Class<?> getIdType(){
         return getField(getIdField()).getType();
+    }
+
+    public Object getDefault(String fieldName){
+        return null;
     }
 
     public boolean isNotNull(String fieldName){

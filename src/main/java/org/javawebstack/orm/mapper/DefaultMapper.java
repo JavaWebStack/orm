@@ -3,9 +3,7 @@ package org.javawebstack.orm.mapper;
 import org.javawebstack.orm.SQLType;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 public class DefaultMapper implements TypeMapper {
@@ -56,25 +54,31 @@ public class DefaultMapper implements TypeMapper {
         return source;
     }
 
-    public Class<?> getInternalType(Class<?> type){
+    public SQLType getType(Class<?> type, int size){
         if(type.equals(String.class))
-            return String.class;
+            return size > 255 || size < 1 ? SQLType.TEXT : SQLType.VARCHAR;
         if(type.equals(UUID.class))
-            return String.class;
+            return SQLType.VARCHAR;
         if(type.isEnum())
-            return String.class;
+            return SQLType.ENUM;
         if(type.equals(Boolean.class) || type.equals(boolean.class))
-            return Integer.class;
+            return SQLType.TINYINT;
         if(type.equals(int.class) || type.equals(Integer.class))
-            return Integer.class;
+            return SQLType.INT;
         if(type.equals(double.class) || type.equals(Double.class))
-            return Double.class;
+            return SQLType.DOUBLE;
         if(type.equals(float.class) || type.equals(Float.class))
-            return Float.class;
+            return SQLType.FLOAT;
         if(type.equals(long.class) || type.equals(Long.class))
-            return Long.class;
+            return SQLType.BIGINT;
         if(type.equals(Date.class) || type.equals(Timestamp.class))
-            return Timestamp.class;
+            return SQLType.TIMESTAMP;
+        return null;
+    }
+
+    public String getTypeParameters(Class<?> type, int size){
+        if(type.equals(String.class))
+            return size > 255 || size < 1 ? null : String.valueOf(size);
         return null;
     }
 

@@ -1,6 +1,7 @@
 package org.javawebstack.orm;
 
 import org.javawebstack.orm.exception.ORMConfigurationException;
+import org.javawebstack.orm.migration.AutoMigrator;
 import org.javawebstack.orm.wrapper.SQL;
 
 import java.util.ArrayList;
@@ -36,6 +37,10 @@ public class ORM {
 
     public static List<Class<? extends Model>> getModels(){
         return new ArrayList<>(repositories.keySet());
+    }
+
+    public void autoMigrate(){
+        AutoMigrator.migrate(repositories.values().toArray(new Repo<?>[0]));
     }
 
 }

@@ -279,7 +279,7 @@ public class QueryBuilder<T extends Model> {
     private T parseResult(ResultSet rs, T t){
         t.setEntryExists(true);
         for(String fieldName : info.getFields())
-            setValue(fieldName, t, getValue(rs, info.getTargetType(fieldName), info.getColumnName(fieldName)));
+            setValue(fieldName, t, getValue(rs, info.getType(fieldName).getJavaType(), info.getColumnName(fieldName)));
         return t;
     }
 
