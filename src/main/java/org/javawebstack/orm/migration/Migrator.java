@@ -25,17 +25,19 @@ public class Migrator {
         } catch (ORMConfigurationException ignored) {}
     }
 
-    public void add(Migration... migrations){
+    public Migrator add(Migration... migrations){
         this.migrations.addAll(Arrays.asList(migrations));
+        return this;
     }
 
-    public void add(Package p){
+    public Migrator add(Package p){
         Reflections reflections = new Reflections(p.getName());
         reflections.getSubTypesOf(Migration.class).forEach(c -> {
             try {
                 add(c.newInstance());
             } catch (InstantiationException | IllegalAccessException e) {}
         });
+        return this;
     }
 
     public void migrate(){
