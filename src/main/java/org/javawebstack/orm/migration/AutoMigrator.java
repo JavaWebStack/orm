@@ -18,7 +18,9 @@ public class AutoMigrator {
         Map<SQL, List<String>> tables = new HashMap<>();
         for(Repo<?> repo : repos){
             if(!tables.containsKey(repo.getConnection())){
+                repo.getConnection().setDebugMode(repo.getInfo().getConfig().isDebugMode());
                 tables.put(repo.getConnection(), getTables(repo.getConnection()));
+                repo.getConnection().setDebugMode(false);
             }
             migrateTable(repo.getConnection(), repo.getInfo(), tables.get(repo.getConnection()).contains(repo.getInfo().getTableName()));
         }
@@ -27,12 +29,12 @@ public class AutoMigrator {
     private static void migrateTable(SQL sql, TableInfo info, boolean tableExists){
         List<String> addColumns = new ArrayList<>();
         List<String> updateColumns = new ArrayList<>();
-        Map<String, String> columnKeys = getColumnKeys(sql, info.getTableName());
+        Map<String, String> columnKeys = tableExists ? getColumnKeys(sql, info.getTableName()) : new HashMap<>();
         List<Object> addValues = new ArrayList<>();
         List<Object> updateValues = new ArrayList<>();
         for(String fieldName : info.getFields()){
             String columnName = info.getColumnName(fieldName);
-            StringBuilder sb = new StringBuilder('`')
+            StringBuilder sb = new StringBuilder("`")
                 .append(columnName)
                 .append("` ");
             sb.append(info.getType(fieldName).name());
@@ -60,12 +62,12 @@ public class AutoMigrator {
         }
         if(info.getPrimaryKey() != null) {
             String columnName = info.getColumnName(info.getPrimaryKey());
-            if(!columnKeys.get(columnName).contains("PRI"))
+            if(!columnKeys.containsKey(columnName) || !columnKeys.get(columnName).contains("PRI"))
                 addColumns.add("PRIMARY KEY (`" + columnName + "`)");
         }
         for(String uniqueField : info.getUniqueKeys()){
             String columnName = info.getColumnName(uniqueField);
-            if(!columnKeys.get(columnName).contains("UNI"))
+            if(!columnKeys.containsKey(columnName) || !columnKeys.get(columnName).contains("UNI"))
                 addColumns.add("UNIQUE (`" + columnName + "`)");
         }
         if(!tableExists){
