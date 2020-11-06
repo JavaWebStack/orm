@@ -13,6 +13,6 @@ public @interface Column {
     boolean id() default false;
     boolean ai() default true;
     KeyType key() default KeyType.NONE;
-    String column() default "";
+    String name() default "";
     int size() default -1;
 }
