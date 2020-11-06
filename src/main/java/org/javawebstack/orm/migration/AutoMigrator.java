@@ -39,6 +39,7 @@ public class AutoMigrator {
                 .append("` ");
             sb.append(info.getType(fieldName).name());
             String parameterTypes = info.getTypeParameters(fieldName);
+
             if(parameterTypes != null)
                 sb.append('(')
                 .append(parameterTypes)

@@ -20,7 +20,7 @@ public class SQLite extends BaseSQL {
                 try {
                     c = DriverManager.getConnection("jdbc:sqlite:"+file);
                 } catch (SQLException e) {
-                    System.out.println("Fehler: bei getConnection()[SQLite.java]  SQLException   " + e.getMessage());
+                    System.out.println("Error: at getConnection()[SQLite.java]  SQLException   " + e.getMessage());
                 }
             }
         } catch (SQLException e) {e.printStackTrace();}

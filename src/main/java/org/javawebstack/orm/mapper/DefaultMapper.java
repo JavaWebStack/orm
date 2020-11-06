@@ -80,7 +80,7 @@ public class DefaultMapper implements TypeMapper {
 
     public String getTypeParameters(Class<?> type, int size){
         if(type.isEnum())
-            return Arrays.stream(((Class<? extends Enum<?>>) type).getEnumConstants()).map(c -> c.name()).collect(Collectors.joining(","));
+            return Arrays.stream(((Class<? extends Enum<?>>) type).getEnumConstants()).map(c -> "'"+c.name()+"'").collect(Collectors.joining(","));
         if(type.equals(String.class))
             return size > 255 || size < 1 ? null : String.valueOf(size);
         return null;
