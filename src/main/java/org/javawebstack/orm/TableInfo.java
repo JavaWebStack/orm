@@ -70,6 +70,7 @@ public class TableInfo {
                 SQLType sqlType = mapper.getType(field.getType(), fieldConfig.size());
                 if(sqlType != null) {
                     sqlTypes.put(fieldName, sqlType);
+
                     sqlTypeParameters.put(fieldName, mapper.getTypeParameters(field.getType(), fieldConfig.size()));
                     break;
                 }
