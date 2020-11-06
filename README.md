@@ -1,5 +1,7 @@
-# JavaWebStack ORM
-Object Relational Mapping of JavaWebStack
+<p align="center"><img src="https://raw.githubusercontent.com/JavaWebStack/docs/master/src/assets/img/icon.svg" width="100">
+<br><br>
+JWS Object Relational Mapping
+</p>
 
 ## Introduction
 When it came to using an ORM Lib in java I used ORMLite before. It worked quite well, but I didn't like the query builder.
@@ -50,18 +52,32 @@ for(User user : Repo.get(User.class).all()){
 ### Repository
 ```xml
 <repository>
-    <id>jitpack.io</id>
-    <url>https://jitpack.io</url>
+    <id>javawebstack</id>
+    <url>https://repo.javawebstack.org</url>
 </repository>
 ```
 ### Dependency
 ```xml
+<dependency>
+    <groupId>org.javawebstack</groupId>
+    <artifactId>ORM</artifactId>
+    <version>1.0-SNAPSHOT<!-- VERSION --></version>
+</dependency>
+```
+#### or Jitpack
+```xml
+<repository>
+    <id>jitpack.io</id>
+    <url>https://jitpack.io</url>
+</repository>
+
 <dependency>
     <groupId>com.github.JavaWebStack</groupId>
     <artifactId>ORM</artifactId>
     <version>COMMIT_HASH</version>
 </dependency>
 ```
+
 ### Driver
 You also need to add the driver you want to use. JavaWebStack ORM comes with a wrapper for com.mysql.jdbc.Driver, but you can also create an own wrapper implementing the interface SQL. (For some reason I needed a pretty old driver version to connect to some servers, so I thought it would be better to link the old version here)
 ```xml
