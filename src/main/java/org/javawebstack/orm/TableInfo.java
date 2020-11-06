@@ -59,8 +59,8 @@ public class TableInfo {
             String fieldName = field.getName();
             fieldNames.add(fieldName);
             Column fieldConfig = field.getDeclaredAnnotationsByType(Column.class)[0];
-            if(fieldConfig.column().length() > 0){
-                fieldToColumn.put(fieldName, fieldConfig.column());
+            if(fieldConfig.name().length() > 0){
+                fieldToColumn.put(fieldName, fieldConfig.name());
             }else{
                 fieldToColumn.put(fieldName, config.isCamelToSnakeCase()?Helper.toSnakeCase(fieldName):fieldName);
             }
