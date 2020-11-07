@@ -7,7 +7,7 @@ import java.util.Map;
 
 public abstract class BaseSQL implements SQL {
 
-    private Map<ResultSet,Statement> statementMap = new HashMap<>();
+    private final Map<ResultSet,Statement> statementMap = new HashMap<>();
     private boolean debugMode = false;
 
     public void setDebugMode(boolean debugMode) {
@@ -16,41 +16,35 @@ public abstract class BaseSQL implements SQL {
 
     public abstract Connection getConnection();
 
-
-    public int write(String queryString,Object... parameters){
+    public int write(String queryString,Object... parameters) throws SQLException {
         if(debugMode)
             System.out.println(queryString);
-        try {
-            if(queryString.toLowerCase(Locale.ROOT).startsWith("insert")){
-                PreparedStatement ps = setParams(getConnection().prepareStatement(queryString, Statement.RETURN_GENERATED_KEYS),parameters);
-                ps.executeUpdate();
-                ResultSet rs = ps.getGeneratedKeys();
-                int id = 0;
-                if(rs.next()){
-                    id = rs.getInt(1);
-                }
-                rs.close();
-                ps.close();
-                return id;
-            }else{
-                PreparedStatement ps = setParams(getConnection().prepareStatement(queryString),parameters);
-                ps.executeUpdate();
-                ps.close();
+        if(queryString.toLowerCase(Locale.ROOT).startsWith("insert")){
+            PreparedStatement ps = setParams(getConnection().prepareStatement(queryString, Statement.RETURN_GENERATED_KEYS), parameters);
+            ps.executeUpdate();
+            ResultSet rs = ps.getGeneratedKeys();
+            int id = 0;
+            if(rs.next()){
+                id = rs.getInt(1);
             }
-        } catch (SQLException e) {e.printStackTrace();}
+            rs.close();
+            ps.close();
+            return id;
+        }else{
+            PreparedStatement ps = setParams(getConnection().prepareStatement(queryString), parameters);
+            ps.executeUpdate();
+            ps.close();
+        }
         return 0;
     }
 
-    public ResultSet read(String queryString, Object... parameters){
+    public ResultSet read(String queryString, Object... parameters) throws SQLException {
         if(debugMode)
             System.out.println(queryString);
-        try {
-            PreparedStatement ps = setParams(getConnection().prepareStatement(queryString),parameters);
-            ResultSet rs = ps.executeQuery();
-            statementMap.put(rs,ps);
-            return rs;
-        } catch (SQLException e) {e.printStackTrace();}
-        return null;
+        PreparedStatement ps = setParams(getConnection().prepareStatement(queryString), parameters);
+        ResultSet rs = ps.executeQuery();
+        statementMap.put(rs,ps);
+        return rs;
     }
 
     private PreparedStatement setParams(PreparedStatement st, Object... parameters) throws SQLException {
@@ -61,20 +55,20 @@ public abstract class BaseSQL implements SQL {
                 i++;
                 continue;
             }
-            Class type = object.getClass();
+            Class<?> type = object.getClass();
             if(type.isEnum())
-                st.setString(i,((Enum) object).name());
+                st.setString(i,((Enum<?>) object).name());
             else if(type.equals(String.class))
                 st.setString(i,(String)object);
-            else if(type.equals(int.class)||type.equals(Integer.class))
+            else if(type.equals(Integer.class))
                 st.setInt(i,(int)object);
-            else if(type.equals(double.class)||type.equals(Double.class))
+            else if(type.equals(Double.class))
                 st.setDouble(i,(double)object);
-            else if(type.equals(long.class)||type.equals(Long.class))
+            else if(type.equals(Long.class))
                 st.setLong(i,(long)object);
-            else if(type.equals(short.class)||type.equals(Short.class))
+            else if(type.equals(Short.class))
                 st.setShort(i,(short)object);
-            else if(type.equals(float.class)||type.equals(Float.class))
+            else if(type.equals(Float.class))
                 st.setFloat(i,(float)object);
             else if(type.equals(Timestamp.class))
                 st.setTimestamp(i,(Timestamp) object);

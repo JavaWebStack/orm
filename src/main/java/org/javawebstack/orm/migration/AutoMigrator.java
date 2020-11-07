@@ -2,6 +2,7 @@ package org.javawebstack.orm.migration;
 
 import org.javawebstack.orm.Repo;
 import org.javawebstack.orm.TableInfo;
+import org.javawebstack.orm.exception.ORMQueryException;
 import org.javawebstack.orm.wrapper.SQL;
 
 import java.sql.ResultSet;
@@ -72,52 +73,68 @@ public class AutoMigrator {
                 addColumns.add("UNIQUE (`" + columnName + "`)");
         }
         if(!tableExists){
-            sql.write(new StringBuilder("CREATE TABLE `")
-                    .append(info.getTableName())
-                    .append("` (")
-                    .append(String.join(",", addColumns))
-                    .append(") DEFAULT CHARSET=utf8mb4;").toString()
-            , addValues.toArray());
+            try {
+                sql.write(new StringBuilder("CREATE TABLE `")
+                        .append(info.getTableName())
+                        .append("` (")
+                        .append(String.join(",", addColumns))
+                        .append(") DEFAULT CHARSET=utf8mb4;").toString()
+                , addValues.toArray());
+            } catch (SQLException throwables) {
+                throw new ORMQueryException(throwables);
+            }
         }else{
             if(addColumns.size() > 0){
-                sql.write(new StringBuilder("ALTER TABLE `")
-                        .append(info.getTableName())
-                        .append("` ADD (")
-                        .append(String.join(",", addColumns))
-                        .append(");").toString()
-                , addValues.toArray());
+                try {
+                    sql.write(new StringBuilder("ALTER TABLE `")
+                            .append(info.getTableName())
+                            .append("` ADD (")
+                            .append(String.join(",", addColumns))
+                            .append(");").toString()
+                    , addValues.toArray());
+                } catch (SQLException throwables) {
+                    throw new ORMQueryException(throwables);
+                }
             }
             if(updateColumns.size() > 0){
-                sql.write(new StringBuilder("ALTER TABLE `")
-                        .append(info.getTableName())
-                        .append("` ")
-                        .append(updateColumns.stream().map(c -> "MODIFY COLUMN " + c).collect(Collectors.joining(",")))
-                        .append(";").toString()
-                , updateValues.toArray());
+                try {
+                    sql.write(new StringBuilder("ALTER TABLE `")
+                            .append(info.getTableName())
+                            .append("` ")
+                            .append(updateColumns.stream().map(c -> "MODIFY COLUMN " + c).collect(Collectors.joining(",")))
+                            .append(";").toString()
+                    , updateValues.toArray());
+                } catch (SQLException throwables) {
+                    throw new ORMQueryException(throwables);
+                }
             }
         }
     }
 
     private static Map<String,String> getColumnKeys(SQL sql, String tableName){
-        Map<String, String> columnKeys = new HashMap<>();
-        ResultSet rs = sql.read("SHOW COLUMNS FROM `"+tableName+"`;");
         try {
+            Map<String, String> columnKeys = new HashMap<>();
+            ResultSet rs = sql.read("SHOW COLUMNS FROM `"+tableName+"`;");
             while (rs.next()) {
                 columnKeys.put(rs.getString(1), rs.getString(4));
             }
-        } catch (SQLException throwables) {}
-        return columnKeys;
+            return columnKeys;
+        } catch (SQLException throwables) {
+            throw new ORMQueryException(throwables);
+        }
     }
 
     private static List<String> getTables(SQL sql){
-        List<String> tables = new ArrayList<>();
-        ResultSet rs = sql.read("SHOW TABLES;");
         try {
+            List<String> tables = new ArrayList<>();
+            ResultSet rs = sql.read("SHOW TABLES;");
             while (rs.next()) {
                 tables.add(rs.getString(1));
             }
-        } catch (SQLException throwables) {}
-        return tables;
+            return tables;
+        } catch (SQLException throwables) {
+            throw new ORMQueryException(throwables);
+        }
     }
 
 }

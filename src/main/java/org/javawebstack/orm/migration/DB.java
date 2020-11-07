@@ -1,8 +1,10 @@
 package org.javawebstack.orm.migration;
 
 import org.javawebstack.orm.SQLType;
+import org.javawebstack.orm.exception.ORMQueryException;
 import org.javawebstack.orm.wrapper.SQL;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -111,12 +113,20 @@ public class DB {
         }
 
         public void rename(String to){
-            sql.write("RENAME TABLE `"+fullName()+"` TO `"+tablePrefix + to+"`;");
+            try {
+                sql.write("RENAME TABLE `"+fullName()+"` TO `"+tablePrefix + to+"`;");
+            } catch (SQLException throwables) {
+                throw new ORMQueryException(throwables);
+            }
             this.name = to;
         }
 
         public void drop(){
-            sql.write("DROP TABLE `"+fullName()+"`;");
+            try {
+                sql.write("DROP TABLE `"+fullName()+"`;");
+            } catch (SQLException throwables) {
+                throw new ORMQueryException(throwables);
+            }
         }
 
         public void create(){
@@ -134,7 +144,11 @@ public class DB {
             columns.forEach(c -> entries.addAll(c.contraints()));
             sb.append(String.join(",", entries));
             sb.append(") DEFAULT CHARSET=utf8mb4;");
-            sql.write(sb.toString());
+            try {
+                sql.write(sb.toString());
+            } catch (SQLException throwables) {
+                throw new ORMQueryException(throwables);
+            }
         }
 
         public class Column {
@@ -184,12 +198,20 @@ public class DB {
             }
 
             public void rename(String to){
-                sql.write("ALTER TABLE `"+fullName()+"` RENAME COLUMN `"+name+"` TO `"+to+"`;");
+                try {
+                    sql.write("ALTER TABLE `"+fullName()+"` RENAME COLUMN `"+name+"` TO `"+to+"`;");
+                } catch (SQLException throwables) {
+                    throw new ORMQueryException(throwables);
+                }
                 name = to;
             }
 
             public void drop(){
-                sql.write("ALTER TABLE `"+fullName()+"` DROP COLUMN `"+name+"`;");
+                try {
+                    sql.write("ALTER TABLE `"+fullName()+"` DROP COLUMN `"+name+"`;");
+                } catch (SQLException throwables) {
+                    throw new ORMQueryException(throwables);
+                }
                 columns.remove(this);
             }
 
@@ -199,7 +221,11 @@ public class DB {
                 sb.append("` ADD ");
                 sb.append(definition());
                 sb.append(';');
-                sql.write(sb.toString());
+                try {
+                    sql.write(sb.toString());
+                } catch (SQLException throwables) {
+                    throw new ORMQueryException(throwables);
+                }
             }
 
             public void modify(){
@@ -208,7 +234,11 @@ public class DB {
                 sb.append("` MODIFY ");
                 sb.append(definition());
                 sb.append(';');
-                sql.write(sb.toString());
+                try {
+                    sql.write(sb.toString());
+                } catch (SQLException throwables) {
+                    throw new ORMQueryException(throwables);
+                }
             }
 
             String definition(){

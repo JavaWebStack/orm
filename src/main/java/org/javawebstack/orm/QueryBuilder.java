@@ -1,5 +1,6 @@
 package org.javawebstack.orm;
 
+import org.javawebstack.orm.exception.ORMQueryException;
 import org.javawebstack.orm.mapper.TypeMapper;
 
 import java.lang.reflect.InvocationTargetException;
@@ -112,10 +113,14 @@ public class QueryBuilder<T extends Model> {
             sb.append(limit);
         }
         sb.append(";");
-        ResultSet rs = repository.getConnection().read(sb.toString(), params.toArray());
-        List<T> results = parseResults(rs);
-        repository.getConnection().close(rs);
-        return results;
+        try {
+            ResultSet rs = repository.getConnection().read(sb.toString(), params.toArray());
+            List<T> results = parseResults(rs);
+            repository.getConnection().close(rs);
+            return results;
+        } catch (SQLException throwables) {
+            throw new ORMQueryException(throwables);
+        }
     }
 
     public int count(){
@@ -127,16 +132,20 @@ public class QueryBuilder<T extends Model> {
         sb.append(where.query);
         params.addAll(where.params);
         sb.append(";");
-        ResultSet rs = repository.getConnection().read(sb.toString(), params.toArray());
-        int count = -1;
         try {
-            rs.next();
-            count = rs.getInt(1);
+            ResultSet rs = repository.getConnection().read(sb.toString(), params.toArray());
+            int count = -1;
+            try {
+                rs.next();
+                count = rs.getInt(1);
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+            repository.getConnection().close(rs);
+            return count;
         } catch (SQLException throwables) {
-            throwables.printStackTrace();
+            throw new ORMQueryException(throwables);
         }
-        repository.getConnection().close(rs);
-        return count;
     }
 
     public T refresh(T entry){
@@ -149,10 +158,15 @@ public class QueryBuilder<T extends Model> {
         sb.append(where.query);
         params.addAll(where.params);
         sb.append(";");
-        ResultSet rs = repository.getConnection().read(sb.toString(), params.toArray());
-        parseResult(rs, entry);
-        repository.getConnection().close(rs);
-        return entry;
+        try {
+            ResultSet rs = repository.getConnection().read(sb.toString(), params.toArray());
+            parseResult(rs, entry);
+            repository.getConnection().close(rs);
+            return entry;
+        } catch (SQLException throwables) {
+            throw new ORMQueryException(throwables);
+        }
+
     }
 
     public void finalDelete(){
@@ -165,7 +179,11 @@ public class QueryBuilder<T extends Model> {
         sb.append(where.query);
         params.addAll(where.params);
         sb.append(";");
-        repository.getConnection().write(sb.toString(), params.toArray());
+        try {
+            repository.getConnection().write(sb.toString(), params.toArray());
+        } catch (SQLException throwables) {
+            throw new ORMQueryException(throwables);
+        }
     }
 
     public Timestamp delete(){
@@ -179,7 +197,11 @@ public class QueryBuilder<T extends Model> {
         params.add(deletedAt);
         QueryPart part = makeWhere();
         params.addAll(part.params);
-        repository.getConnection().write("UPDATE `"+info.getTableName()+"` SET `"+info.getColumnName(info.getSoftDeleteField())+"`=?"+part.query+";", params.toArray());
+        try {
+            repository.getConnection().write("UPDATE `"+info.getTableName()+"` SET `"+info.getColumnName(info.getSoftDeleteField())+"`=?"+part.query+";", params.toArray());
+        } catch (SQLException throwables) {
+            throw new ORMQueryException(throwables);
+        }
         return deletedAt;
     }
 
@@ -191,7 +213,11 @@ public class QueryBuilder<T extends Model> {
         params.add(null);
         QueryPart part = makeWhere();
         params.addAll(part.params);
-        repository.getConnection().write("UPDATE `"+info.getTableName()+"` SET `"+info.getColumnName(info.getSoftDeleteField())+"`=?"+part.query+";", params.toArray());
+        try {
+            repository.getConnection().write("UPDATE `"+info.getTableName()+"` SET `"+info.getColumnName(info.getSoftDeleteField())+"`=?"+part.query+";", params.toArray());
+        } catch (SQLException throwables) {
+            throw new ORMQueryException(throwables);
+        }
     }
 
     public void update(T entry){
@@ -219,7 +245,11 @@ public class QueryBuilder<T extends Model> {
         sb.append(where.query);
         params.addAll(where.params);
         sb.append(";");
-        repository.getConnection().write(sb.toString(), params.toArray());
+        try {
+            repository.getConnection().write(sb.toString(), params.toArray());
+        } catch (SQLException throwables) {
+            throw new ORMQueryException(throwables);
+        }
     }
 
     public void create(T entry){
@@ -246,10 +276,14 @@ public class QueryBuilder<T extends Model> {
         sb.append(") VALUES (");
         sb.append(String.join(",", values));
         sb.append(");");
-        int id = repository.getConnection().write(sb.toString(), params.toArray());
-        if(info.isAutoIncrement())
-            setValue(info.getIdField(), entry, id);
-        entry.setEntryExists(true);
+        try {
+            int id = repository.getConnection().write(sb.toString(), params.toArray());
+            if(info.isAutoIncrement())
+                setValue(info.getIdField(), entry, id);
+            entry.setEntryExists(true);
+        } catch (SQLException throwables) {
+            throw new ORMQueryException(throwables);
+        }
     }
 
     private QueryPart makeWhere(){
@@ -343,7 +377,7 @@ public class QueryBuilder<T extends Model> {
         }
     }
 
-    private class Condition {
+    private static class Condition {
         String fieldName;
         String operator;
         Object value;
@@ -354,7 +388,7 @@ public class QueryBuilder<T extends Model> {
         }
     }
 
-    private class QueryPart {
+    private static class QueryPart {
         String query;
         List<Object> params;
         public QueryPart(String query, List<Object> params) {
