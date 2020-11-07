@@ -114,6 +114,10 @@ public class TableInfo {
         return softDelete != null;
     }
 
+    public SoftDelete getSoftDelete() {
+        return softDelete;
+    }
+
     public boolean hasDates(){
         return dates != null;
     }
