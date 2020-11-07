@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -289,8 +290,12 @@ public class QueryBuilder<T extends Model> {
     private QueryPart makeWhere(){
         StringBuilder sb = new StringBuilder();
         List<Object> params = new ArrayList<>();
-        if(info.isSoftDelete() && !withDeleted)
-            isNull(info.getSoftDeleteField());
+        if(info.isSoftDelete() && !withDeleted) {
+            if (info.getSoftDelete().expiryMode())
+                where(info.getSoftDeleteField(), ">", new Date().getTime());
+            else
+                isNull(info.getSoftDeleteField());
+        }
         if(conditions.size() > 0){
             sb.append(" WHERE");
             for(int i=0; i < conditions.size(); i++){
