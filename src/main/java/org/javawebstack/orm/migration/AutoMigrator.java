@@ -19,9 +19,7 @@ public class AutoMigrator {
         Map<SQL, List<String>> tables = new HashMap<>();
         for(Repo<?> repo : repos){
             if(!tables.containsKey(repo.getConnection())){
-                repo.getConnection().setDebugMode(repo.getInfo().getConfig().isDebugMode());
                 tables.put(repo.getConnection(), getTables(repo.getConnection()));
-                repo.getConnection().setDebugMode(false);
             }
             migrateTable(repo.getConnection(), repo.getInfo(), tables.get(repo.getConnection()).contains(repo.getInfo().getTableName()));
         }

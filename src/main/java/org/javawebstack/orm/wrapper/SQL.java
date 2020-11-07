@@ -10,6 +10,5 @@ public interface SQL {
     ResultSet read(String queryString, Object... parameters) throws SQLException;
     int write(String queryString, Object... parameters) throws SQLException;
     void close(ResultSet resultSet);
-    void setDebugMode(boolean debugMode);
 
 }

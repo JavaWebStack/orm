@@ -11,8 +11,7 @@ public class ORMConfig {
     private boolean camelToSnakeCase = true;
     private int defaultSize = 0;
     private boolean idPrimaryKey = true;
-    private List<TypeMapper> typeMappers = new ArrayList<>();
-    private boolean debugMode = false;
+    private final List<TypeMapper> typeMappers = new ArrayList<>();
     public ORMConfig(){
         typeMappers.add(new DefaultMapper());
     }
@@ -50,13 +49,5 @@ public class ORMConfig {
     }
     public boolean isIdPrimaryKey() {
         return idPrimaryKey;
-    }
-
-    public void setDebugMode(boolean debugMode) {
-        this.debugMode = debugMode;
-    }
-
-    public boolean isDebugMode() {
-        return debugMode;
     }
 }

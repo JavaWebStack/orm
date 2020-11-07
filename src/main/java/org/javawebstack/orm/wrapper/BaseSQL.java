@@ -1,24 +1,22 @@
 package org.javawebstack.orm.wrapper;
 
+import org.javawebstack.orm.ORM;
+import org.javawebstack.orm.exception.ORMQueryException;
+
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.logging.Level;
 
 public abstract class BaseSQL implements SQL {
 
     private final Map<ResultSet,Statement> statementMap = new HashMap<>();
-    private boolean debugMode = false;
-
-    public void setDebugMode(boolean debugMode) {
-        this.debugMode = debugMode;
-    }
 
     public abstract Connection getConnection();
 
     public int write(String queryString,Object... parameters) throws SQLException {
-        if(debugMode)
-            System.out.println(queryString);
+        ORM.LOGGER.log(Level.ALL, queryString);
         if(queryString.toLowerCase(Locale.ROOT).startsWith("insert")){
             PreparedStatement ps = setParams(getConnection().prepareStatement(queryString, Statement.RETURN_GENERATED_KEYS), parameters);
             ps.executeUpdate();
@@ -39,8 +37,7 @@ public abstract class BaseSQL implements SQL {
     }
 
     public ResultSet read(String queryString, Object... parameters) throws SQLException {
-        if(debugMode)
-            System.out.println(queryString);
+        ORM.LOGGER.log(Level.ALL, queryString);
         PreparedStatement ps = setParams(getConnection().prepareStatement(queryString), parameters);
         ResultSet rs = ps.executeQuery();
         statementMap.put(rs,ps);
@@ -77,7 +74,7 @@ public abstract class BaseSQL implements SQL {
             else if(type.equals(Time.class))
                 st.setTime(i,(Time)object);
             else
-                System.out.println("[SQL] Could not set type: "+object.getClass().getName());
+                throw new ORMQueryException("Can't set parameter of type: "+object.getClass().getName());
             i++;
         }
         return st;
@@ -95,7 +92,7 @@ public abstract class BaseSQL implements SQL {
         try {
             rs.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new ORMQueryException(e);
         }
     }
 
