@@ -12,7 +12,7 @@ public enum SQLType {
     FLOAT(Float.class),
     TEXT(String.class),
     TIMESTAMP(Timestamp.class),
-    ENUM(Enum.class);
+    ENUM(String.class);
 
     private final Class<?> javaType;
 

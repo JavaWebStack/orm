@@ -42,7 +42,7 @@ public class ORM {
         return new ArrayList<>(repositories.keySet());
     }
 
-    public void autoMigrate(){
+    public static void autoMigrate(){
         AutoMigrator.migrate(repositories.values().toArray(new Repo<?>[0]));
     }
 
