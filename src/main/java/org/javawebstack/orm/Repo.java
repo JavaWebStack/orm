@@ -1,6 +1,7 @@
 package org.javawebstack.orm;
 
 import org.javawebstack.orm.exception.ORMConfigurationException;
+import org.javawebstack.orm.exception.ORMQueryException;
 import org.javawebstack.orm.migration.AutoMigrator;
 import org.javawebstack.orm.wrapper.SQL;
 
@@ -122,10 +123,10 @@ public class Repo<T extends Model> {
                 if(intId == 0)
                     return null;
             }
+            return id;
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            throw new ORMQueryException(e);
         }
-        return null;
     }
 
     public Repo<T> observe(Observer<T> observer){
