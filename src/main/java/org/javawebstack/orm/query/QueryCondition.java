@@ -36,7 +36,7 @@ public class QueryCondition implements QueryElement {
     public QueryString getQueryString(TableInfo info){
         StringBuilder sb = new StringBuilder();
         List<Object> parameters = new ArrayList<>();
-        if(left instanceof String){
+        if(left instanceof QueryColumn){
             String fieldName = (String) left;
             sb.append('`').append(info.getColumnName(fieldName)).append('`');
         }else{
@@ -46,8 +46,14 @@ public class QueryCondition implements QueryElement {
         sb.append(' ');
         sb.append(operator);
         if(hasRight()){
-            sb.append(" ?");
-            parameters.add(right);
+            sb.append(' ');
+            if(right instanceof QueryColumn){
+                String fieldName = (String) right;
+                sb.append('`').append(info.getColumnName(fieldName)).append('`');
+            }else{
+                sb.append('?');
+                parameters.add(right);
+            }
         }
         return new QueryString(sb.toString(), parameters);
     }

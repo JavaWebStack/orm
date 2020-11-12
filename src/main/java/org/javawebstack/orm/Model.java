@@ -6,7 +6,9 @@ import org.javawebstack.orm.util.Helper;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Model {
@@ -29,14 +31,27 @@ public class Model {
         }
     }
 
-    private boolean entryExists = false;
+    private boolean internalEntryExists = false;
+    private final Map<Class<? extends Model>, Object> internalJoinedModels = new HashMap<>();
+
+    void internalAddJoinedModel(Class<? extends Model> type, Object entity){
+        internalJoinedModels.put(type, entity);
+    }
+
+    public <T extends Model> T getJoined(Class<T> model){
+        return (T) internalJoinedModels.get(model);
+    }
+
+    public boolean hasJoined(Class<? extends Model> model){
+        return internalJoinedModels.containsKey(model);
+    }
 
     boolean doesEntryExist(){
-        return entryExists;
+        return internalEntryExists;
     }
 
     void setEntryExists(boolean exists){
-        this.entryExists = exists;
+        this.internalEntryExists = exists;
     }
 
     public void save(){

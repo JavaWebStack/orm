@@ -41,7 +41,7 @@ public class QueryGroup<T extends Model> implements QueryElement {
     public QueryGroup<T> where(Object left, String condition, Object right){
         if(queryElements.size()>0)
             queryElements.add(QueryConjunction.AND);
-        queryElements.add(new QueryCondition(left, condition, right));
+        queryElements.add(new QueryCondition(left instanceof String ? new QueryColumn((String) left) : left, condition, right));
         return this;
     }
 
@@ -68,7 +68,7 @@ public class QueryGroup<T extends Model> implements QueryElement {
     public QueryGroup<T> orWhere(Object left, String condition, Object right){
         if(queryElements.size() > 0)
             queryElements.add(QueryConjunction.OR);
-        queryElements.add(new QueryCondition(left, condition, right));
+        queryElements.add(new QueryCondition(left instanceof String ? new QueryColumn((String) left) : left, condition, right));
         return this;
     }
 

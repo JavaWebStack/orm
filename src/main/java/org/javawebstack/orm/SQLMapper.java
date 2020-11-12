@@ -21,11 +21,16 @@ public class SQLMapper {
         return values;
     }
 
-    public static <T extends Model> List<T> map(Repo<T> repo, ResultSet rs){
+    public static <T extends Model> List<T> map(Repo<T> repo, ResultSet rs, List<Class<? extends Model>> joinedModels){
         List<T> list = new ArrayList<>();
         try {
             while (rs.next()){
                 T t = (T) repo.getInfo().getModelConstructor().newInstance();
+                for(Class<? extends Model> model : joinedModels){
+                    Repo<Model> r = Repo.get((Class<Model>) model);
+                    Model o = (Model) r.getInfo().getModelConstructor().newInstance();
+                    t.internalAddJoinedModel(model, mapBack(r, rs, o));
+                }
                 list.add(mapBack(repo, rs, t));
             }
         }catch (SQLException | InstantiationException | IllegalAccessException | InvocationTargetException ex){
@@ -36,8 +41,9 @@ public class SQLMapper {
 
     public static <T extends Model> T mapBack(Repo<T> repo, ResultSet rs, T t){
         t.setEntryExists(true);
-        for(String fieldName : repo.getInfo().getFields())
-            setValue(repo, fieldName, t, getValue(rs, repo.getInfo().getType(fieldName).getJavaType(), repo.getInfo().getColumnName(fieldName)));
+        for(String fieldName : repo.getInfo().getFields()){
+            setValue(repo, fieldName, t, getValue(rs, repo.getInfo().getType(fieldName).getJavaType(), repo.getInfo().getTableName(), repo.getInfo().getColumnName(fieldName)));
+        }
         return t;
     }
 
@@ -59,8 +65,18 @@ public class SQLMapper {
         }
     }
 
-    private static Object getValue(ResultSet rs, Class<?> sqlType, String columnName) {
+    private static Object getValue(ResultSet rs, Class<?> sqlType, String tableName, String columnName) {
         try {
+            try {
+                rs.findColumn(columnName);
+            }catch (SQLException ex){
+                columnName = tableName + "." + columnName;
+            }
+            try {
+                rs.findColumn(columnName);
+            }catch (SQLException ex){
+                return null;
+            }
             if(sqlType.equals(String.class))
                 return rs.getString(columnName);
             if(sqlType.equals(Integer.class))

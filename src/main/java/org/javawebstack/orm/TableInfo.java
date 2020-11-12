@@ -143,6 +143,8 @@ public class TableInfo {
     }
 
     public String getColumnName(String fieldName){
+        String[] spl = fieldName.split("\\.");
+        fieldName = spl[spl.length-1];
         if(fieldToColumn.containsKey(fieldName))
             return fieldToColumn.get(fieldName);
         return fieldName;

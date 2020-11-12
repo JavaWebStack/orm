@@ -26,6 +26,7 @@ public class Query<T extends Model> {
     private String order;
     private boolean desc = false;
     private boolean withDeleted = false;
+    private final Map<Class<? extends Model>, QueryCondition> leftJoins = new HashMap<>();
 
     public Query(Class<T> model){
         this(Repo.get(model), model);
@@ -39,6 +40,11 @@ public class Query<T extends Model> {
 
     public Class<T> getModel() {
         return model;
+    }
+
+    public Query<T> leftJoin(Class<? extends Model> model, String self, String other){
+        leftJoins.put(model, new QueryCondition(new QueryColumn(repo.getInfo().getTableName()+"."+self), "=", new QueryColumn(Repo.get(model).getInfo().getTableName()+"."+other)));
+        return this;
     }
 
     public Query<T> and(Consumer<QueryGroup<T>> group){
@@ -161,6 +167,12 @@ public class Query<T extends Model> {
                 .append(" FROM `")
                 .append(repo.getInfo().getTableName())
                 .append('`');
+        for(Class<? extends Model> type : leftJoins.keySet()){
+            sb.append(" LEFT JOIN `")
+                    .append(Repo.get(type).getInfo().getTableName())
+                    .append("` ON ")
+                    .append(leftJoins.get(type).getQueryString(repo.getInfo()).getQuery());
+        }
         considerSoftDelete();
         if(where.getQueryElements().size() > 0){
             QueryString qs = where.getQueryString(repo.getInfo());
@@ -277,7 +289,9 @@ public class Query<T extends Model> {
         QueryString qs = getQueryString(false);
         try {
             ResultSet rs = repo.getConnection().read(qs.getQuery(), SQLMapper.mapParams(repo, qs.getParameters()).toArray());
-            List<T> list = SQLMapper.map(repo, rs);
+            List<Class<? extends Model>> joinedModels = new ArrayList<>();
+            joinedModels.addAll(leftJoins.keySet());
+            List<T> list = SQLMapper.map(repo, rs, joinedModels);
             repo.getConnection().close(rs);
             return list;
         } catch (SQLException throwables) {
