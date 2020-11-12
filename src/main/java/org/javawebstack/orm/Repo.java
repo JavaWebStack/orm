@@ -3,11 +3,15 @@ package org.javawebstack.orm;
 import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.javawebstack.orm.exception.ORMQueryException;
 import org.javawebstack.orm.migration.AutoMigrator;
+import org.javawebstack.orm.query.Query;
 import org.javawebstack.orm.wrapper.SQL;
 
+import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 public class Repo<T extends Model> {
@@ -25,16 +29,16 @@ public class Repo<T extends Model> {
         this.connection = connection;
     }
 
-    public QueryBuilder<T> query(){
-        return new QueryBuilder<>(this);
+    public Query<T> query(){
+        return new Query<>((Class<T>) info.getModelClass());
     }
 
-    public QueryBuilder<T> where(String key, String op, Object value){
-        return query().where(key, op, value);
+    public Query<T> where(Object left, String operator, Object right){
+        return query().where(left, operator, right);
     }
 
-    public QueryBuilder<T> where(String key, Object value){
-        return query().where(key, value);
+    public Query<T> where(Object left, Object right){
+        return query().where(left, right);
     }
 
     public void save(T entry){
@@ -48,9 +52,46 @@ public class Repo<T extends Model> {
     public void create(T entry){
         observers.forEach(o -> o.saving(entry));
         observers.forEach(o -> o.creating(entry));
-        query().create(entry);
+        executeCreate(entry);
         observers.forEach(o -> o.created(entry));
         observers.forEach(o -> o.saved(entry));
+    }
+
+    private void executeCreate(T entry){
+        try {
+            if(info.hasDates()){
+                Timestamp now = Timestamp.from(Instant.now());
+                info.getField(info.getCreatedField()).set(entry, now);
+                info.getField(info.getUpdatedField()).set(entry, now);
+            }
+            List<Object> params = new ArrayList<>();
+            StringBuilder sb = new StringBuilder("INSERT INTO `");
+            sb.append(info.getTableName());
+            sb.append("` (");
+            List<String> cols = new ArrayList<>();
+            List<String> values = new ArrayList<>();
+            Map<String, Object> map = SQLMapper.map(this, entry);
+            if(info.isAutoIncrement()){
+                String idCol = info.getColumnName(info.getIdField());
+                if(map.containsKey(idCol) && map.get(idCol) == null)
+                    map.remove(idCol);
+            }
+            for(String columnName : map.keySet()){
+                cols.add("`"+columnName+"`");
+                values.add("?");
+                params.add(map.get(columnName));
+            }
+            sb.append(String.join(",", cols));
+            sb.append(") VALUES (");
+            sb.append(String.join(",", values));
+            sb.append(");");
+            int id = connection.write(sb.toString(), params.toArray());
+            if(info.isAutoIncrement())
+                info.getField(info.getIdField()).set(entry, id);
+            entry.setEntryExists(true);
+        } catch (SQLException | IllegalAccessException throwables) {
+            throw new ORMQueryException(throwables);
+        }
     }
 
     public void update(T entry){
@@ -64,7 +105,6 @@ public class Repo<T extends Model> {
     public void delete(T entry){
         observers.forEach(o -> o.deleting(entry));
         Timestamp timestamp = where(info.getIdField(), getId(entry)).delete();
-        observers.forEach(o -> o.deleted(entry));
         if(timestamp != null){
             try {
                 info.getField(info.getSoftDeleteField()).set(entry, timestamp);
@@ -72,6 +112,7 @@ public class Repo<T extends Model> {
                 e.printStackTrace();
             }
         }
+        observers.forEach(o -> o.deleted(entry));
     }
 
     public void restore(T entry){
@@ -79,12 +120,12 @@ public class Repo<T extends Model> {
             return;
         observers.forEach(o -> o.restoring(entry));
         where(info.getIdField(), getId(entry)).restore();
-        observers.forEach(o -> o.restored(entry));
         try {
             info.getField(info.getSoftDeleteField()).set(entry, null);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
+        observers.forEach(o -> o.restored(entry));
     }
 
     public void finalDelete(T entry){

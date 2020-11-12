@@ -50,4 +50,28 @@ public class ORMConfig {
     public boolean isIdPrimaryKey() {
         return idPrimaryKey;
     }
+    public TypeMapper getTypeMapper(Class<?> type, int size){
+        for(TypeMapper mapper : getTypeMappers()){
+            SQLType sqlType = mapper.getType(type, size);
+            if(sqlType != null)
+                return mapper;
+        }
+        return null;
+    }
+    public SQLType getType(Class<?> type, int size){
+        for(TypeMapper mapper : getTypeMappers()){
+            SQLType sqlType = mapper.getType(type, size);
+            if(sqlType != null)
+                return sqlType;
+        }
+        return SQLType.TEXT;
+    }
+    public String getTypeParameters(Class<?> type, int size){
+        for(TypeMapper mapper : getTypeMappers()){
+            SQLType sqlType = mapper.getType(type, size);
+            if(sqlType != null)
+                return mapper.getTypeParameters(type, size);
+        }
+        return null;
+    }
 }

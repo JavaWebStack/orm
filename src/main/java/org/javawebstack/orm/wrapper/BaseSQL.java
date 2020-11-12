@@ -4,10 +4,12 @@ import org.javawebstack.orm.ORM;
 import org.javawebstack.orm.exception.ORMQueryException;
 
 import java.sql.*;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public abstract class BaseSQL implements SQL {
 
@@ -16,7 +18,7 @@ public abstract class BaseSQL implements SQL {
     public abstract Connection getConnection();
 
     public int write(String queryString,Object... parameters) throws SQLException {
-        ORM.LOGGER.log(Level.ALL, queryString);
+        ORM.LOGGER.log(Level.ALL, queryString, Arrays.stream(parameters).map(o -> o == null ? "null" : o.toString()).collect(Collectors.joining(",")));
         if(queryString.toLowerCase(Locale.ROOT).startsWith("insert")){
             PreparedStatement ps = setParams(getConnection().prepareStatement(queryString, Statement.RETURN_GENERATED_KEYS), parameters);
             ps.executeUpdate();
@@ -37,7 +39,7 @@ public abstract class BaseSQL implements SQL {
     }
 
     public ResultSet read(String queryString, Object... parameters) throws SQLException {
-        ORM.LOGGER.log(Level.ALL, queryString);
+        ORM.LOGGER.log(Level.ALL, queryString, Arrays.stream(parameters).map(o -> o == null ? "null" : o.toString()).collect(Collectors.joining(",")));
         PreparedStatement ps = setParams(getConnection().prepareStatement(queryString), parameters);
         ResultSet rs = ps.executeQuery();
         statementMap.put(rs,ps);

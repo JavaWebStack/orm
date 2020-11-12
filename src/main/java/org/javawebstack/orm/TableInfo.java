@@ -66,14 +66,10 @@ public class TableInfo {
             }
             fields.put(fieldName, field);
             fieldConfigs.put(fieldName, fieldConfig);
-            for(TypeMapper mapper : config.getTypeMappers()){
-                SQLType sqlType = mapper.getType(field.getType(), fieldConfig.size());
-                if(sqlType != null) {
-                    sqlTypes.put(fieldName, sqlType);
-
-                    sqlTypeParameters.put(fieldName, mapper.getTypeParameters(field.getType(), fieldConfig.size()));
-                    break;
-                }
+            SQLType sqlType = config.getType(field.getType(), fieldConfig.size());
+            if(sqlType != null){
+                sqlTypes.put(fieldName, sqlType);
+                sqlTypeParameters.put(fieldName, config.getTypeParameters(field.getType(), fieldConfig.size()));
             }
             if(!sqlTypes.containsKey(fieldName))
                 throw new ORMConfigurationException("Couldn't find type-mapper for '"+fieldName+"'!");
@@ -147,7 +143,9 @@ public class TableInfo {
     }
 
     public String getColumnName(String fieldName){
-        return fieldToColumn.get(fieldName);
+        if(fieldToColumn.containsKey(fieldName))
+            return fieldToColumn.get(fieldName);
+        return fieldName;
     }
 
     public SQLType getType(String fieldName){

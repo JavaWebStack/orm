@@ -1,5 +1,6 @@
 package org.javawebstack.orm;
 
+import org.javawebstack.orm.query.Query;
 import org.javawebstack.orm.util.Helper;
 
 import java.lang.reflect.Field;
@@ -10,11 +11,11 @@ import java.util.stream.Collectors;
 
 public class Model {
 
-    private static Method saveMethod;
-    private static Method deleteMethod;
-    private static Method finalDeleteMethod;
-    private static Method restoreMethod;
-    private static Method refreshMethod;
+    private static final Method saveMethod;
+    private static final Method deleteMethod;
+    private static final Method finalDeleteMethod;
+    private static final Method restoreMethod;
+    private static final Method refreshMethod;
 
     static {
         try {
@@ -42,6 +43,7 @@ public class Model {
         try {
             saveMethod.invoke(ORM.repo(getClass()), this);
         } catch (IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
@@ -120,11 +122,11 @@ public class Model {
         return hasManyRelation(child, fieldName).all();
     }
 
-    public <T extends Model> QueryBuilder<T> hasManyRelation(Class<T> child){
+    public <T extends Model> Query<T> hasManyRelation(Class<T> child){
         return hasManyRelation(child, Helper.pascalToCamelCase(getClass().getSimpleName())+"Id");
     }
 
-    public <T extends Model> QueryBuilder<T> hasManyRelation(Class<T> child, String fieldName){
+    public <T extends Model> Query<T> hasManyRelation(Class<T> child, String fieldName){
         try {
             Repo<?> ownRepo = Repo.get(getClass());
             Integer id = (Integer) ownRepo.getInfo().getField(ownRepo.getInfo().getIdField()).get(this);

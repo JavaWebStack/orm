@@ -1,0 +1,92 @@
+package org.javawebstack.orm;
+
+import org.javawebstack.orm.exception.ORMQueryException;
+import org.javawebstack.orm.mapper.TypeMapper;
+
+import java.lang.reflect.InvocationTargetException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class SQLMapper {
+
+    public static <T extends Model> Map<String, Object> map(Repo<T> repo, T entity){
+        Map<String, Object> values = new HashMap<>();
+        for(String fieldName : repo.getInfo().getFields())
+            values.put(repo.getInfo().getColumnName(fieldName), getValue(repo, fieldName, entity));
+        return values;
+    }
+
+    public static <T extends Model> List<T> map(Repo<T> repo, ResultSet rs){
+        List<T> list = new ArrayList<>();
+        try {
+            while (rs.next()){
+                T t = (T) repo.getInfo().getModelConstructor().newInstance();
+                list.add(mapBack(repo, rs, t));
+            }
+        }catch (SQLException | InstantiationException | IllegalAccessException | InvocationTargetException ex){
+            throw new ORMQueryException(ex);
+        }
+        return list;
+    }
+
+    public static <T extends Model> T mapBack(Repo<T> repo, ResultSet rs, T t){
+        t.setEntryExists(true);
+        for(String fieldName : repo.getInfo().getFields())
+            setValue(repo, fieldName, t, getValue(rs, repo.getInfo().getType(fieldName).getJavaType(), repo.getInfo().getColumnName(fieldName)));
+        return t;
+    }
+
+    public static List<Object> mapParams(Repo<?> repo, List<Object> params){
+        List<Object> result = new ArrayList<>();
+        for(Object o : params)
+            result.add(repo.getInfo().getConfig().getTypeMapper(o.getClass(), 0).mapToSQL(o, o.getClass()));
+        return result;
+    }
+
+    private static <T extends Model> Object getValue(Repo<T> repo, String fieldName, T entry) {
+        try {
+            Object value = repo.getInfo().getField(fieldName).get(entry);
+            for(TypeMapper mapper : repo.getInfo().getConfig().getTypeMappers())
+                value = mapper.mapToSQL(value, repo.getInfo().getField(fieldName).getType());
+            return value;
+        } catch (IllegalAccessException e) {
+            throw new ORMQueryException(e);
+        }
+    }
+
+    private static Object getValue(ResultSet rs, Class<?> sqlType, String columnName) {
+        try {
+            if(sqlType.equals(String.class))
+                return rs.getString(columnName);
+            if(sqlType.equals(Integer.class))
+                return rs.getInt(columnName);
+            if(sqlType.equals(Long.class))
+                return rs.getLong(columnName);
+            if(sqlType.equals(Double.class))
+                return rs.getDouble(columnName);
+            if(sqlType.equals(Float.class))
+                return rs.getFloat(columnName);
+            if(sqlType.equals(Timestamp.class))
+                return rs.getTimestamp(columnName);
+        } catch (SQLException e) {
+            throw new ORMQueryException(e);
+        }
+        return null;
+    }
+
+    private static <T extends Model> void setValue(Repo<T> repo, String fieldName, T entry, Object value) {
+        try {
+            for(TypeMapper mapper : repo.getInfo().getConfig().getTypeMappers())
+                value = mapper.mapToJava(value, repo.getInfo().getField(fieldName).getType());
+            repo.getInfo().getField(fieldName).set(entry, value);
+        } catch (IllegalAccessException e) {
+            throw new ORMQueryException(e);
+        }
+    }
+
+}
