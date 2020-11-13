@@ -118,8 +118,19 @@ public class TableInfo {
         return dates != null;
     }
 
+    public boolean hasCreated(){
+        return hasDates() && getFields().contains(getCreatedField());
+    }
+
+    public boolean hasUpdated(){
+        return hasDates() && getFields().contains(getUpdatedField());
+    }
+
     public boolean isAutoIncrement(){
-        return fieldConfigs.get(idField).ai();
+        return (
+                getField(getIdField()).getType().equals(Integer.class) ||
+                getField(getIdField()).getType().equals(Long.class)
+        ) && (fieldConfigs.get(idField).ai() || config.isIdAutoIncrement());
     }
 
     public String getSoftDeleteField(){

@@ -259,7 +259,7 @@ public class Query<T extends Model> {
     }
 
     public void update(Map<String, Object> values){
-        if(repo.getInfo().hasDates())
+        if(repo.getInfo().hasUpdated())
             values.put(repo.getInfo().getColumnName(repo.getInfo().getUpdatedField()), Timestamp.from(Instant.now()));
         List<Object> parameters = new ArrayList<>();
         List<String> sets = new ArrayList<>();

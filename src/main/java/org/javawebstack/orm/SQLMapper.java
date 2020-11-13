@@ -1,5 +1,6 @@
 package org.javawebstack.orm;
 
+import org.javawebstack.injector.Injector;
 import org.javawebstack.orm.exception.ORMQueryException;
 import org.javawebstack.orm.mapper.TypeMapper;
 
@@ -26,9 +27,14 @@ public class SQLMapper {
         try {
             while (rs.next()){
                 T t = (T) repo.getInfo().getModelConstructor().newInstance();
+                Injector injector = repo.getInfo().getConfig().getInjector();
+                if(injector != null)
+                    injector.inject(t);
                 for(Class<? extends Model> model : joinedModels){
                     Repo<Model> r = Repo.get((Class<Model>) model);
                     Model o = (Model) r.getInfo().getModelConstructor().newInstance();
+                    if(injector != null)
+                        injector.inject(o);
                     t.internalAddJoinedModel(model, mapBack(r, rs, o));
                 }
                 list.add(mapBack(repo, rs, t));

@@ -1,5 +1,6 @@
 package org.javawebstack.orm;
 
+import org.javawebstack.injector.Injector;
 import org.javawebstack.orm.mapper.DefaultMapper;
 import org.javawebstack.orm.mapper.TypeMapper;
 
@@ -11,7 +12,10 @@ public class ORMConfig {
     private boolean camelToSnakeCase = true;
     private int defaultSize = 0;
     private boolean idPrimaryKey = true;
+    private boolean idAutoIncrement = true;
     private final List<TypeMapper> typeMappers = new ArrayList<>();
+    private Injector injector;
+
     public ORMConfig(){
         typeMappers.add(new DefaultMapper());
     }
@@ -35,6 +39,14 @@ public class ORMConfig {
         this.idPrimaryKey = idPrimaryKey;
         return this;
     }
+    public ORMConfig setIdAutoIncrement(boolean idAutoIncrement){
+        this.idAutoIncrement = idAutoIncrement;
+        return this;
+    }
+    public ORMConfig setInjector(Injector injector){
+        this.injector = injector;
+        return this;
+    }
     public boolean isCamelToSnakeCase() {
         return camelToSnakeCase;
     }
@@ -50,6 +62,14 @@ public class ORMConfig {
     public boolean isIdPrimaryKey() {
         return idPrimaryKey;
     }
+    public boolean isIdAutoIncrement(){
+        return idAutoIncrement;
+    }
+
+    public Injector getInjector() {
+        return injector;
+    }
+
     public TypeMapper getTypeMapper(Class<?> type, int size){
         for(TypeMapper mapper : getTypeMappers()){
             SQLType sqlType = mapper.getType(type, size);

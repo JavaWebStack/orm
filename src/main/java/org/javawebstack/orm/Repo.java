@@ -50,6 +50,8 @@ public class Repo<T extends Model> {
     }
 
     public void create(T entry){
+        if(info.getConfig().getInjector() != null)
+            info.getConfig().getInjector().inject(entry);
         observers.forEach(o -> o.saving(entry));
         observers.forEach(o -> o.creating(entry));
         executeCreate(entry);
@@ -61,8 +63,10 @@ public class Repo<T extends Model> {
         try {
             if(info.hasDates()){
                 Timestamp now = Timestamp.from(Instant.now());
-                info.getField(info.getCreatedField()).set(entry, now);
-                info.getField(info.getUpdatedField()).set(entry, now);
+                if(info.hasCreated())
+                    info.getField(info.getCreatedField()).set(entry, now);
+                if(info.hasUpdated())
+                    info.getField(info.getUpdatedField()).set(entry, now);
             }
             List<Object> params = new ArrayList<>();
             StringBuilder sb = new StringBuilder("INSERT INTO `");
@@ -171,6 +175,8 @@ public class Repo<T extends Model> {
     }
 
     public Repo<T> observe(Observer<T> observer){
+        if(info.getConfig().getInjector() != null)
+            info.getConfig().getInjector().inject(observer);
         observers.add(observer);
         return this;
     }

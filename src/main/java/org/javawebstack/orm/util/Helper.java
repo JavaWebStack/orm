@@ -7,7 +7,8 @@ public class Helper {
         sb.append(Character.toLowerCase(source.charAt(0)));
         for(int i=1; i<source.length(); i++){
             if(Character.isUpperCase(source.charAt(i))){
-                sb.append("_");
+                if(!Character.isUpperCase(source.charAt(i-1)))
+                    sb.append("_");
                 sb.append(Character.toLowerCase(source.charAt(i)));
             }else{
                 sb.append(source.charAt(i));

@@ -3,6 +3,7 @@ package org.javawebstack.orm;
 import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.javawebstack.orm.migration.AutoMigrator;
 import org.javawebstack.orm.wrapper.SQL;
+import org.reflections.Reflections;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,6 +29,15 @@ public class ORM {
 
     public static <T extends Model> Repo<T> register(Class<T> model, SQL sql) throws ORMConfigurationException {
         return register(model, sql, new ORMConfig());
+    }
+
+    public void register(Package p, SQL sql, ORMConfig config) throws ORMConfigurationException {
+        for(Class<? extends Model> model : new Reflections(p.getName()).getSubTypesOf(Model.class))
+            ORM.register(model, sql, config);
+    }
+
+    public void register(Package p, SQL sql) throws ORMConfigurationException {
+        register(p, sql, new ORMConfig());
     }
 
     public static void unregister(Class<? extends Model> model){
