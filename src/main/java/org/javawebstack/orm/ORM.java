@@ -31,12 +31,12 @@ public class ORM {
         return register(model, sql, new ORMConfig());
     }
 
-    public void register(Package p, SQL sql, ORMConfig config) throws ORMConfigurationException {
+    public static void register(Package p, SQL sql, ORMConfig config) throws ORMConfigurationException {
         for(Class<? extends Model> model : new Reflections(p.getName()).getSubTypesOf(Model.class))
             ORM.register(model, sql, config);
     }
 
-    public void register(Package p, SQL sql) throws ORMConfigurationException {
+    public static void register(Package p, SQL sql) throws ORMConfigurationException {
         register(p, sql, new ORMConfig());
     }
 
