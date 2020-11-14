@@ -37,7 +37,7 @@ public class QueryCondition implements QueryElement {
         StringBuilder sb = new StringBuilder();
         List<Object> parameters = new ArrayList<>();
         if(left instanceof QueryColumn){
-            String fieldName = (String) left;
+            String fieldName = ((QueryColumn) left).getName();
             sb.append('`').append(info.getColumnName(fieldName)).append('`');
         }else{
             sb.append('?');
@@ -48,7 +48,7 @@ public class QueryCondition implements QueryElement {
         if(hasRight()){
             sb.append(' ');
             if(right instanceof QueryColumn){
-                String fieldName = (String) right;
+                String fieldName = ((QueryColumn) right).getName();
                 sb.append('`').append(info.getColumnName(fieldName)).append('`');
             }else{
                 sb.append('?');
