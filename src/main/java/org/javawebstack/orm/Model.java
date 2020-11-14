@@ -1,5 +1,6 @@
 package org.javawebstack.orm;
 
+import org.javawebstack.orm.exception.ORMQueryException;
 import org.javawebstack.orm.query.Query;
 import org.javawebstack.orm.util.Helper;
 
@@ -33,9 +34,13 @@ public class Model {
 
     private boolean internalEntryExists = false;
     private final Map<Class<? extends Model>, Object> internalJoinedModels = new HashMap<>();
+    private final Map<String, Object> internalLastValue = new HashMap<>();
 
     void internalAddJoinedModel(Class<? extends Model> type, Object entity){
         internalJoinedModels.put(type, entity);
+    }
+    void internalSetLastValue(String key, Object value){
+        internalLastValue.put(key, value);
     }
 
     public <T extends Model> T getJoined(Class<T> model){
@@ -52,6 +57,25 @@ public class Model {
 
     void setEntryExists(boolean exists){
         this.internalEntryExists = exists;
+    }
+
+    public boolean isDirty(String... fields){
+        Repo<?> repo = Repo.get(getClass());
+        for(String field : fields){
+            try {
+                Object value = repo.getInfo().getField(field).get(this);
+                Object oldValue = internalLastValue.get(field);
+                if((value == null && oldValue != null) || (oldValue == null && value != null))
+                    return true;
+                if(value == null)
+                    continue;
+                if(!value.equals(oldValue))
+                    return true;
+            } catch (IllegalAccessException e) {
+                throw new ORMQueryException(e);
+            }
+        }
+        return false;
     }
 
     public void save(){

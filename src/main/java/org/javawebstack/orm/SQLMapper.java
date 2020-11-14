@@ -48,7 +48,9 @@ public class SQLMapper {
     public static <T extends Model> T mapBack(Repo<T> repo, ResultSet rs, T t){
         t.setEntryExists(true);
         for(String fieldName : repo.getInfo().getFields()){
-            setValue(repo, fieldName, t, getValue(rs, repo.getInfo().getType(fieldName).getJavaType(), repo.getInfo().getTableName(), repo.getInfo().getColumnName(fieldName)));
+            Object value = getValue(rs, repo.getInfo().getType(fieldName).getJavaType(), repo.getInfo().getTableName(), repo.getInfo().getColumnName(fieldName));
+            t.internalSetLastValue(fieldName, value);
+            setValue(repo, fieldName, t, value);
         }
         return t;
     }

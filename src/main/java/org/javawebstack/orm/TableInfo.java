@@ -129,7 +129,9 @@ public class TableInfo {
     public boolean isAutoIncrement(){
         return (
                 getField(getIdField()).getType().equals(Integer.class) ||
-                getField(getIdField()).getType().equals(Long.class)
+                getField(getIdField()).getType().equals(int.class) ||
+                getField(getIdField()).getType().equals(Long.class) ||
+                getField(getIdField()).getType().equals(long.class)
         ) && (fieldConfigs.get(idField).ai() || config.isIdAutoIncrement());
     }
 
