@@ -108,6 +108,7 @@ public class SQLMapper {
             for(TypeMapper mapper : repo.getInfo().getConfig().getTypeMappers())
                 value = mapper.mapToJava(value, repo.getInfo().getField(fieldName).getType());
             repo.getInfo().getField(fieldName).set(entry, value);
+            entry.internalSetLastValue(fieldName, value);
         } catch (IllegalAccessException e) {
             throw new ORMQueryException(e);
         }

@@ -40,7 +40,8 @@ public class Model {
         internalJoinedModels.put(type, entity);
     }
     void internalSetLastValue(String key, Object value){
-        internalLastValue.put(key, value);
+        if(value == null) internalLastValue.remove(key);
+        else internalLastValue.put(key, value);
     }
 
     public <T extends Model> T getJoined(Class<T> model){
