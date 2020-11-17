@@ -8,9 +8,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class Model {
 
@@ -120,16 +118,16 @@ public class Model {
         }
     }
 
-    public <T extends Model> T belongsTo(Class<T> parent){
+    public <T extends Model> Query<T> belongsTo(Class<T> parent){
         return belongsTo(parent, Helper.pascalToCamelCase(parent.getSimpleName())+"Id");
     }
 
-    public <T extends Model> T belongsTo(Class<T> parent, String fieldName){
+    public <T extends Model> Query<T> belongsTo(Class<T> parent, String fieldName){
         try {
-            Integer id = (Integer) Repo.get(getClass()).getInfo().getField(fieldName).get(this);
+            Object id = Repo.get(getClass()).getInfo().getField(fieldName).get(this);
             if(id == null)
                 return null;
-            return Repo.get(parent).get(id);
+            return Repo.get(parent).whereId(id);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -146,7 +144,7 @@ public class Model {
                 f.set(this, null);
             }else{
                 Repo<T> repo = Repo.get(parent);
-                Integer id = (Integer) repo.getInfo().getField(repo.getInfo().getIdField()).get(value);
+                Object id = repo.getInfo().getField(repo.getInfo().getIdField()).get(value);
                 f.set(this, id);
             }
         } catch (IllegalAccessException e) {
@@ -154,46 +152,30 @@ public class Model {
         }
     }
 
-    public <T extends Model> List<T> hasMany(Class<T> child){
-        return hasManyRelation(child).all();
+    public <T extends Model> Query<T> hasMany(Class<T> child){
+        return hasMany(child, Helper.pascalToCamelCase(getClass().getSimpleName())+"Id");
     }
 
-    public <T extends Model> List<T> hasMany(Class<T> child, String fieldName){
-        return hasManyRelation(child, fieldName).all();
-    }
-
-    public <T extends Model> Query<T> hasManyRelation(Class<T> child){
-        return hasManyRelation(child, Helper.pascalToCamelCase(getClass().getSimpleName())+"Id");
-    }
-
-    public <T extends Model> Query<T> hasManyRelation(Class<T> child, String fieldName){
+    public <T extends Model> Query<T> hasMany(Class<T> child, String fieldName){
         try {
             Repo<?> ownRepo = Repo.get(getClass());
-            Integer id = (Integer) ownRepo.getInfo().getField(ownRepo.getInfo().getIdField()).get(this);
+            Object id = ownRepo.getInfo().getField(ownRepo.getInfo().getIdField()).get(this);
             return Repo.get(child).where(fieldName, id);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public <T extends Model> List<T> belongsToMany(Class<T> other, Class<? extends Model> pivot){
+    public <T extends Model> Query<T> belongsToMany(Class<T> other, Class<? extends Model> pivot){
         return belongsToMany(other, pivot, Helper.pascalToCamelCase(getClass().getSimpleName())+"Id", Helper.pascalToCamelCase(other.getSimpleName())+"Id");
     }
 
-    public <T extends Model> List<T> belongsToMany(Class<T> other, Class<? extends Model> pivot, String selfFieldName, String otherFieldName){
+    public <T extends Model> Query<T> belongsToMany(Class<T> other, Class<? extends Model> pivot, String selfFieldName, String otherFieldName){
         try {
             Repo<?> selfRepo = Repo.get(getClass());
             Repo<T> otherRepo = Repo.get(other);
-            Field otherField = Repo.get(pivot).getInfo().getField(otherFieldName);
-            Integer id = (Integer) selfRepo.getInfo().getField(selfRepo.getInfo().getIdField()).get(this);
-            return Repo.get(pivot).where(selfFieldName, id).stream().map(p -> {
-                try {
-                    Integer otherId = (Integer) otherField.get(p);
-                    return otherRepo.get(otherId);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
-            }).collect(Collectors.toList());
+            Object id = selfRepo.getInfo().getField(selfRepo.getInfo().getIdField()).get(this);
+            return otherRepo.whereExists(pivot, q -> q.where(pivot, selfFieldName, "=", id).where(pivot, otherFieldName, "=", other, otherRepo.getInfo().getIdColumn()));
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }

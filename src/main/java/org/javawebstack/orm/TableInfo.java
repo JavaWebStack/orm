@@ -159,7 +159,7 @@ public class TableInfo {
         String[] spl = fieldName.split("\\.");
         fieldName = spl[spl.length-1];
         if(fieldToColumn.containsKey(fieldName))
-            return fieldToColumn.get(fieldName);
+            return (spl.length > 1 ? spl[0] + "." : "") + fieldToColumn.get(fieldName);
         return fieldName;
     }
 
@@ -201,6 +201,10 @@ public class TableInfo {
 
     public String getIdField(){
         return idField;
+    }
+
+    public String getIdColumn(){
+        return getColumnName(getIdField());
     }
 
     public Class<?> getIdType(){

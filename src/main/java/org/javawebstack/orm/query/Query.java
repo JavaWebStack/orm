@@ -67,6 +67,46 @@ public class Query<T extends Model> {
         return this;
     }
 
+    public Query<T> where(Class<? extends Model> leftTable, String left, String operator, Class<? extends Model> rightTable, String right){
+        if(rightTable != null)
+            right = Repo.get(rightTable).getInfo().getTableName() + "." + right;
+        return where(leftTable, left, operator, new QueryColumn(right));
+    }
+
+    public Query<T> where(Class<? extends Model> leftTable, String left, String operator, Object right){
+        if(leftTable != null)
+            left = Repo.get(leftTable).getInfo().getTableName() + "." + left;
+        return where(left, operator, right);
+    }
+
+    public Query<T> orWhere(Class<? extends Model> leftTable, String left, String operator, Class<? extends Model> rightTable, String right){
+        if(rightTable != null)
+            right = Repo.get(rightTable).getInfo().getTableName() + "." + right;
+        return orWhere(leftTable, left, operator, new QueryColumn(right));
+    }
+
+    public Query<T> orWhere(Class<? extends Model> leftTable, String left, String operator, Object right){
+        if(leftTable != null)
+            left = Repo.get(leftTable).getInfo().getTableName() + "." + left;
+        return orWhere(left, operator, right);
+    }
+
+    public Query<T> whereId(String operator, Object right){
+        return where(repo.getInfo().getIdField(), operator, right);
+    }
+
+    public Query<T> whereId(Object right){
+        return whereId("=", right);
+    }
+
+    public Query<T> orWhereId(String operator, Object right){
+        return orWhere(repo.getInfo().getIdField(), operator, right);
+    }
+
+    public Query<T> orWhereId(Object right){
+        return orWhereId("=", right);
+    }
+
     public Query<T> isNull(Object left){
         where.isNull(left);
         return this;
@@ -238,7 +278,7 @@ public class Query<T extends Model> {
         if(repo.getInfo().isSoftDelete() && !withDeleted){
             if(where.getQueryElements().size() > 0)
                 where.getQueryElements().add(0, QueryConjunction.AND);
-            where.getQueryElements().add(0, new QueryCondition(repo.getInfo().getColumnName(repo.getInfo().getSoftDeleteField()) ,"IS NULL", null));
+            where.getQueryElements().add(0, new QueryCondition(new QueryColumn(repo.getInfo().getColumnName(repo.getInfo().getSoftDeleteField())) ,"IS NULL", null));
         }
     }
 

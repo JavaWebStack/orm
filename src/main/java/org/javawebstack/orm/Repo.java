@@ -12,6 +12,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class Repo<T extends Model> {
@@ -39,6 +40,18 @@ public class Repo<T extends Model> {
 
     public Query<T> where(Object left, Object right){
         return query().where(left, right);
+    }
+
+    public Query<T> whereId(String operator, Object right){
+        return query().whereId(operator, right);
+    }
+
+    public Query<T> whereId(Object right){
+        return query().whereId(right);
+    }
+
+    public <M extends Model> Query<T> whereExists(Class<M> model, Consumer<Query<M>> consumer){
+        return query().whereExists(model, consumer);
     }
 
     public void save(T entry){
