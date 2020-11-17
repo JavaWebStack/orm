@@ -9,6 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class Model {
 
@@ -166,16 +167,28 @@ public class Model {
         }
     }
 
-    public <T extends Model> Query<T> belongsToMany(Class<T> other, Class<? extends Model> pivot){
-        return belongsToMany(other, pivot, Helper.pascalToCamelCase(getClass().getSimpleName())+"Id", Helper.pascalToCamelCase(other.getSimpleName())+"Id");
+    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot){
+        return belongsToMany(other, pivot, null);
     }
 
-    public <T extends Model> Query<T> belongsToMany(Class<T> other, Class<? extends Model> pivot, String selfFieldName, String otherFieldName){
+    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot, Consumer<Query<P>> pivotFilter){
+        return belongsToMany(other, pivot, Helper.pascalToCamelCase(getClass().getSimpleName())+"Id", Helper.pascalToCamelCase(other.getSimpleName())+"Id", pivotFilter);
+    }
+
+    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot, String selfFieldName, String otherFieldName){
+        return belongsToMany(other, pivot, selfFieldName, otherFieldName, null);
+    }
+
+    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot, String selfFieldName, String otherFieldName, Consumer<Query<P>> pivotFilter){
         try {
             Repo<?> selfRepo = Repo.get(getClass());
             Repo<T> otherRepo = Repo.get(other);
             Object id = selfRepo.getInfo().getField(selfRepo.getInfo().getIdField()).get(this);
-            return otherRepo.whereExists(pivot, q -> q.where(pivot, selfFieldName, "=", id).where(pivot, otherFieldName, "=", other, otherRepo.getInfo().getIdColumn()));
+            return otherRepo.whereExists(pivot, q -> {
+                q.where(pivot, selfFieldName, "=", id).where(pivot, otherFieldName, "=", other, otherRepo.getInfo().getIdColumn());
+                if(pivotFilter != null)
+                    pivotFilter.accept(q);
+            });
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
