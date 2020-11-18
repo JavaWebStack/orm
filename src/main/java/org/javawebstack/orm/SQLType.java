@@ -1,5 +1,6 @@
 package org.javawebstack.orm;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 
 public enum SQLType {
@@ -12,6 +13,7 @@ public enum SQLType {
     FLOAT(Float.class),
     TEXT(String.class),
     TIMESTAMP(Timestamp.class),
+    DATE(Date.class),
     ENUM(String.class);
 
     private final Class<?> javaType;

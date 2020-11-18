@@ -5,6 +5,7 @@ import org.javawebstack.orm.exception.ORMQueryException;
 import org.javawebstack.orm.mapper.TypeMapper;
 
 import java.lang.reflect.InvocationTargetException;
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -97,6 +98,8 @@ public class SQLMapper {
                 return rs.getFloat(columnName);
             if(sqlType.equals(Timestamp.class))
                 return rs.getTimestamp(columnName);
+            if(sqlType.equals(Date.class))
+                return rs.getDate(columnName);
         } catch (SQLException e) {
             throw new ORMQueryException(e);
         }
