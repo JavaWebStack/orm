@@ -16,12 +16,26 @@ import java.util.stream.Collectors;
 public class AutoMigrator {
 
     public static void migrate(Repo<?>... repos){
+        migrate(false, repos);
+    }
+
+    public static void migrate(boolean fresh, Repo<?>... repos){
+        if(fresh)
+            drop(repos);
         Map<SQL, List<String>> tables = new HashMap<>();
         for(Repo<?> repo : repos){
             if(!tables.containsKey(repo.getConnection())){
                 tables.put(repo.getConnection(), getTables(repo.getConnection()));
             }
             migrateTable(repo.getConnection(), repo.getInfo(), tables.get(repo.getConnection()).contains(repo.getInfo().getTableName()));
+        }
+    }
+
+    public static void drop(Repo<?>... repos){
+        for(Repo<?> repo : repos){
+            try {
+                repo.getConnection().write("DROP TABLE `" + repo.getInfo().getTableName() + "`;");
+            } catch (SQLException ignored) {}
         }
     }
 
