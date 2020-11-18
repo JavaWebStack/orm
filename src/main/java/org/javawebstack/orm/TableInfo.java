@@ -20,7 +20,7 @@ import java.util.Map;
 public class TableInfo {
 
     private String idField = "id";
-    private final String tableName;
+    private String tableName;
     private final List<String> fieldNames = new ArrayList<>();
     private final Map<String, Field> fields = new HashMap<>();
     private final Map<String, String> fieldToColumn = new HashMap<>();
@@ -42,7 +42,9 @@ public class TableInfo {
             Table table = model.getDeclaredAnnotationsByType(Table.class)[0];
             tableName = table.value();
         }else{
-            tableName = Helper.toSnakeCase(model.getSimpleName())+"s";
+            tableName = Helper.toSnakeCase(model.getSimpleName()) + "s";
+            if(tableName.endsWith("ys"))
+                tableName = tableName.substring(0, tableName.length()-2) + "ies";
         }
         try {
             constructor = model.getConstructor();
