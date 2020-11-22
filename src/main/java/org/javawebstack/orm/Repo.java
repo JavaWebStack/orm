@@ -24,10 +24,16 @@ public class Repo<T extends Model> {
     private final TableInfo info;
     private final SQL connection;
     private final List<Observer<T>> observers = new ArrayList<>();
+    private Accessible<T> accessible;
 
     public Repo(Class<T> clazz, SQL connection, ORMConfig config) throws ORMConfigurationException {
         this.info = new TableInfo(clazz, config);
         this.connection = connection;
+    }
+
+    public Repo<T> setAccessible(Accessible<T> accessible){
+        this.accessible = accessible;
+        return this;
     }
 
     public Query<T> query(){
@@ -52,6 +58,10 @@ public class Repo<T extends Model> {
 
     public <M extends Model> Query<T> whereExists(Class<M> model, Consumer<Query<M>> consumer){
         return query().whereExists(model, consumer);
+    }
+
+    public Query<T> accessible(Object accessor){
+        return accessible == null ? query() : accessible.access(query(), accessor);
     }
 
     public void save(T entry){
@@ -154,7 +164,7 @@ public class Repo<T extends Model> {
     }
 
     public T get(Object id){
-        return where(info.getIdField(), id).get();
+        return whereId(id).get();
     }
 
     public List<T> all(){

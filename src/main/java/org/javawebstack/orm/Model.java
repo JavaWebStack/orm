@@ -1,5 +1,6 @@
 package org.javawebstack.orm;
 
+import com.google.gson.annotations.Expose;
 import org.javawebstack.orm.exception.ORMQueryException;
 import org.javawebstack.orm.query.Query;
 import org.javawebstack.orm.util.Helper;
@@ -31,8 +32,11 @@ public class Model {
         }
     }
 
+    @Expose(serialize = false, deserialize = false)
     private boolean internalEntryExists = false;
+    @Expose(serialize = false, deserialize = false)
     private final Map<Class<? extends Model>, Object> internalJoinedModels = new HashMap<>();
+    @Expose(serialize = false, deserialize = false)
     private final Map<String, Object> internalLastValue = new HashMap<>();
 
     void internalAddJoinedModel(Class<? extends Model> type, Object entity){
