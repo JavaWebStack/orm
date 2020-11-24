@@ -80,6 +80,18 @@ public class Query<T extends Model> {
         return where(left, operator, right);
     }
 
+    public QueryGroup<T> whereMorph(String name, Class<? extends Model> type){
+        return where.whereMorph(name, type);
+    }
+
+    public QueryGroup<T> whereMorph(String name, Class<? extends Model> type, Object id){
+        return where.whereMorph(name, type, id);
+    }
+
+    public QueryGroup<T> whereMorph(String name, Model entity){
+        return where.whereMorph(name, entity);
+    }
+
     public Query<T> orWhere(Class<? extends Model> leftTable, String left, String operator, Class<? extends Model> rightTable, String right){
         if(rightTable != null)
             right = Repo.get(rightTable).getInfo().getTableName() + "." + right;
@@ -90,6 +102,18 @@ public class Query<T extends Model> {
         if(leftTable != null)
             left = Repo.get(leftTable).getInfo().getTableName() + "." + left;
         return orWhere(left, operator, right);
+    }
+
+    public QueryGroup<T> orWhereMorph(String name, Class<? extends Model> type){
+        return where.orWhereMorph(name, type);
+    }
+
+    public QueryGroup<T> orWhereMorph(String name, Class<? extends Model> type, Object id){
+        return where.orWhereMorph(name, type, id);
+    }
+
+    public QueryGroup<T> orWhereMorph(String name, Model entity){
+        return where.orWhereMorph(name, entity);
     }
 
     public Query<T> whereId(String operator, Object right){
