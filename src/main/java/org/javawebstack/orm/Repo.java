@@ -179,11 +179,11 @@ public class Repo<T extends Model> {
         return query().count();
     }
 
-    private Object getId(T entry){
-        if(entry == null)
+    public Object getId(Object entity){
+        if(entity == null)
             return null;
         try {
-            Object id = info.getField(info.getIdField()).get(entry);
+            Object id = info.getField(info.getIdField()).get(entity);
             if(id == null)
                 return null;
             if(id.getClass().equals(Integer.class)){

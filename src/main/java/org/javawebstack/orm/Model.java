@@ -198,4 +198,16 @@ public class Model {
         }
     }
 
+    public void setMorph(String name, Class<? extends Model> type, Object id){
+        TableInfo info = Repo.get(getClass()).getInfo();
+        try {
+            info.getField(name+"Id").set(this, id);
+            info.getField(name+"Type").set(this, Repo.get(type).getInfo().getMorphType());
+        } catch (IllegalAccessException ignored) {}
+    }
+
+    public void setMorph(String name, Model model){
+        setMorph(name, model.getClass(), Repo.get(model.getClass()).getId(model));
+    }
+
 }

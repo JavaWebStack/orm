@@ -1,6 +1,7 @@
 package org.javawebstack.orm.query;
 
 import org.javawebstack.orm.Model;
+import org.javawebstack.orm.Repo;
 import org.javawebstack.orm.TableInfo;
 
 import java.util.ArrayList;
@@ -44,6 +45,18 @@ public class QueryGroup<T extends Model> implements QueryElement {
         return this;
     }
 
+    public QueryGroup<T> whereMorph(String name, Class<? extends Model> type){
+        return where(name+"Type", Repo.get(type).getInfo().getMorphType());
+    }
+
+    public QueryGroup<T> whereMorph(String name, Class<? extends Model> type, Object id){
+        return whereMorph(name, type).where(name+"Id", id);
+    }
+
+    public QueryGroup<T> whereMorph(String name, Model entity){
+        return whereMorph(name, entity.getClass(), Repo.get(entity.getClass()).getId(entity));
+    }
+
     public QueryGroup<T> where(Object left, Object right){
         return where(left, "=", right);
     }
@@ -73,6 +86,18 @@ public class QueryGroup<T extends Model> implements QueryElement {
 
     public QueryGroup<T> orWhere(Object left, Object right){
         return orWhere(left, "=", right);
+    }
+
+    public QueryGroup<T> orWhereMorph(String name, Class<? extends Model> type){
+        return orWhere(name+"Type", Repo.get(type).getInfo().getMorphType());
+    }
+
+    public QueryGroup<T> orWhereMorph(String name, Class<? extends Model> type, Object id){
+        return orWhereMorph(name, type).where(name+"Id", id);
+    }
+
+    public QueryGroup<T> orWhereMorph(String name, Model entity){
+        return orWhereMorph(name, entity.getClass(), Repo.get(entity.getClass()).getId(entity));
     }
 
     public QueryGroup<T> orIsNull(Object left){
