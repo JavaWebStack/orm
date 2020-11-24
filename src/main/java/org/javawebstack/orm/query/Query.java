@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class Query<T extends Model> {
@@ -47,12 +48,12 @@ public class Query<T extends Model> {
         return this;
     }
 
-    public Query<T> and(Consumer<QueryGroup<T>> group){
+    public Query<T> and(Function<QueryGroup<T>,QueryGroup<T>> group){
         where.and(group);
         return this;
     }
 
-    public Query<T> or(Consumer<QueryGroup<T>> group){
+    public Query<T> or(Function<QueryGroup<T>,QueryGroup<T>> group){
         where.or(group);
         return this;
     }

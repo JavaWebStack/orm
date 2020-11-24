@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class QueryGroup<T extends Model> implements QueryElement {
 
@@ -20,18 +21,16 @@ public class QueryGroup<T extends Model> implements QueryElement {
         return queryElements;
     }
 
-    public QueryGroup<T> and(Consumer<QueryGroup<T>> group){
-        QueryGroup<T> innerGroup = new QueryGroup<>();
-        group.accept(innerGroup);
+    public QueryGroup<T> and(Function<QueryGroup<T>,QueryGroup<T>> group){
+        QueryGroup<T> innerGroup = group.apply(new QueryGroup<>());
         if(queryElements.size() > 0)
             queryElements.add(QueryConjunction.AND);
         queryElements.add(innerGroup);
         return this;
     }
 
-    public QueryGroup<T> or(Consumer<QueryGroup<T>> group){
-        QueryGroup<T> innerGroup = new QueryGroup<>();
-        group.accept(innerGroup);
+    public QueryGroup<T> or(Function<QueryGroup<T>,QueryGroup<T>> group){
+        QueryGroup<T> innerGroup = group.apply(new QueryGroup<>());
         if(queryElements.size() > 0)
             queryElements.add(QueryConjunction.OR);
         queryElements.add(innerGroup);
