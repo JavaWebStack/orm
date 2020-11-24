@@ -1,9 +1,6 @@
 package org.javawebstack.orm;
 
-import org.javawebstack.orm.annotation.Column;
-import org.javawebstack.orm.annotation.Dates;
-import org.javawebstack.orm.annotation.SoftDelete;
-import org.javawebstack.orm.annotation.Table;
+import org.javawebstack.orm.annotation.*;
 import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.javawebstack.orm.mapper.TypeMapper;
 import org.javawebstack.orm.util.Helper;
@@ -30,6 +27,7 @@ public class TableInfo {
     private final ORMConfig config;
     private SoftDelete softDelete;
     private Dates dates;
+    private String morphType;
     private final Class<? extends Model> modelClass;
     private String primaryKey;
     private final List<String> uniqueKeys = new ArrayList<>();
@@ -45,6 +43,11 @@ public class TableInfo {
             tableName = Helper.toSnakeCase(model.getSimpleName()) + "s";
             if(tableName.endsWith("ys"))
                 tableName = tableName.substring(0, tableName.length()-2) + "ies";
+        }
+        if(model.isAnnotationPresent(MorphType.class)){
+            morphType = model.getDeclaredAnnotationsByType(MorphType.class)[0].value();
+        }else{
+            morphType = Helper.toSnakeCase(model.getSimpleName());
         }
         try {
             constructor = model.getConstructor();
@@ -155,6 +158,10 @@ public class TableInfo {
 
     public Field getField(String fieldName){
         return fields.get(fieldName);
+    }
+
+    public String getMorphType(){
+        return morphType;
     }
 
     public String getColumnName(String fieldName){
