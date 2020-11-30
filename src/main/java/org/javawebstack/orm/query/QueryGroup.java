@@ -116,38 +116,34 @@ public class QueryGroup<T extends Model> implements QueryElement {
         return orWhere(left, ">", right);
     }
 
-    public <M extends Model> QueryGroup<T> whereExists(Class<M> model, Consumer<Query<M>> consumer){
+    public <M extends Model> QueryGroup<T> whereExists(Class<M> model, Function<Query<M>,Query<M>> consumer){
         if(queryElements.size() > 0)
             queryElements.add(QueryConjunction.AND);
-        Query<M> query = new Query<>(model);
-        consumer.accept(query);
+        Query<M> query = consumer.apply(new Query<>(model));
         queryElements.add(new QueryExists<>(query, false));
         return this;
     }
 
-    public <M extends Model> QueryGroup<T> orWhereExists(Class<M> model, Consumer<Query<M>> consumer){
+    public <M extends Model> QueryGroup<T> orWhereExists(Class<M> model, Function<Query<M>,Query<M>> consumer){
         if(queryElements.size() > 0)
             queryElements.add(QueryConjunction.OR);
-        Query<M> query = new Query<>(model);
-        consumer.accept(query);
+        Query<M> query = consumer.apply(new Query<>(model));
         queryElements.add(new QueryExists<>(query, false));
         return this;
     }
 
-    public <M extends Model> QueryGroup<T> whereNotExists(Class<M> model, Consumer<Query<M>> consumer){
+    public <M extends Model> QueryGroup<T> whereNotExists(Class<M> model, Function<Query<M>,Query<M>> consumer){
         if(queryElements.size() > 0)
             queryElements.add(QueryConjunction.AND);
-        Query<M> query = new Query<>(model);
-        consumer.accept(query);
+        Query<M> query = consumer.apply(new Query<>(model));
         queryElements.add(new QueryExists<>(query, true));
         return this;
     }
 
-    public <M extends Model> QueryGroup<T> orWhereNotExists(Class<M> model, Consumer<Query<M>> consumer){
+    public <M extends Model> QueryGroup<T> orWhereNotExists(Class<M> model, Function<Query<M>,Query<M>> consumer){
         if(queryElements.size() > 0)
             queryElements.add(QueryConjunction.OR);
-        Query<M> query = new Query<>(model);
-        consumer.accept(query);
+        Query<M> query = consumer.apply(new Query<>(model));
         queryElements.add(new QueryExists<>(query, true));
         return this;
     }

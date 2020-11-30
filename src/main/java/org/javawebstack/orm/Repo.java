@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class Repo<T extends Model> {
@@ -56,7 +57,7 @@ public class Repo<T extends Model> {
         return query().whereId(right);
     }
 
-    public <M extends Model> Query<T> whereExists(Class<M> model, Consumer<Query<M>> consumer){
+    public <M extends Model> Query<T> whereExists(Class<M> model, Function<Query<M>,Query<M>> consumer){
         return query().whereExists(model, consumer);
     }
 

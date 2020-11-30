@@ -10,7 +10,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class Model {
 
@@ -175,7 +175,7 @@ public class Model {
         return belongsToMany(other, pivot, null);
     }
 
-    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot, Consumer<Query<P>> pivotFilter){
+    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot, Function<Query<P>,Query<P>> pivotFilter){
         return belongsToMany(other, pivot, Helper.pascalToCamelCase(getClass().getSimpleName())+"Id", Helper.pascalToCamelCase(other.getSimpleName())+"Id", pivotFilter);
     }
 
@@ -183,7 +183,7 @@ public class Model {
         return belongsToMany(other, pivot, selfFieldName, otherFieldName, null);
     }
 
-    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot, String selfFieldName, String otherFieldName, Consumer<Query<P>> pivotFilter){
+    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot, String selfFieldName, String otherFieldName, Function<Query<P>,Query<P>> pivotFilter){
         try {
             Repo<?> selfRepo = Repo.get(getClass());
             Repo<T> otherRepo = Repo.get(other);
@@ -191,7 +191,8 @@ public class Model {
             return otherRepo.whereExists(pivot, q -> {
                 q.where(pivot, selfFieldName, "=", id).where(pivot, otherFieldName, "=", other, otherRepo.getInfo().getIdColumn());
                 if(pivotFilter != null)
-                    pivotFilter.accept(q);
+                    q = pivotFilter.apply(q);
+                return q;
             });
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);

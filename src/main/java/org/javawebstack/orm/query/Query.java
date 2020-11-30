@@ -182,12 +182,12 @@ public class Query<T extends Model> {
         return this;
     }
 
-    public <M extends Model> Query<T> whereExists(Class<M> model, Consumer<Query<M>> consumer){
+    public <M extends Model> Query<T> whereExists(Class<M> model, Function<Query<M>,Query<M>> consumer){
         where.whereExists(model, consumer);
         return this;
     }
 
-    public <M extends Model> Query<T> orWhereExists(Class<M> model, Consumer<Query<M>> consumer){
+    public <M extends Model> Query<T> orWhereExists(Class<M> model, Function<Query<M>,Query<M>> consumer){
         where.orWhereExists(model, consumer);
         return this;
     }
