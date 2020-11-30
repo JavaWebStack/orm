@@ -58,8 +58,18 @@ public class SQLMapper {
 
     public static List<Object> mapParams(Repo<?> repo, List<Object> params){
         List<Object> result = new ArrayList<>();
-        for(Object o : params)
-            result.add(repo.getInfo().getConfig().getTypeMapper(o.getClass(), 0).mapToSQL(o, o.getClass()));
+        for(Object o : params) {
+            if(o == null){
+                result.add(null);
+                continue;
+            }
+            TypeMapper mapper = repo.getInfo().getConfig().getTypeMapper(o.getClass(), 0);
+            if(mapper == null){
+                result.add(o);
+                continue;
+            }
+            result.add(mapper.mapToSQL(o, o.getClass()));
+        }
         return result;
     }
 
