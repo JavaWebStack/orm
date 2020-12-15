@@ -6,12 +6,14 @@ import org.javawebstack.orm.migration.AutoMigrator;
 import org.javawebstack.orm.query.Query;
 import org.javawebstack.orm.wrapper.SQL;
 
+import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -91,6 +93,11 @@ public class Repo<T extends Model> {
                     info.getField(info.getCreatedField()).set(entry, now);
                 if(info.hasUpdated())
                     info.getField(info.getUpdatedField()).set(entry, now);
+            }
+            if(info.getIdType().equals(UUID.class)){
+                Field field = info.getField(info.getIdField());
+                if(field.get(entry) == null)
+                    field.set(entry, UUID.randomUUID());
             }
             List<Object> params = new ArrayList<>();
             StringBuilder sb = new StringBuilder("INSERT INTO `");
