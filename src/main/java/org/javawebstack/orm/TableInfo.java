@@ -9,10 +9,7 @@ import org.javawebstack.orm.util.KeyType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class TableInfo {
 
@@ -49,11 +46,6 @@ public class TableInfo {
             morphType = model.getDeclaredAnnotationsByType(MorphType.class)[0].value();
         }else{
             morphType = Helper.toSnakeCase(model.getSimpleName());
-        }
-        if(model.isAnnotationPresent(RelationField.class)){
-            relationField = model.getDeclaredAnnotationsByType(RelationField.class)[0].value();
-        }else{
-            relationField = Helper.pascalToCamelCase(model.getSimpleName())+"Id";
         }
         try {
             constructor = model.getConstructor();
@@ -99,6 +91,11 @@ public class TableInfo {
             idField = "uuid";
         if(!fields.containsKey(idField))
             throw new ORMConfigurationException("No id field found!");
+        if(model.isAnnotationPresent(RelationField.class)){
+            relationField = model.getDeclaredAnnotationsByType(RelationField.class)[0].value();
+        }else{
+            relationField = Helper.pascalToCamelCase(model.getSimpleName())+(getIdType().equals(UUID.class) ? "UUID" : "Id");
+        }
         if(config.isIdPrimaryKey()){
             if(primaryKey == null)
                 primaryKey = idField;
