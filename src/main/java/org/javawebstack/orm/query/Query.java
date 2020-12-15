@@ -70,13 +70,13 @@ public class Query<T extends Model> {
 
     public Query<T> where(Class<? extends Model> leftTable, String left, String operator, Class<? extends Model> rightTable, String right){
         if(rightTable != null)
-            right = Repo.get(rightTable).getInfo().getTableName() + "." + right;
+            right = Repo.get(rightTable).getInfo().getTableName() + "." + Repo.get(rightTable).getInfo().getColumnName(right);
         return where(leftTable, left, operator, new QueryColumn(right));
     }
 
     public Query<T> where(Class<? extends Model> leftTable, String left, String operator, Object right){
         if(leftTable != null)
-            left = Repo.get(leftTable).getInfo().getTableName() + "." + left;
+            left = Repo.get(leftTable).getInfo().getTableName() + "." + Repo.get(leftTable).getInfo().getColumnName(left);
         return where(left, operator, right);
     }
 
@@ -94,13 +94,13 @@ public class Query<T extends Model> {
 
     public Query<T> orWhere(Class<? extends Model> leftTable, String left, String operator, Class<? extends Model> rightTable, String right){
         if(rightTable != null)
-            right = Repo.get(rightTable).getInfo().getTableName() + "." + right;
+            right = Repo.get(rightTable).getInfo().getTableName() + "." + Repo.get(rightTable).getInfo().getColumnName(right);
         return orWhere(leftTable, left, operator, new QueryColumn(right));
     }
 
     public Query<T> orWhere(Class<? extends Model> leftTable, String left, String operator, Object right){
         if(leftTable != null)
-            left = Repo.get(leftTable).getInfo().getTableName() + "." + left;
+            left = Repo.get(leftTable).getInfo().getTableName() + "." + Repo.get(leftTable).getInfo().getColumnName(left);
         return orWhere(left, operator, right);
     }
 
@@ -129,7 +129,7 @@ public class Query<T extends Model> {
     }
 
     public Query<T> whereId(String operator, Class<? extends Model> other, String field){
-        return whereId(operator, new QueryColumn(Repo.get(other).getInfo().getTableName()+"."+field));
+        return whereId(operator, new QueryColumn(Repo.get(other).getInfo().getTableName()+"."+Repo.get(other).getInfo().getColumnName(field)));
     }
 
     public Query<T> orWhereId(String operator, Object right){
@@ -145,7 +145,7 @@ public class Query<T extends Model> {
     }
 
     public Query<T> orWhereId(String operator, Class<? extends Model> other, String field){
-        return orWhereId(operator, new QueryColumn(Repo.get(other).getInfo().getTableName()+"."+field));
+        return orWhereId(operator, new QueryColumn(Repo.get(other).getInfo().getTableName()+"."+Repo.get(other).getInfo().getColumnName(field)));
     }
 
     public Query<T> isNull(Object left){

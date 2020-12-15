@@ -168,8 +168,8 @@ public class TableInfo {
         String[] spl = fieldName.split("\\.");
         fieldName = spl[spl.length-1];
         if(fieldToColumn.containsKey(fieldName))
-            return (spl.length > 1 ? spl[0] + "." : "") + fieldToColumn.get(fieldName);
-        return fieldName;
+            spl[spl.length-1] = fieldToColumn.get(fieldName);
+        return String.join(".", spl);
     }
 
     public SQLType getType(String fieldName){
