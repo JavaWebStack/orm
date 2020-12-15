@@ -7,7 +7,6 @@ import org.javawebstack.orm.TableInfo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class QueryGroup<T extends Model> implements QueryElement {
@@ -43,6 +42,18 @@ public class QueryGroup<T extends Model> implements QueryElement {
             queryElements.add(QueryConjunction.AND);
         queryElements.add(new QueryCondition(left instanceof String ? new QueryColumn((String) left) : left, condition, right));
         return this;
+    }
+
+    public QueryGroup<T> where(Class<? extends Model> leftTable, String left, String operator, Class<? extends Model> rightTable, String right){
+        if(rightTable != null)
+            right = Repo.get(rightTable).getInfo().getTableName() + "." + Repo.get(rightTable).getInfo().getColumnName(right);
+        return where(leftTable, left, operator, new QueryColumn(right));
+    }
+
+    public QueryGroup<T> where(Class<? extends Model> leftTable, String left, String operator, Object right){
+        if(leftTable != null)
+            left = Repo.get(leftTable).getInfo().getTableName() + "." + Repo.get(leftTable).getInfo().getColumnName(left);
+        return where(left, operator, right);
     }
 
     public QueryGroup<T> whereMorph(String name, Class<? extends Model> type){
@@ -86,6 +97,18 @@ public class QueryGroup<T extends Model> implements QueryElement {
 
     public QueryGroup<T> orWhere(Object left, Object right){
         return orWhere(left, "=", right);
+    }
+
+    public QueryGroup<T> orWhere(Class<? extends Model> leftTable, String left, String operator, Class<? extends Model> rightTable, String right){
+        if(rightTable != null)
+            right = Repo.get(rightTable).getInfo().getTableName() + "." + Repo.get(rightTable).getInfo().getColumnName(right);
+        return orWhere(leftTable, left, operator, new QueryColumn(right));
+    }
+
+    public QueryGroup<T> orWhere(Class<? extends Model> leftTable, String left, String operator, Object right){
+        if(leftTable != null)
+            left = Repo.get(leftTable).getInfo().getTableName() + "." + Repo.get(leftTable).getInfo().getColumnName(left);
+        return orWhere(left, operator, right);
     }
 
     public QueryGroup<T> orWhereMorph(String name, Class<? extends Model> type){
