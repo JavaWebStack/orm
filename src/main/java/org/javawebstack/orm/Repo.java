@@ -64,7 +64,11 @@ public class Repo<T extends Model> {
     }
 
     public Query<T> accessible(Object accessor){
-        return accessible == null ? query() : accessible.access(query(), accessor);
+        return accessible(query(), accessor);
+    }
+
+    public Query<T> accessible(Query<T> query, Object accessor){
+        return accessible == null ? query : accessible.access(query, accessor);
     }
 
     public void save(T entry){

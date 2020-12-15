@@ -192,6 +192,10 @@ public class Query<T extends Model> {
         return this;
     }
 
+    public Query<T> accessible(Object accessor) {
+        return repo.accessible(this, accessor);
+    }
+
     public Query<T> order(String orderBy, boolean desc){
         this.order = orderBy;
         this.desc = desc;
