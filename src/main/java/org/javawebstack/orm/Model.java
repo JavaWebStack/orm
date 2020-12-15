@@ -124,7 +124,7 @@ public class Model {
     }
 
     public <T extends Model> Query<T> belongsTo(Class<T> parent){
-        return belongsTo(parent, Helper.pascalToCamelCase(parent.getSimpleName())+"Id");
+        return belongsTo(parent, Repo.get(parent).getInfo().getRelationField());
     }
 
     public <T extends Model> Query<T> belongsTo(Class<T> parent, String fieldName){
@@ -139,7 +139,7 @@ public class Model {
     }
 
     public <T extends Model> void assignTo(Class<T> parent, T value){
-        assignTo(parent, value, Helper.pascalToCamelCase(parent.getSimpleName())+"Id");
+        assignTo(parent, value, Repo.get(parent).getInfo().getRelationField());
     }
 
     public <T extends Model> void assignTo(Class<T> parent, T value, String fieldName){
@@ -158,7 +158,7 @@ public class Model {
     }
 
     public <T extends Model> Query<T> hasMany(Class<T> child){
-        return hasMany(child, Helper.pascalToCamelCase(getClass().getSimpleName())+"Id");
+        return hasMany(child, Repo.get(getClass()).getInfo().getRelationField());
     }
 
     public <T extends Model> Query<T> hasMany(Class<T> child, String fieldName){
@@ -176,7 +176,7 @@ public class Model {
     }
 
     public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot, Function<Query<P>,Query<P>> pivotFilter){
-        return belongsToMany(other, pivot, Helper.pascalToCamelCase(getClass().getSimpleName())+"Id", Helper.pascalToCamelCase(other.getSimpleName())+"Id", pivotFilter);
+        return belongsToMany(other, pivot, Repo.get(getClass()).getInfo().getRelationField(), Repo.get(other).getInfo().getRelationField(), pivotFilter);
     }
 
     public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot, String selfFieldName, String otherFieldName){

@@ -32,6 +32,7 @@ public class TableInfo {
     private String primaryKey;
     private final List<String> uniqueKeys = new ArrayList<>();
     private final Constructor<?> constructor;
+    private String relationField;
 
     public TableInfo(Class<? extends Model> model, ORMConfig config) throws ORMConfigurationException {
         this.config = config;
@@ -48,6 +49,11 @@ public class TableInfo {
             morphType = model.getDeclaredAnnotationsByType(MorphType.class)[0].value();
         }else{
             morphType = Helper.toSnakeCase(model.getSimpleName());
+        }
+        if(model.isAnnotationPresent(RelationField.class)){
+            relationField = model.getDeclaredAnnotationsByType(RelationField.class)[0].value();
+        }else{
+            relationField = Helper.pascalToCamelCase(model.getSimpleName())+"Id";
         }
         try {
             constructor = model.getConstructor();
@@ -232,6 +238,10 @@ public class TableInfo {
 
     public Constructor<?> getModelConstructor(){
         return constructor;
+    }
+
+    public String getRelationField(){
+        return relationField;
     }
 
 }
