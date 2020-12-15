@@ -124,12 +124,28 @@ public class Query<T extends Model> {
         return whereId("=", right);
     }
 
+    public Query<T> whereId(Class<? extends Model> other, String field){
+        return whereId("=", other, field);
+    }
+
+    public Query<T> whereId(String operator, Class<? extends Model> other, String field){
+        return whereId(operator, new QueryColumn(Repo.get(other).getInfo().getTableName()+"."+field));
+    }
+
     public Query<T> orWhereId(String operator, Object right){
         return orWhere(repo.getInfo().getIdField(), operator, right);
     }
 
     public Query<T> orWhereId(Object right){
         return orWhereId("=", right);
+    }
+
+    public Query<T> orWhereId(Class<? extends Model> other, String field){
+        return orWhereId("=", other, field);
+    }
+
+    public Query<T> orWhereId(String operator, Class<? extends Model> other, String field){
+        return orWhereId(operator, new QueryColumn(Repo.get(other).getInfo().getTableName()+"."+field));
     }
 
     public Query<T> isNull(Object left){
