@@ -3,7 +3,6 @@ package org.javawebstack.orm;
 import com.google.gson.annotations.Expose;
 import org.javawebstack.orm.exception.ORMQueryException;
 import org.javawebstack.orm.query.Query;
-import org.javawebstack.orm.util.Helper;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -19,6 +18,10 @@ public class Model {
     private static final Method finalDeleteMethod;
     private static final Method restoreMethod;
     private static final Method refreshMethod;
+
+    {
+        inject();
+    }
 
     static {
         try {
@@ -63,6 +66,7 @@ public class Model {
         this.internalEntryExists = exists;
     }
 
+    @Deprecated
     public boolean isDirty(String... fields){
         Repo<?> repo = Repo.get(getClass());
         for(String field : fields){
@@ -80,6 +84,10 @@ public class Model {
             }
         }
         return false;
+    }
+
+    public void inject(){
+        Repo.get(getClass()).getInfo().getConfig().getInjector().inject(this);
     }
 
     public void save(){
