@@ -38,7 +38,8 @@ public class TableInfo {
             Table table = model.getDeclaredAnnotationsByType(Table.class)[0];
             tableName = table.value();
         }else{
-            tableName = Helper.toSnakeCase(model.getSimpleName()) + "s";
+            tableName = Helper.toSnakeCase(model.getSimpleName());
+            tableName += tableName.endsWith("ss") ? "es" : "s";
             if(tableName.endsWith("ys"))
                 tableName = tableName.substring(0, tableName.length()-2) + "ies";
         }

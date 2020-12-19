@@ -142,7 +142,7 @@ public class QueryGroup<T extends Model> implements QueryElement {
     public <M extends Model> QueryGroup<T> whereExists(Class<M> model, Function<Query<M>,Query<M>> consumer){
         if(queryElements.size() > 0)
             queryElements.add(QueryConjunction.AND);
-        Query<M> query = consumer.apply(new Query<>(model));
+        Query<M> query = consumer.apply(new Query<>(model).limit(1));
         queryElements.add(new QueryExists<>(query, false));
         return this;
     }
@@ -150,7 +150,7 @@ public class QueryGroup<T extends Model> implements QueryElement {
     public <M extends Model> QueryGroup<T> orWhereExists(Class<M> model, Function<Query<M>,Query<M>> consumer){
         if(queryElements.size() > 0)
             queryElements.add(QueryConjunction.OR);
-        Query<M> query = consumer.apply(new Query<>(model));
+        Query<M> query = consumer.apply(new Query<>(model).limit(1));
         queryElements.add(new QueryExists<>(query, false));
         return this;
     }
@@ -158,7 +158,7 @@ public class QueryGroup<T extends Model> implements QueryElement {
     public <M extends Model> QueryGroup<T> whereNotExists(Class<M> model, Function<Query<M>,Query<M>> consumer){
         if(queryElements.size() > 0)
             queryElements.add(QueryConjunction.AND);
-        Query<M> query = consumer.apply(new Query<>(model));
+        Query<M> query = consumer.apply(new Query<>(model).limit(1));
         queryElements.add(new QueryExists<>(query, true));
         return this;
     }
@@ -166,7 +166,7 @@ public class QueryGroup<T extends Model> implements QueryElement {
     public <M extends Model> QueryGroup<T> orWhereNotExists(Class<M> model, Function<Query<M>,Query<M>> consumer){
         if(queryElements.size() > 0)
             queryElements.add(QueryConjunction.OR);
-        Query<M> query = consumer.apply(new Query<>(model));
+        Query<M> query = consumer.apply(new Query<>(model).limit(1));
         queryElements.add(new QueryExists<>(query, true));
         return this;
     }
