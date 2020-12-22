@@ -1,6 +1,7 @@
 package org.javawebstack.orm;
 
 import com.google.gson.annotations.Expose;
+import org.javawebstack.injector.Injector;
 import org.javawebstack.orm.exception.ORMQueryException;
 import org.javawebstack.orm.query.Query;
 
@@ -87,7 +88,9 @@ public class Model {
     }
 
     public void inject(){
-        Repo.get(getClass()).getInfo().getConfig().getInjector().inject(this);
+        Injector injector = Repo.get(getClass()).getInfo().getConfig().getInjector();
+        if(injector != null)
+            injector.inject(this);
     }
 
     public void save(){
