@@ -8,17 +8,17 @@ import java.util.Map;
 
 public class DefaultQueryFilter implements QueryFilter {
 
-    private final List<String> filterable;
+    private final Map<String, String> filterable;
     private final List<String> searchable;
 
-    public DefaultQueryFilter(List<String> filterable, List<String> searchable){
+    public DefaultQueryFilter(Map<String, String> filterable, List<String> searchable){
         this.filterable = filterable;
         this.searchable = searchable;
     }
 
     public void filter(Query<? extends Model> query, Map<String, String> filter) {
         query.and(q -> {
-            filter.keySet().stream().filter(filterable::contains).forEach(key -> q.where(key, filter.get(key)));
+            filter.keySet().stream().filter(filterable.keySet()::contains).forEach(key -> q.where(filterable.get(key), filter.get(key)));
             return q;
         });
     }

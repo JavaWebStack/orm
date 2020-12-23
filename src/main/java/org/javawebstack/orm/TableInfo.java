@@ -30,8 +30,8 @@ public class TableInfo {
     private final List<String> uniqueKeys = new ArrayList<>();
     private final Constructor<?> constructor;
     private String relationField;
-    private List<String> filterable;
-    private List<String> searchable;
+    private final Map<String, String> filterable = new HashMap<>();
+    private final List<String> searchable = new ArrayList<>();
 
     public TableInfo(Class<? extends Model> model, ORMConfig config) throws ORMConfigurationException {
         this.config = config;
@@ -49,16 +49,6 @@ public class TableInfo {
             morphType = model.getDeclaredAnnotationsByType(MorphType.class)[0].value();
         }else{
             morphType = Helper.toSnakeCase(model.getSimpleName());
-        }
-        if(model.isAnnotationPresent(Filterable.class)){
-            filterable = Arrays.asList(model.getDeclaredAnnotationsByType(Filterable.class)[0].value());
-        }else{
-            filterable = new ArrayList<>();
-        }
-        if(model.isAnnotationPresent(Searchable.class)){
-            searchable = Arrays.asList(model.getDeclaredAnnotationsByType(Searchable.class)[0].value());
-        }else{
-            searchable = new ArrayList<>();
         }
         try {
             constructor = model.getConstructor();
@@ -99,6 +89,12 @@ public class TableInfo {
             }
             if(fieldConfig.key() == KeyType.UNIQUE)
                 uniqueKeys.add(fieldName);
+            if(field.isAnnotationPresent(Filterable.class)){
+                String name = field.getAnnotationsByType(Filterable.class)[0].value();
+                this.filterable.put(name.length() > 0 ? name : fieldName, fieldName);
+            }
+            if(field.isAnnotationPresent(Searchable.class))
+                this.searchable.add(fieldName);
         }
         if(!fields.containsKey(idField))
             idField = "uuid";
@@ -180,7 +176,7 @@ public class TableInfo {
         return morphType;
     }
 
-    public List<String> getFilterable(){
+    public Map<String, String> getFilterable(){
         return filterable;
     }
 
