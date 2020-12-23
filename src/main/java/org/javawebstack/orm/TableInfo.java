@@ -30,6 +30,8 @@ public class TableInfo {
     private final List<String> uniqueKeys = new ArrayList<>();
     private final Constructor<?> constructor;
     private String relationField;
+    private List<String> filterable;
+    private List<String> searchable;
 
     public TableInfo(Class<? extends Model> model, ORMConfig config) throws ORMConfigurationException {
         this.config = config;
@@ -47,6 +49,16 @@ public class TableInfo {
             morphType = model.getDeclaredAnnotationsByType(MorphType.class)[0].value();
         }else{
             morphType = Helper.toSnakeCase(model.getSimpleName());
+        }
+        if(model.isAnnotationPresent(Filterable.class)){
+            filterable = Arrays.asList(model.getDeclaredAnnotationsByType(Filterable.class)[0].value());
+        }else{
+            filterable = new ArrayList<>();
+        }
+        if(model.isAnnotationPresent(Searchable.class)){
+            searchable = Arrays.asList(model.getDeclaredAnnotationsByType(Searchable.class)[0].value());
+        }else{
+            searchable = new ArrayList<>();
         }
         try {
             constructor = model.getConstructor();
@@ -166,6 +178,14 @@ public class TableInfo {
 
     public String getMorphType(){
         return morphType;
+    }
+
+    public List<String> getFilterable(){
+        return filterable;
+    }
+
+    public List<String> getSearchable(){
+        return searchable;
     }
 
     public String getColumnName(String fieldName){

@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -78,6 +77,14 @@ public class Query<T extends Model> {
         if(leftTable != null)
             left = Repo.get(leftTable).getInfo().getTableName() + "." + Repo.get(leftTable).getInfo().getColumnName(left);
         return where(left, operator, right);
+    }
+
+    public Query<T> like(String left, Object right){
+        return where(left, "LIKE", right);
+    }
+
+    public Query<T> orLike(String left, Object right){
+        return orWhere(left, "LIKE", right);
     }
 
     public QueryGroup<T> whereMorph(String name, Class<? extends Model> type){
@@ -210,6 +217,20 @@ public class Query<T extends Model> {
 
     public Query<T> accessible(Object accessor) {
         return repo.accessible(this, accessor);
+    }
+
+    public Query<T> filter(Map<String, String> filter){
+        if(filter == null)
+            return this;
+        repo.getFilter().filter(this, filter);
+        return this;
+    }
+
+    public Query<T> search(String search){
+        if(search == null || search.length() == 0)
+            return this;
+        repo.getFilter().search(this, search);
+        return this;
     }
 
     public Query<T> order(String orderBy, boolean desc){

@@ -2,6 +2,8 @@ package org.javawebstack.orm;
 
 import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.javawebstack.orm.exception.ORMQueryException;
+import org.javawebstack.orm.filter.DefaultQueryFilter;
+import org.javawebstack.orm.filter.QueryFilter;
 import org.javawebstack.orm.migration.AutoMigrator;
 import org.javawebstack.orm.query.Query;
 import org.javawebstack.orm.wrapper.SQL;
@@ -14,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -27,16 +28,35 @@ public class Repo<T extends Model> {
     private final TableInfo info;
     private final SQL connection;
     private final List<Observer<T>> observers = new ArrayList<>();
-    private Accessible<T> accessible;
+    private Accessible accessible;
+    private QueryFilter filter;
 
     public Repo(Class<T> clazz, SQL connection, ORMConfig config) throws ORMConfigurationException {
         this.info = new TableInfo(clazz, config);
         this.connection = connection;
+        filter = new DefaultQueryFilter(info.getFilterable(), info.getSearchable());
     }
 
-    public Repo<T> setAccessible(Accessible<T> accessible){
+    public Repo<T> setAccessible(Accessible accessible){
         this.accessible = accessible;
         return this;
+    }
+
+    public Repo<T> setFilter(QueryFilter filter){
+        this.filter = filter;
+        return this;
+    }
+
+    public QueryFilter getFilter() {
+        return filter;
+    }
+
+    public Query<T> filter(Map<String, String> filter){
+        return query().filter(filter);
+    }
+
+    public Query<T> search(String search){
+        return query().search(search);
     }
 
     public Query<T> query(){
