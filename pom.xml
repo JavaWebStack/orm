@@ -79,11 +79,11 @@
     <distributionManagement>
         <snapshotRepository>
             <id>javawebstack-snapshots</id>
-            <url>https://nexus.javawebstack.org/repository/javawebstack-snapshots</url>
+            <url>https://nexus.lumaserv.cloud/repository/javawebstack-snapshots</url>
         </snapshotRepository>
         <repository>
             <id>javawebstack-releases</id>
-            <url>https://nexus.javawebstack.org/repository/javawebstack-releases</url>
+            <url>https://nexus.lumaserv.cloud/repository/javawebstack-releases</url>
         </repository>
     </distributionManagement>
 
