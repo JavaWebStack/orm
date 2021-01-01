@@ -141,8 +141,6 @@ public class Model {
     public <T extends Model> Query<T> belongsTo(Class<T> parent, String fieldName){
         try {
             Object id = Repo.get(getClass()).getInfo().getField(fieldName).get(this);
-            if(id == null)
-                return null;
             return Repo.get(parent).whereId(id);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
