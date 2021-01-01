@@ -100,6 +100,8 @@ public class SQLMapper {
                 return rs.getString(columnName);
             if(sqlType.equals(Integer.class))
                 return rs.getInt(columnName);
+            if(sqlType.equals(Boolean.class))
+                return rs.getBoolean(columnName);
             if(sqlType.equals(Long.class))
                 return rs.getLong(columnName);
             if(sqlType.equals(Double.class))

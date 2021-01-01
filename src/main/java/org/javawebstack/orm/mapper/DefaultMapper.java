@@ -39,8 +39,8 @@ public class DefaultMapper implements TypeMapper {
             return Enum.valueOf((Class<Enum>) type, (String) source);
         if(type.equals(UUID.class))
             return UUID.fromString((String) source);
-        if(type.equals(Boolean.class) || type.equals(boolean.class))
-            return ((Integer) source) == 1;
+        if(type.equals(boolean.class))
+            return ((Boolean) source).booleanValue();
         if(type.equals(long.class))
             return ((Long) source).longValue();
         if(type.equals(int.class))
