@@ -23,7 +23,7 @@ public class Query<T extends Model> {
     private final QueryGroup<T> where;
     private Integer offset;
     private Integer limit;
-    private String order;
+    private QueryColumn order;
     private boolean desc = false;
     private boolean withDeleted = false;
     private final Map<Class<? extends Model>, QueryCondition> leftJoins = new HashMap<>();
@@ -234,6 +234,10 @@ public class Query<T extends Model> {
     }
 
     public Query<T> order(String orderBy, boolean desc){
+        return order(new QueryColumn(orderBy), desc);
+    }
+
+    public Query<T> order(QueryColumn orderBy, boolean desc){
         this.order = orderBy;
         this.desc = desc;
         return this;
@@ -286,7 +290,7 @@ public class Query<T extends Model> {
             parameters.addAll(qs.getParameters());
         }
         if(order != null){
-            sb.append(" ORDER BY `").append(repo.getInfo().getColumnName(order)).append('`');
+            sb.append(" ORDER BY ").append(order.toString(repo.getInfo()));
             if(desc)
                 sb.append(" DESC");
         }
