@@ -5,6 +5,7 @@ import org.javawebstack.orm.migration.AutoMigrator;
 import org.javawebstack.orm.wrapper.SQL;
 import org.reflections.Reflections;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,8 +33,10 @@ public class ORM {
     }
 
     public static void register(Package p, SQL sql, ORMConfig config) throws ORMConfigurationException {
-        for(Class<? extends Model> model : new Reflections(p.getName()).getSubTypesOf(Model.class))
-            ORM.register(model, sql, config);
+        for(Class<? extends Model> model : new Reflections(p.getName()).getSubTypesOf(Model.class)){
+            if(!Modifier.isAbstract(model.getModifiers()))
+                ORM.register(model, sql, config);
+        }
     }
 
     public static void register(Package p, SQL sql) throws ORMConfigurationException {
@@ -52,8 +55,16 @@ public class ORM {
         return new ArrayList<>(repositories.keySet());
     }
 
+    public static void autoDrop(){
+        AutoMigrator.drop(repositories.values().toArray(new Repo<?>[0]));
+    }
+
     public static void autoMigrate(){
-        AutoMigrator.migrate(repositories.values().toArray(new Repo<?>[0]));
+        autoMigrate(false);
+    }
+
+    public static void autoMigrate(boolean fresh){
+        AutoMigrator.migrate(fresh, repositories.values().toArray(new Repo<?>[0]));
     }
 
 }

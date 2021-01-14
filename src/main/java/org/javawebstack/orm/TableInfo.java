@@ -1,9 +1,6 @@
 package org.javawebstack.orm;
 
-import org.javawebstack.orm.annotation.Column;
-import org.javawebstack.orm.annotation.Dates;
-import org.javawebstack.orm.annotation.SoftDelete;
-import org.javawebstack.orm.annotation.Table;
+import org.javawebstack.orm.annotation.*;
 import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.javawebstack.orm.mapper.TypeMapper;
 import org.javawebstack.orm.util.Helper;
@@ -12,15 +9,12 @@ import org.javawebstack.orm.util.KeyType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class TableInfo {
 
     private String idField = "id";
-    private final String tableName;
+    private String tableName;
     private final List<String> fieldNames = new ArrayList<>();
     private final Map<String, Field> fields = new HashMap<>();
     private final Map<String, String> fieldToColumn = new HashMap<>();
@@ -30,10 +24,14 @@ public class TableInfo {
     private final ORMConfig config;
     private SoftDelete softDelete;
     private Dates dates;
+    private String morphType;
     private final Class<? extends Model> modelClass;
     private String primaryKey;
     private final List<String> uniqueKeys = new ArrayList<>();
     private final Constructor<?> constructor;
+    private String relationField;
+    private final Map<String, String> filterable = new HashMap<>();
+    private final List<String> searchable = new ArrayList<>();
 
     public TableInfo(Class<? extends Model> model, ORMConfig config) throws ORMConfigurationException {
         this.config = config;
@@ -42,7 +40,15 @@ public class TableInfo {
             Table table = model.getDeclaredAnnotationsByType(Table.class)[0];
             tableName = table.value();
         }else{
-            tableName = Helper.toSnakeCase(model.getSimpleName())+"s";
+            tableName = Helper.toSnakeCase(model.getSimpleName());
+            tableName += tableName.endsWith("ss") ? "es" : "s";
+            if(tableName.endsWith("ys"))
+                tableName = tableName.substring(0, tableName.length()-2) + "ies";
+        }
+        if(model.isAnnotationPresent(MorphType.class)){
+            morphType = model.getDeclaredAnnotationsByType(MorphType.class)[0].value();
+        }else{
+            morphType = Helper.toSnakeCase(model.getSimpleName());
         }
         try {
             constructor = model.getConstructor();
@@ -83,11 +89,22 @@ public class TableInfo {
             }
             if(fieldConfig.key() == KeyType.UNIQUE)
                 uniqueKeys.add(fieldName);
+            if(field.isAnnotationPresent(Filterable.class)){
+                String name = field.getAnnotationsByType(Filterable.class)[0].value();
+                this.filterable.put(name.length() > 0 ? name : fieldName, fieldName);
+            }
+            if(field.isAnnotationPresent(Searchable.class))
+                this.searchable.add(fieldName);
         }
         if(!fields.containsKey(idField))
             idField = "uuid";
         if(!fields.containsKey(idField))
             throw new ORMConfigurationException("No id field found!");
+        if(model.isAnnotationPresent(RelationField.class)){
+            relationField = model.getDeclaredAnnotationsByType(RelationField.class)[0].value();
+        }else{
+            relationField = Helper.pascalToCamelCase(model.getSimpleName())+(getIdType().equals(UUID.class) ? "UUID" : "Id");
+        }
         if(config.isIdPrimaryKey()){
             if(primaryKey == null)
                 primaryKey = idField;
@@ -129,7 +146,9 @@ public class TableInfo {
     public boolean isAutoIncrement(){
         return (
                 getField(getIdField()).getType().equals(Integer.class) ||
-                getField(getIdField()).getType().equals(Long.class)
+                getField(getIdField()).getType().equals(int.class) ||
+                getField(getIdField()).getType().equals(Long.class) ||
+                getField(getIdField()).getType().equals(long.class)
         ) && (fieldConfigs.get(idField).ai() || config.isIdAutoIncrement());
     }
 
@@ -153,12 +172,24 @@ public class TableInfo {
         return fields.get(fieldName);
     }
 
+    public String getMorphType(){
+        return morphType;
+    }
+
+    public Map<String, String> getFilterable(){
+        return filterable;
+    }
+
+    public List<String> getSearchable(){
+        return searchable;
+    }
+
     public String getColumnName(String fieldName){
         String[] spl = fieldName.split("\\.");
         fieldName = spl[spl.length-1];
         if(fieldToColumn.containsKey(fieldName))
-            return fieldToColumn.get(fieldName);
-        return fieldName;
+            spl[spl.length-1] = fieldToColumn.get(fieldName);
+        return String.join(".", spl);
     }
 
     public SQLType getType(String fieldName){
@@ -201,6 +232,10 @@ public class TableInfo {
         return idField;
     }
 
+    public String getIdColumn(){
+        return getColumnName(getIdField());
+    }
+
     public Class<?> getIdType(){
         return getField(getIdField()).getType();
     }
@@ -217,6 +252,10 @@ public class TableInfo {
 
     public Constructor<?> getModelConstructor(){
         return constructor;
+    }
+
+    public String getRelationField(){
+        return relationField;
     }
 
 }

@@ -18,7 +18,8 @@ public abstract class BaseSQL implements SQL {
     public abstract Connection getConnection();
 
     public int write(String queryString,Object... parameters) throws SQLException {
-        ORM.LOGGER.log(Level.ALL, queryString, Arrays.stream(parameters).map(o -> o == null ? "null" : o.toString()).collect(Collectors.joining(",")));
+        ORM.LOGGER.log(Level.ALL, queryString);
+        ORM.LOGGER.log(Level.ALL, Arrays.stream(parameters).map(o -> o == null ? "null" : o.toString()).collect(Collectors.joining(",")));
         if(queryString.toLowerCase(Locale.ROOT).startsWith("insert")){
             PreparedStatement ps = setParams(getConnection().prepareStatement(queryString, Statement.RETURN_GENERATED_KEYS), parameters);
             ps.executeUpdate();
@@ -39,7 +40,8 @@ public abstract class BaseSQL implements SQL {
     }
 
     public ResultSet read(String queryString, Object... parameters) throws SQLException {
-        ORM.LOGGER.log(Level.ALL, queryString, Arrays.stream(parameters).map(o -> o == null ? "null" : o.toString()).collect(Collectors.joining(",")));
+        ORM.LOGGER.log(Level.ALL, queryString);
+        ORM.LOGGER.log(Level.ALL, Arrays.stream(parameters).map(o -> o == null ? "null" : o.toString()).collect(Collectors.joining(",")));
         PreparedStatement ps = setParams(getConnection().prepareStatement(queryString), parameters);
         ResultSet rs = ps.executeQuery();
         statementMap.put(rs,ps);
@@ -75,6 +77,8 @@ public abstract class BaseSQL implements SQL {
                 st.setDate(i,(Date)object);
             else if(type.equals(Time.class))
                 st.setTime(i,(Time)object);
+            else if(type.equals(byte[].class))
+                st.setBytes(i, (byte[]) object);
             else
                 throw new ORMQueryException("Can't set parameter of type: "+object.getClass().getName());
             i++;

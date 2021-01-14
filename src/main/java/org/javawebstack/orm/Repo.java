@@ -2,16 +2,21 @@ package org.javawebstack.orm;
 
 import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.javawebstack.orm.exception.ORMQueryException;
+import org.javawebstack.orm.filter.DefaultQueryFilter;
+import org.javawebstack.orm.filter.QueryFilter;
 import org.javawebstack.orm.migration.AutoMigrator;
 import org.javawebstack.orm.query.Query;
 import org.javawebstack.orm.wrapper.SQL;
 
+import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class Repo<T extends Model> {
@@ -23,10 +28,35 @@ public class Repo<T extends Model> {
     private final TableInfo info;
     private final SQL connection;
     private final List<Observer<T>> observers = new ArrayList<>();
+    private Accessible accessible;
+    private QueryFilter filter;
 
     public Repo(Class<T> clazz, SQL connection, ORMConfig config) throws ORMConfigurationException {
         this.info = new TableInfo(clazz, config);
         this.connection = connection;
+        filter = new DefaultQueryFilter(info.getFilterable(), info.getSearchable());
+    }
+
+    public Repo<T> setAccessible(Accessible accessible){
+        this.accessible = accessible;
+        return this;
+    }
+
+    public Repo<T> setFilter(QueryFilter filter){
+        this.filter = filter;
+        return this;
+    }
+
+    public QueryFilter getFilter() {
+        return filter;
+    }
+
+    public Query<T> filter(Map<String, String> filter){
+        return query().filter(filter);
+    }
+
+    public Query<T> search(String search){
+        return query().search(search);
     }
 
     public Query<T> query(){
@@ -39,6 +69,26 @@ public class Repo<T extends Model> {
 
     public Query<T> where(Object left, Object right){
         return query().where(left, right);
+    }
+
+    public Query<T> whereId(String operator, Object right){
+        return query().whereId(operator, right);
+    }
+
+    public Query<T> whereId(Object right){
+        return query().whereId(right);
+    }
+
+    public <M extends Model> Query<T> whereExists(Class<M> model, Function<Query<M>,Query<M>> consumer){
+        return query().whereExists(model, consumer);
+    }
+
+    public Query<T> accessible(Object accessor){
+        return accessible(query(), accessor);
+    }
+
+    public Query<T> accessible(Query<T> query, Object accessor){
+        return accessible == null ? query : accessible.access(query, accessor);
     }
 
     public void save(T entry){
@@ -67,6 +117,11 @@ public class Repo<T extends Model> {
                     info.getField(info.getCreatedField()).set(entry, now);
                 if(info.hasUpdated())
                     info.getField(info.getUpdatedField()).set(entry, now);
+            }
+            if(info.getIdType().equals(UUID.class)){
+                Field field = info.getField(info.getIdField());
+                if(field.get(entry) == null)
+                    field.set(entry, UUID.randomUUID());
             }
             List<Object> params = new ArrayList<>();
             StringBuilder sb = new StringBuilder("INSERT INTO `");
@@ -141,7 +196,7 @@ public class Repo<T extends Model> {
     }
 
     public T get(Object id){
-        return where(info.getIdField(), id).get();
+        return whereId(id).get();
     }
 
     public List<T> all(){
@@ -156,11 +211,11 @@ public class Repo<T extends Model> {
         return query().count();
     }
 
-    private Object getId(T entry){
-        if(entry == null)
+    public Object getId(Object entity){
+        if(entity == null)
             return null;
         try {
-            Object id = info.getField(info.getIdField()).get(entry);
+            Object id = info.getField(info.getIdField()).get(entity);
             if(id == null)
                 return null;
             if(id.getClass().equals(Integer.class)){

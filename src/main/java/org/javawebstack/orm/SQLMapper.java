@@ -5,6 +5,7 @@ import org.javawebstack.orm.exception.ORMQueryException;
 import org.javawebstack.orm.mapper.TypeMapper;
 
 import java.lang.reflect.InvocationTargetException;
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -48,15 +49,27 @@ public class SQLMapper {
     public static <T extends Model> T mapBack(Repo<T> repo, ResultSet rs, T t){
         t.setEntryExists(true);
         for(String fieldName : repo.getInfo().getFields()){
-            setValue(repo, fieldName, t, getValue(rs, repo.getInfo().getType(fieldName).getJavaType(), repo.getInfo().getTableName(), repo.getInfo().getColumnName(fieldName)));
+            Object value = getValue(rs, repo.getInfo().getType(fieldName).getJavaType(), repo.getInfo().getTableName(), repo.getInfo().getColumnName(fieldName));
+            t.internalSetLastValue(fieldName, value);
+            setValue(repo, fieldName, t, value);
         }
         return t;
     }
 
     public static List<Object> mapParams(Repo<?> repo, List<Object> params){
         List<Object> result = new ArrayList<>();
-        for(Object o : params)
-            result.add(repo.getInfo().getConfig().getTypeMapper(o.getClass(), 0).mapToSQL(o, o.getClass()));
+        for(Object o : params) {
+            if(o == null){
+                result.add(null);
+                continue;
+            }
+            TypeMapper mapper = repo.getInfo().getConfig().getTypeMapper(o.getClass(), 0);
+            if(mapper == null){
+                result.add(o);
+                continue;
+            }
+            result.add(mapper.mapToSQL(o, o.getClass()));
+        }
         return result;
     }
 
@@ -87,6 +100,8 @@ public class SQLMapper {
                 return rs.getString(columnName);
             if(sqlType.equals(Integer.class))
                 return rs.getInt(columnName);
+            if(sqlType.equals(Boolean.class))
+                return rs.getBoolean(columnName);
             if(sqlType.equals(Long.class))
                 return rs.getLong(columnName);
             if(sqlType.equals(Double.class))
@@ -95,6 +110,10 @@ public class SQLMapper {
                 return rs.getFloat(columnName);
             if(sqlType.equals(Timestamp.class))
                 return rs.getTimestamp(columnName);
+            if(sqlType.equals(Date.class))
+                return rs.getDate(columnName);
+            if(sqlType.equals(byte[].class))
+                return rs.getBytes(columnName);
         } catch (SQLException e) {
             throw new ORMQueryException(e);
         }
@@ -106,6 +125,7 @@ public class SQLMapper {
             for(TypeMapper mapper : repo.getInfo().getConfig().getTypeMappers())
                 value = mapper.mapToJava(value, repo.getInfo().getField(fieldName).getType());
             repo.getInfo().getField(fieldName).set(entry, value);
+            entry.internalSetLastValue(fieldName, value);
         } catch (IllegalAccessException e) {
             throw new ORMQueryException(e);
         }

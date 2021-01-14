@@ -1,15 +1,16 @@
 package org.javawebstack.orm;
 
+import com.google.gson.annotations.Expose;
+import org.javawebstack.injector.Injector;
+import org.javawebstack.orm.exception.ORMQueryException;
 import org.javawebstack.orm.query.Query;
-import org.javawebstack.orm.util.Helper;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 
 public class Model {
 
@@ -18,6 +19,10 @@ public class Model {
     private static final Method finalDeleteMethod;
     private static final Method restoreMethod;
     private static final Method refreshMethod;
+
+    {
+        inject();
+    }
 
     static {
         try {
@@ -31,11 +36,19 @@ public class Model {
         }
     }
 
+    @Expose(serialize = false, deserialize = false)
     private boolean internalEntryExists = false;
+    @Expose(serialize = false, deserialize = false)
     private final Map<Class<? extends Model>, Object> internalJoinedModels = new HashMap<>();
+    @Expose(serialize = false, deserialize = false)
+    private final Map<String, Object> internalLastValue = new HashMap<>();
 
     void internalAddJoinedModel(Class<? extends Model> type, Object entity){
         internalJoinedModels.put(type, entity);
+    }
+    void internalSetLastValue(String key, Object value){
+        if(value == null) internalLastValue.remove(key);
+        else internalLastValue.put(key, value);
     }
 
     public <T extends Model> T getJoined(Class<T> model){
@@ -52,6 +65,32 @@ public class Model {
 
     void setEntryExists(boolean exists){
         this.internalEntryExists = exists;
+    }
+
+    @Deprecated
+    public boolean isDirty(String... fields){
+        Repo<?> repo = Repo.get(getClass());
+        for(String field : fields){
+            try {
+                Object value = repo.getInfo().getField(field).get(this);
+                Object oldValue = internalLastValue.get(field);
+                if((value == null && oldValue != null) || (oldValue == null && value != null))
+                    return true;
+                if(value == null)
+                    continue;
+                if(!value.equals(oldValue))
+                    return true;
+            } catch (IllegalAccessException e) {
+                throw new ORMQueryException(e);
+            }
+        }
+        return false;
+    }
+
+    public void inject(){
+        Injector injector = Repo.get(getClass()).getInfo().getConfig().getInjector();
+        if(injector != null)
+            injector.inject(this);
     }
 
     public void save(){
@@ -95,23 +134,21 @@ public class Model {
         }
     }
 
-    public <T extends Model> T belongsTo(Class<T> parent){
-        return belongsTo(parent, Helper.pascalToCamelCase(parent.getSimpleName())+"Id");
+    public <T extends Model> Query<T> belongsTo(Class<T> parent){
+        return belongsTo(parent, Repo.get(parent).getInfo().getRelationField());
     }
 
-    public <T extends Model> T belongsTo(Class<T> parent, String fieldName){
+    public <T extends Model> Query<T> belongsTo(Class<T> parent, String fieldName){
         try {
-            Integer id = (Integer) Repo.get(getClass()).getInfo().getField(fieldName).get(this);
-            if(id == null)
-                return null;
-            return Repo.get(parent).get(id);
+            Object id = Repo.get(getClass()).getInfo().getField(fieldName).get(this);
+            return Repo.get(parent).whereId(id);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
 
     public <T extends Model> void assignTo(Class<T> parent, T value){
-        assignTo(parent, value, Helper.pascalToCamelCase(parent.getSimpleName())+"Id");
+        assignTo(parent, value, Repo.get(parent).getInfo().getRelationField());
     }
 
     public <T extends Model> void assignTo(Class<T> parent, T value, String fieldName){
@@ -121,7 +158,7 @@ public class Model {
                 f.set(this, null);
             }else{
                 Repo<T> repo = Repo.get(parent);
-                Integer id = (Integer) repo.getInfo().getField(repo.getInfo().getIdField()).get(value);
+                Object id = repo.getInfo().getField(repo.getInfo().getIdField()).get(value);
                 f.set(this, id);
             }
         } catch (IllegalAccessException e) {
@@ -129,49 +166,58 @@ public class Model {
         }
     }
 
-    public <T extends Model> List<T> hasMany(Class<T> child){
-        return hasManyRelation(child).all();
+    public <T extends Model> Query<T> hasMany(Class<T> child){
+        return hasMany(child, Repo.get(getClass()).getInfo().getRelationField());
     }
 
-    public <T extends Model> List<T> hasMany(Class<T> child, String fieldName){
-        return hasManyRelation(child, fieldName).all();
-    }
-
-    public <T extends Model> Query<T> hasManyRelation(Class<T> child){
-        return hasManyRelation(child, Helper.pascalToCamelCase(getClass().getSimpleName())+"Id");
-    }
-
-    public <T extends Model> Query<T> hasManyRelation(Class<T> child, String fieldName){
+    public <T extends Model> Query<T> hasMany(Class<T> child, String fieldName){
         try {
             Repo<?> ownRepo = Repo.get(getClass());
-            Integer id = (Integer) ownRepo.getInfo().getField(ownRepo.getInfo().getIdField()).get(this);
+            Object id = ownRepo.getInfo().getField(ownRepo.getInfo().getIdField()).get(this);
             return Repo.get(child).where(fieldName, id);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public <T extends Model> List<T> belongsToMany(Class<T> other, Class<? extends Model> pivot){
-        return belongsToMany(other, pivot, Helper.pascalToCamelCase(getClass().getSimpleName())+"Id", Helper.pascalToCamelCase(other.getSimpleName())+"Id");
+    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot){
+        return belongsToMany(other, pivot, null);
     }
 
-    public <T extends Model> List<T> belongsToMany(Class<T> other, Class<? extends Model> pivot, String selfFieldName, String otherFieldName){
+    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot, Function<Query<P>,Query<P>> pivotFilter){
+        return belongsToMany(other, pivot, Repo.get(getClass()).getInfo().getRelationField(), Repo.get(other).getInfo().getRelationField(), pivotFilter);
+    }
+
+    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot, String selfFieldName, String otherFieldName){
+        return belongsToMany(other, pivot, selfFieldName, otherFieldName, null);
+    }
+
+    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot, String selfFieldName, String otherFieldName, Function<Query<P>,Query<P>> pivotFilter){
         try {
             Repo<?> selfRepo = Repo.get(getClass());
             Repo<T> otherRepo = Repo.get(other);
-            Field otherField = Repo.get(pivot).getInfo().getField(otherFieldName);
-            Integer id = (Integer) selfRepo.getInfo().getField(selfRepo.getInfo().getIdField()).get(this);
-            return Repo.get(pivot).where(selfFieldName, id).stream().map(p -> {
-                try {
-                    Integer otherId = (Integer) otherField.get(p);
-                    return otherRepo.get(otherId);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
-            }).collect(Collectors.toList());
+            Object id = selfRepo.getInfo().getField(selfRepo.getInfo().getIdField()).get(this);
+            return otherRepo.whereExists(pivot, q -> {
+                q.where(pivot, selfFieldName, "=", id).where(pivot, otherFieldName, "=", other, otherRepo.getInfo().getIdColumn());
+                if(pivotFilter != null)
+                    q = pivotFilter.apply(q);
+                return q;
+            });
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void setMorph(String name, Class<? extends Model> type, Object id){
+        TableInfo info = Repo.get(getClass()).getInfo();
+        try {
+            info.getField(name+"Id").set(this, id);
+            info.getField(name+"Type").set(this, Repo.get(type).getInfo().getMorphType());
+        } catch (IllegalAccessException ignored) {}
+    }
+
+    public void setMorph(String name, Model model){
+        setMorph(name, model.getClass(), Repo.get(model.getClass()).getId(model));
     }
 
 }

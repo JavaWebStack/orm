@@ -2,9 +2,9 @@ package org.javawebstack.orm.mapper;
 
 import org.javawebstack.orm.SQLType;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -13,8 +13,6 @@ public class DefaultMapper implements TypeMapper {
     public Object mapToSQL(Object source, Class<?> type) {
         if(source == null)
             return null;
-        if(source instanceof Date)
-            return Timestamp.from(((Date) source).toInstant());
         if(type.isEnum())
             return ((Enum<?>)source).name();
         if(type.equals(Boolean.class))
@@ -41,10 +39,8 @@ public class DefaultMapper implements TypeMapper {
             return Enum.valueOf((Class<Enum>) type, (String) source);
         if(type.equals(UUID.class))
             return UUID.fromString((String) source);
-        if(type.equals(Date.class))
-            return Date.from(((Timestamp)source).toInstant());
-        if(type.equals(Boolean.class) || type.equals(boolean.class))
-            return ((Integer) source) == 1;
+        if(type.equals(boolean.class))
+            return ((Boolean) source).booleanValue();
         if(type.equals(long.class))
             return ((Long) source).longValue();
         if(type.equals(int.class))
@@ -73,8 +69,12 @@ public class DefaultMapper implements TypeMapper {
             return SQLType.FLOAT;
         if(type.equals(long.class) || type.equals(Long.class))
             return SQLType.BIGINT;
-        if(type.equals(Date.class) || type.equals(Timestamp.class))
+        if(type.equals(Timestamp.class))
             return SQLType.TIMESTAMP;
+        if(type.equals(Date.class))
+            return SQLType.DATE;
+        if(type.equals(byte[].class))
+            return SQLType.VARBINARY;
         return null;
     }
 
@@ -83,6 +83,10 @@ public class DefaultMapper implements TypeMapper {
             return Arrays.stream(((Class<? extends Enum<?>>) type).getEnumConstants()).map(c -> "'"+c.name()+"'").collect(Collectors.joining(","));
         if(type.equals(String.class))
             return size > 255 || size < 1 ? null : String.valueOf(size);
+        if(type.equals(byte[].class))
+            return String.valueOf(size > 0 ? size : 255);
+        if(type.equals(UUID.class))
+            return "36";
         return null;
     }
 
