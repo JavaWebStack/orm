@@ -77,6 +77,8 @@ public abstract class BaseSQL implements SQL {
                 st.setDate(i,(Date)object);
             else if(type.equals(Time.class))
                 st.setTime(i,(Time)object);
+            else if(type.equals(byte[].class))
+                st.setBytes(i, (byte[]) object);
             else
                 throw new ORMQueryException("Can't set parameter of type: "+object.getClass().getName());
             i++;

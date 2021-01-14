@@ -14,7 +14,8 @@ public enum SQLType {
     TEXT(String.class),
     TIMESTAMP(Timestamp.class),
     DATE(Date.class),
-    ENUM(String.class);
+    ENUM(String.class),
+    VARBINARY(byte[].class);
 
     private final Class<?> javaType;
 

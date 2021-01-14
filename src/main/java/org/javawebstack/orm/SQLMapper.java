@@ -112,6 +112,8 @@ public class SQLMapper {
                 return rs.getTimestamp(columnName);
             if(sqlType.equals(Date.class))
                 return rs.getDate(columnName);
+            if(sqlType.equals(byte[].class))
+                return rs.getBytes(columnName);
         } catch (SQLException e) {
             throw new ORMQueryException(e);
         }

@@ -73,6 +73,8 @@ public class DefaultMapper implements TypeMapper {
             return SQLType.TIMESTAMP;
         if(type.equals(Date.class))
             return SQLType.DATE;
+        if(type.equals(byte[].class))
+            return SQLType.VARBINARY;
         return null;
     }
 
@@ -81,6 +83,8 @@ public class DefaultMapper implements TypeMapper {
             return Arrays.stream(((Class<? extends Enum<?>>) type).getEnumConstants()).map(c -> "'"+c.name()+"'").collect(Collectors.joining(","));
         if(type.equals(String.class))
             return size > 255 || size < 1 ? null : String.valueOf(size);
+        if(type.equals(byte[].class))
+            return String.valueOf(size > 0 ? size : 255);
         if(type.equals(UUID.class))
             return "36";
         return null;
