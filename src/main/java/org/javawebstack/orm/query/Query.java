@@ -409,7 +409,7 @@ public class Query<T extends Model> {
         }
     }
 
-    public T get(){
+    public List<T> get(){
         return this.all();
     }
     
