@@ -196,7 +196,7 @@ public class Repo<T extends Model> {
     }
 
     public T get(Object id){
-        return whereId(id).get();
+        return whereId(id).first();
     }
 
     public List<T> all(){
