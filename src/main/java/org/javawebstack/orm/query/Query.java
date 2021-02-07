@@ -409,7 +409,11 @@ public class Query<T extends Model> {
         }
     }
 
-    public T get(){
+    public List<T> get(){
+        return all();
+    }
+    
+    public T first() {
         List<T> list = limit(1).all();
         if(list.size() == 0)
             return null;
