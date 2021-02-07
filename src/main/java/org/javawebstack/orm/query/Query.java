@@ -410,7 +410,7 @@ public class Query<T extends Model> {
     }
 
     public List<T> get(){
-        return this.all();
+        return all();
     }
     
     public T first() {
