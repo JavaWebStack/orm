@@ -8,6 +8,7 @@ import java.util.Map;
 public interface QueryFilter {
 
     void filter(Query<? extends Model> query, Map<String, String> filter);
+
     void search(Query<? extends Model> query, String search);
 
 }

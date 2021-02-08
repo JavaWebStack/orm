@@ -9,16 +9,16 @@ public class QueryString {
     private final String query;
     private final List<Object> parameters;
 
-    public QueryString(String query, List<Object> parameters){
+    public QueryString(String query, List<Object> parameters) {
         this.query = query;
         this.parameters = parameters;
     }
 
-    public QueryString(String query, Object... parameters){
+    public QueryString(String query, Object... parameters) {
         this(query, new ArrayList<>(Arrays.asList(parameters)));
     }
 
-    public QueryString(String query){
+    public QueryString(String query) {
         this(query, new ArrayList<>());
     }
 

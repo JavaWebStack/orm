@@ -19,7 +19,7 @@ public enum SQLType {
 
     private final Class<?> javaType;
 
-    SQLType(Class<?> javaType){
+    SQLType(Class<?> javaType) {
         this.javaType = javaType;
     }
 

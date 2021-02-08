@@ -18,7 +18,7 @@ public class ORM {
 
     private static final Map<Class<? extends Model>, Repo<?>> repositories = new HashMap<>();
 
-    public static <T extends Model> Repo<T> repo(Class<T> model){
+    public static <T extends Model> Repo<T> repo(Class<T> model) {
         return (Repo<T>) repositories.get(model);
     }
 
@@ -33,8 +33,8 @@ public class ORM {
     }
 
     public static void register(Package p, SQL sql, ORMConfig config) throws ORMConfigurationException {
-        for(Class<? extends Model> model : new Reflections(p.getName()).getSubTypesOf(Model.class)){
-            if(!Modifier.isAbstract(model.getModifiers()))
+        for (Class<? extends Model> model : new Reflections(p.getName()).getSubTypesOf(Model.class)) {
+            if (!Modifier.isAbstract(model.getModifiers()))
                 ORM.register(model, sql, config);
         }
     }
@@ -43,27 +43,27 @@ public class ORM {
         register(p, sql, new ORMConfig());
     }
 
-    public static void unregister(Class<? extends Model> model){
+    public static void unregister(Class<? extends Model> model) {
         repositories.remove(model);
     }
 
-    public static void unregister(Repo<?> model){
+    public static void unregister(Repo<?> model) {
         repositories.remove(model.getInfo().getModelClass());
     }
 
-    public static List<Class<? extends Model>> getModels(){
+    public static List<Class<? extends Model>> getModels() {
         return new ArrayList<>(repositories.keySet());
     }
 
-    public static void autoDrop(){
+    public static void autoDrop() {
         AutoMigrator.drop(repositories.values().toArray(new Repo<?>[0]));
     }
 
-    public static void autoMigrate(){
+    public static void autoMigrate() {
         autoMigrate(false);
     }
 
-    public static void autoMigrate(boolean fresh){
+    public static void autoMigrate(boolean fresh) {
         AutoMigrator.migrate(fresh, repositories.values().toArray(new Repo<?>[0]));
     }
 

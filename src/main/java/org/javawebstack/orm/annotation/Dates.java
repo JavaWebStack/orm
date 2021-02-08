@@ -9,5 +9,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface Dates {
     String create() default "createdAt";
+
     String update() default "updatedAt";
 }

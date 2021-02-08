@@ -11,8 +11,12 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface Column {
     boolean id() default false;
+
     boolean ai() default true;
+
     KeyType key() default KeyType.NONE;
+
     String name() default "";
+
     int size() default -1;
 }
