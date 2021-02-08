@@ -15,12 +15,12 @@ public class DB {
     private final SQL sql;
     private final String tablePrefix;
 
-    public DB(SQL sql, String tablePrefix){
+    public DB(SQL sql, String tablePrefix) {
         this.sql = sql;
         this.tablePrefix = tablePrefix;
     }
 
-    public void table(String name, Consumer<Table> consumer){
+    public void table(String name, Consumer<Table> consumer) {
         consumer.accept(new Table(name));
     }
 
@@ -29,7 +29,7 @@ public class DB {
         private String name;
         private final List<Column> columns = new ArrayList<>();
 
-        public Table(String name){
+        public Table(String name) {
             this.name = name;
         }
 
@@ -37,9 +37,9 @@ public class DB {
             return tablePrefix + name;
         }
 
-        public Column column(String name, SQLType type, String size){
-            for(Column column : columns){
-                if(column.name.equals(name))
+        public Column column(String name, SQLType type, String size) {
+            for (Column column : columns) {
+                if (column.name.equals(name))
                     return column;
             }
             Column column = new Column(name, type, size);
@@ -47,95 +47,95 @@ public class DB {
             return column;
         }
 
-        public Column column(String name, SQLType type){
+        public Column column(String name, SQLType type) {
             return column(name, type, null);
         }
 
-        public Column string(String name){
+        public Column string(String name) {
             return string(name, 255);
         }
 
-        public Column string(String name, int size){
+        public Column string(String name, int size) {
             return column(name, SQLType.VARCHAR, String.valueOf(size));
         }
 
-        public Column text(String name, int size){
+        public Column text(String name, int size) {
             return column(name, SQLType.TEXT, String.valueOf(size));
         }
 
-        public Column text(String name){
+        public Column text(String name) {
             return column(name, SQLType.TEXT);
         }
 
-        public Column id(){
+        public Column id() {
             return integer("id").autoIncrement().primary();
         }
 
-        public Column integer(String name, int size){
+        public Column integer(String name, int size) {
             return column(name, SQLType.INT, String.valueOf(size));
         }
 
-        public Column integer(String name){
+        public Column integer(String name) {
             return column(name, SQLType.INT);
         }
 
-        public Column bool(String name){
+        public Column bool(String name) {
             return column(name, SQLType.TINYINT, "1");
         }
 
-        public Column uuid(String name){
+        public Column uuid(String name) {
             return column(name, SQLType.VARCHAR, "36");
         }
 
-        public Column uuid(){
+        public Column uuid() {
             return uuid("uuid").primary();
         }
 
-        public Column enums(String name, String... values){
+        public Column enums(String name, String... values) {
             return column(name, SQLType.ENUM, String.join(",", values));
         }
 
-        public Column timestamp(String name){
+        public Column timestamp(String name) {
             return column(name, SQLType.TIMESTAMP);
         }
 
-        public void timestamps(String... names){
-            for(String name : names)
+        public void timestamps(String... names) {
+            for (String name : names)
                 timestamp(name);
         }
 
-        public void dates(){
+        public void dates() {
             timestamps("created_at", "updated_at");
         }
 
-        public void softDelete(){
+        public void softDelete() {
             timestamp("deleted_at").nullable();
         }
 
-        public void rename(String to){
+        public void rename(String to) {
             try {
-                sql.write("RENAME TABLE `"+fullName()+"` TO `"+tablePrefix + to+"`;");
+                sql.write("RENAME TABLE `" + fullName() + "` TO `" + tablePrefix + to + "`;");
             } catch (SQLException throwables) {
                 throw new ORMQueryException(throwables);
             }
             this.name = to;
         }
 
-        public void drop(){
+        public void drop() {
             try {
-                sql.write("DROP TABLE `"+fullName()+"`;");
+                sql.write("DROP TABLE `" + fullName() + "`;");
             } catch (SQLException throwables) {
                 throw new ORMQueryException(throwables);
             }
         }
 
-        public void create(){
+        public void create() {
             create(false);
         }
 
-        public void create(boolean ifNotExists){
+        public void create(boolean ifNotExists) {
             StringBuilder sb = new StringBuilder("CREATE TABLE ");
-            if(ifNotExists)
+            if (ifNotExists)
                 sb.append("IF NOT EXISTS ");
             sb.append('`');
             sb.append(fullName());
@@ -161,61 +161,61 @@ public class DB {
             private final SQLType type;
             private final String size;
 
-            public Column(String name, SQLType type, String size){
+            public Column(String name, SQLType type, String size) {
                 this.name = name;
                 this.type = type;
                 this.size = size;
             }
 
-            public Column primary(){
+            public Column primary() {
                 this.primary = true;
                 return this;
             }
 
-            public Column unique(){
+            public Column unique() {
                 this.unique = true;
                 return this;
             }
 
-            public Column autoIncrement(){
+            public Column autoIncrement() {
                 this.autoIncrement = true;
                 return this;
             }
 
-            public Column nullable(){
+            public Column nullable() {
                 this.nullable = true;
                 return this;
             }
 
-            public Column after(String after){
+            public Column after(String after) {
                 this.after = after;
                 return this;
             }
 
-            public Column first(){
+            public Column first() {
                 this.after = "";
                 return this;
             }
 
-            public void rename(String to){
+            public void rename(String to) {
                 try {
-                    sql.write("ALTER TABLE `"+fullName()+"` RENAME COLUMN `"+name+"` TO `"+to+"`;");
+                    sql.write("ALTER TABLE `" + fullName() + "` RENAME COLUMN `" + name + "` TO `" + to + "`;");
                 } catch (SQLException throwables) {
                     throw new ORMQueryException(throwables);
                 }
                 name = to;
             }
 
-            public void drop(){
+            public void drop() {
                 try {
-                    sql.write("ALTER TABLE `"+fullName()+"` DROP COLUMN `"+name+"`;");
+                    sql.write("ALTER TABLE `" + fullName() + "` DROP COLUMN `" + name + "`;");
                 } catch (SQLException throwables) {
                     throw new ORMQueryException(throwables);
                 }
                 columns.remove(this);
             }
 
-            public void add(){
+            public void add() {
                 StringBuilder sb = new StringBuilder("ALTER TABLE `");
                 sb.append(fullName());
                 sb.append("` ADD ");
@@ -228,7 +228,7 @@ public class DB {
                 }
             }
 
-            public void modify(){
+            public void modify() {
                 StringBuilder sb = new StringBuilder("ALTER TABLE `");
                 sb.append(fullName());
                 sb.append("` MODIFY ");
@@ -241,37 +241,38 @@ public class DB {
                 }
             }
 
-            String definition(){
+            String definition() {
                 StringBuilder sb = new StringBuilder('`');
                 sb.append(name);
                 sb.append("` ");
                 sb.append(type.name());
-                if(size != null){
+                if (size != null) {
                     sb.append('(');
                     sb.append(size);
                     sb.append(')');
                 }
-                if(nullable){
+                if (nullable) {
                     sb.append(" NULL");
-                }else{
+                } else {
                     sb.append(" NOT NULL");
                 }
-                if(autoIncrement)
+                if (autoIncrement)
                     sb.append(" AUTO_INCREMENT");
-                if(after != null){
-                    if(after.length() != 0){
+                if (after != null) {
+                    if (after.length() != 0) {
                         sb.append(" AFTER `");
                         sb.append(after);
                         sb.append('`');
-                    }else{
+                    } else {
                         sb.append(" FIRST");
                     }
                 }
                 return sb.toString();
             }
-            List<String> contraints(){
-                List<String> constraints = new ArrayList<>(columns.stream().filter(c -> c.primary).map(c -> "PRIMARY KEY (`"+c.name+"`)").collect(Collectors.toList()));
-                contraints().addAll(columns.stream().filter(c -> c.unique).map(c -> "UNIQUE (`"+c.name+"`)").collect(Collectors.toList()));
+
+            List<String> contraints() {
+                List<String> constraints = new ArrayList<>(columns.stream().filter(c -> c.primary).map(c -> "PRIMARY KEY (`" + c.name + "`)").collect(Collectors.toList()));
+                contraints().addAll(columns.stream().filter(c -> c.unique).map(c -> "UNIQUE (`" + c.name + "`)").collect(Collectors.toList()));
                 return constraints;
             }
         }

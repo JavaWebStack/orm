@@ -11,7 +11,7 @@ public class DefaultQueryFilter implements QueryFilter {
     private final Map<String, String> filterable;
     private final List<String> searchable;
 
-    public DefaultQueryFilter(Map<String, String> filterable, List<String> searchable){
+    public DefaultQueryFilter(Map<String, String> filterable, List<String> searchable) {
         this.filterable = filterable;
         this.searchable = searchable;
     }
@@ -25,7 +25,7 @@ public class DefaultQueryFilter implements QueryFilter {
 
     public void search(Query<? extends Model> query, String search) {
         query.and(q -> {
-            searchable.forEach(key -> q.orWhere(key, "LIKE", "%"+search+"%"));
+            searchable.forEach(key -> q.orWhere(key, "LIKE", "%" + search + "%"));
             return q;
         });
     }

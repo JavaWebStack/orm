@@ -17,7 +17,7 @@ public class MigrationState extends Model {
     @Column
     private Timestamp updatedAt;
 
-    public String getName(){
+    public String getName() {
         return name;
     }
 

@@ -28,19 +28,20 @@ public class MySQL extends BaseSQL {
         this.timeout = timeout * 1000L;
     }
 
-    public Connection getConnection(){
+    public Connection getConnection() {
         long now = System.currentTimeMillis();
-        if(now > lastQuery+timeout){
-            if(c != null){
+        if (now > lastQuery + timeout) {
+            if (c != null) {
                 try {
                     c.close();
-                } catch (SQLException throwables) {}
+                } catch (SQLException throwables) {
+                }
             }
             c = null;
         }
         lastQuery = now;
         try {
-            if(c==null||c.isClosed()){
+            if (c == null || c.isClosed()) {
                 try {
                     Class.forName("com.mysql.cj.jdbc.Driver");
                     c = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database + "?user=" + this.username + "&password=" + this.password + "&autoReconnect=" + true + "&failOverReadOnly=false&maxReconnects=" + 5 + "&UseUnicode=yes&characterEncoding=UTF-8");
@@ -50,16 +51,17 @@ public class MySQL extends BaseSQL {
                     System.out.println("Error: at getConnection()[MySQL.java]  ClassNotFoundException");
                 }
             }
-        } catch (SQLException e) {e.printStackTrace();}
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         try {
-            if(c!=null&&c.isClosed())
+            if (c != null && c.isClosed())
                 return null;
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return c;
     }
-
 
 
 }

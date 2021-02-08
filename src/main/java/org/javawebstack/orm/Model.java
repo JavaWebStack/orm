@@ -43,42 +43,43 @@ public class Model {
     @Expose(serialize = false, deserialize = false)
     private final Map<String, Object> internalLastValue = new HashMap<>();
 
-    void internalAddJoinedModel(Class<? extends Model> type, Object entity){
+    void internalAddJoinedModel(Class<? extends Model> type, Object entity) {
         internalJoinedModels.put(type, entity);
     }
-    void internalSetLastValue(String key, Object value){
-        if(value == null) internalLastValue.remove(key);
+
+    void internalSetLastValue(String key, Object value) {
+        if (value == null) internalLastValue.remove(key);
         else internalLastValue.put(key, value);
     }
 
-    public <T extends Model> T getJoined(Class<T> model){
+    public <T extends Model> T getJoined(Class<T> model) {
         return (T) internalJoinedModels.get(model);
     }
 
-    public boolean hasJoined(Class<? extends Model> model){
+    public boolean hasJoined(Class<? extends Model> model) {
         return internalJoinedModels.containsKey(model);
     }
 
-    boolean doesEntryExist(){
+    boolean doesEntryExist() {
         return internalEntryExists;
     }
 
-    void setEntryExists(boolean exists){
+    void setEntryExists(boolean exists) {
         this.internalEntryExists = exists;
     }
 
     @Deprecated
-    public boolean isDirty(String... fields){
+    public boolean isDirty(String... fields) {
         Repo<?> repo = Repo.get(getClass());
-        for(String field : fields){
+        for (String field : fields) {
             try {
                 Object value = repo.getInfo().getField(field).get(this);
                 Object oldValue = internalLastValue.get(field);
-                if((value == null && oldValue != null) || (oldValue == null && value != null))
+                if ((value == null && oldValue != null) || (oldValue == null && value != null))
                     return true;
-                if(value == null)
+                if (value == null)
                     continue;
-                if(!value.equals(oldValue))
+                if (!value.equals(oldValue))
                     return true;
             } catch (IllegalAccessException e) {
                 throw new ORMQueryException(e);
@@ -87,13 +88,13 @@ public class Model {
         return false;
     }
 
-    public void inject(){
+    public void inject() {
         Injector injector = Repo.get(getClass()).getInfo().getConfig().getInjector();
-        if(injector != null)
+        if (injector != null)
             injector.inject(this);
     }
 
-    public void save(){
+    public void save() {
         try {
             saveMethod.invoke(ORM.repo(getClass()), this);
         } catch (IllegalAccessException | InvocationTargetException e) {
@@ -102,7 +103,7 @@ public class Model {
         }
     }
 
-    public void delete(){
+    public void delete() {
         try {
             deleteMethod.invoke(ORM.repo(getClass()), this);
         } catch (IllegalAccessException | InvocationTargetException e) {
@@ -110,7 +111,7 @@ public class Model {
         }
     }
 
-    public void finalDelete(){
+    public void finalDelete() {
         try {
             finalDeleteMethod.invoke(ORM.repo(getClass()), this);
         } catch (IllegalAccessException | InvocationTargetException e) {
@@ -118,7 +119,7 @@ public class Model {
         }
     }
 
-    public void restore(){
+    public void restore() {
         try {
             restoreMethod.invoke(ORM.repo(getClass()), this);
         } catch (IllegalAccessException | InvocationTargetException e) {
@@ -126,7 +127,7 @@ public class Model {
         }
     }
 
-    public void refresh(){
+    public void refresh() {
         try {
             refreshMethod.invoke(ORM.repo(getClass()), this);
         } catch (IllegalAccessException | InvocationTargetException e) {
@@ -134,11 +135,11 @@ public class Model {
         }
     }
 
-    public <T extends Model> Query<T> belongsTo(Class<T> parent){
+    public <T extends Model> Query<T> belongsTo(Class<T> parent) {
         return belongsTo(parent, Repo.get(parent).getInfo().getRelationField());
     }
 
-    public <T extends Model> Query<T> belongsTo(Class<T> parent, String fieldName){
+    public <T extends Model> Query<T> belongsTo(Class<T> parent, String fieldName) {
         try {
             Object id = Repo.get(getClass()).getInfo().getField(fieldName).get(this);
             return Repo.get(parent).whereId(id);
@@ -147,16 +148,16 @@ public class Model {
         }
     }
 
-    public <T extends Model> void assignTo(Class<T> parent, T value){
+    public <T extends Model> void assignTo(Class<T> parent, T value) {
         assignTo(parent, value, Repo.get(parent).getInfo().getRelationField());
     }
 
-    public <T extends Model> void assignTo(Class<T> parent, T value, String fieldName){
+    public <T extends Model> void assignTo(Class<T> parent, T value, String fieldName) {
         try {
             Field f = Repo.get(getClass()).getInfo().getField(fieldName);
-            if(value == null){
+            if (value == null) {
                 f.set(this, null);
-            }else{
+            } else {
                 Repo<T> repo = Repo.get(parent);
                 Object id = repo.getInfo().getField(repo.getInfo().getIdField()).get(value);
                 f.set(this, id);
@@ -166,11 +167,11 @@ public class Model {
         }
     }
 
-    public <T extends Model> Query<T> hasMany(Class<T> child){
+    public <T extends Model> Query<T> hasMany(Class<T> child) {
         return hasMany(child, Repo.get(getClass()).getInfo().getRelationField());
     }
 
-    public <T extends Model> Query<T> hasMany(Class<T> child, String fieldName){
+    public <T extends Model> Query<T> hasMany(Class<T> child, String fieldName) {
         try {
             Repo<?> ownRepo = Repo.get(getClass());
             Object id = ownRepo.getInfo().getField(ownRepo.getInfo().getIdField()).get(this);
@@ -180,26 +181,26 @@ public class Model {
         }
     }
 
-    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot){
+    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot) {
         return belongsToMany(other, pivot, null);
     }
 
-    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot, Function<Query<P>,Query<P>> pivotFilter){
+    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot, Function<Query<P>, Query<P>> pivotFilter) {
         return belongsToMany(other, pivot, Repo.get(getClass()).getInfo().getRelationField(), Repo.get(other).getInfo().getRelationField(), pivotFilter);
     }
 
-    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot, String selfFieldName, String otherFieldName){
+    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot, String selfFieldName, String otherFieldName) {
         return belongsToMany(other, pivot, selfFieldName, otherFieldName, null);
     }
 
-    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot, String selfFieldName, String otherFieldName, Function<Query<P>,Query<P>> pivotFilter){
+    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot, String selfFieldName, String otherFieldName, Function<Query<P>, Query<P>> pivotFilter) {
         try {
             Repo<?> selfRepo = Repo.get(getClass());
             Repo<T> otherRepo = Repo.get(other);
             Object id = selfRepo.getInfo().getField(selfRepo.getInfo().getIdField()).get(this);
             return otherRepo.whereExists(pivot, q -> {
                 q.where(pivot, selfFieldName, "=", id).where(pivot, otherFieldName, "=", other, otherRepo.getInfo().getIdColumn());
-                if(pivotFilter != null)
+                if (pivotFilter != null)
                     q = pivotFilter.apply(q);
                 return q;
             });
@@ -208,15 +209,16 @@ public class Model {
         }
     }
 
-    public void setMorph(String name, Class<? extends Model> type, Object id){
+    public void setMorph(String name, Class<? extends Model> type, Object id) {
         TableInfo info = Repo.get(getClass()).getInfo();
         try {
-            info.getField(name+"Id").set(this, id);
-            info.getField(name+"Type").set(this, Repo.get(type).getInfo().getMorphType());
-        } catch (IllegalAccessException ignored) {}
+            info.getField(name + "Id").set(this, id);
+            info.getField(name + "Type").set(this, Repo.get(type).getInfo().getMorphType());
+        } catch (IllegalAccessException ignored) {
+        }
     }
 
-    public void setMorph(String name, Model model){
+    public void setMorph(String name, Model model) {
         setMorph(name, model.getClass(), Repo.get(model.getClass()).getId(model));
     }
 

@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 
 public class Repo<T extends Model> {
 
-    public static <T extends Model> Repo<T> get(Class<T> model){
+    public static <T extends Model> Repo<T> get(Class<T> model) {
         return ORM.repo(model);
     }
 
@@ -37,12 +37,12 @@ public class Repo<T extends Model> {
         filter = new DefaultQueryFilter(info.getFilterable(), info.getSearchable());
     }
 
-    public Repo<T> setAccessible(Accessible accessible){
+    public Repo<T> setAccessible(Accessible accessible) {
         this.accessible = accessible;
         return this;
     }
 
-    public Repo<T> setFilter(QueryFilter filter){
+    public Repo<T> setFilter(QueryFilter filter) {
         this.filter = filter;
         return this;
     }
@@ -51,56 +51,56 @@ public class Repo<T extends Model> {
         return filter;
     }
 
-    public Query<T> filter(Map<String, String> filter){
+    public Query<T> filter(Map<String, String> filter) {
         return query().filter(filter);
     }
 
-    public Query<T> search(String search){
+    public Query<T> search(String search) {
         return query().search(search);
     }
 
-    public Query<T> query(){
+    public Query<T> query() {
         return new Query<>((Class<T>) info.getModelClass());
     }
 
-    public Query<T> where(Object left, String operator, Object right){
+    public Query<T> where(Object left, String operator, Object right) {
         return query().where(left, operator, right);
     }
 
-    public Query<T> where(Object left, Object right){
+    public Query<T> where(Object left, Object right) {
         return query().where(left, right);
     }
 
-    public Query<T> whereId(String operator, Object right){
+    public Query<T> whereId(String operator, Object right) {
         return query().whereId(operator, right);
     }
 
-    public Query<T> whereId(Object right){
+    public Query<T> whereId(Object right) {
         return query().whereId(right);
     }
 
-    public <M extends Model> Query<T> whereExists(Class<M> model, Function<Query<M>,Query<M>> consumer){
+    public <M extends Model> Query<T> whereExists(Class<M> model, Function<Query<M>, Query<M>> consumer) {
         return query().whereExists(model, consumer);
     }
 
-    public Query<T> accessible(Object accessor){
+    public Query<T> accessible(Object accessor) {
         return accessible(query(), accessor);
     }
 
-    public Query<T> accessible(Query<T> query, Object accessor){
+    public Query<T> accessible(Query<T> query, Object accessor) {
         return accessible == null ? query : accessible.access(query, accessor);
     }
 
-    public void save(T entry){
-        if(entry.doesEntryExist()){
+    public void save(T entry) {
+        if (entry.doesEntryExist()) {
             update(entry);
-        }else{
+        } else {
             create(entry);
         }
     }
 
-    public void create(T entry){
-        if(info.getConfig().getInjector() != null)
+    public void create(T entry) {
+        if (info.getConfig().getInjector() != null)
             info.getConfig().getInjector().inject(entry);
         observers.forEach(o -> o.saving(entry));
         observers.forEach(o -> o.creating(entry));
@@ -109,18 +109,18 @@ public class Repo<T extends Model> {
         observers.forEach(o -> o.saved(entry));
     }
 
-    private void executeCreate(T entry){
+    private void executeCreate(T entry) {
         try {
-            if(info.hasDates()){
+            if (info.hasDates()) {
                 Timestamp now = Timestamp.from(Instant.now());
-                if(info.hasCreated())
+                if (info.hasCreated())
                     info.getField(info.getCreatedField()).set(entry, now);
-                if(info.hasUpdated())
+                if (info.hasUpdated())
                     info.getField(info.getUpdatedField()).set(entry, now);
             }
-            if(info.getIdType().equals(UUID.class)){
+            if (info.getIdType().equals(UUID.class)) {
                 Field field = info.getField(info.getIdField());
-                if(field.get(entry) == null)
+                if (field.get(entry) == null)
                     field.set(entry, UUID.randomUUID());
             }
             List<Object> params = new ArrayList<>();
@@ -130,13 +130,13 @@ public class Repo<T extends Model> {
             List<String> cols = new ArrayList<>();
             List<String> values = new ArrayList<>();
             Map<String, Object> map = SQLMapper.map(this, entry);
-            if(info.isAutoIncrement()){
+            if (info.isAutoIncrement()) {
                 String idCol = info.getColumnName(info.getIdField());
-                if(map.containsKey(idCol) && map.get(idCol) == null)
+                if (map.containsKey(idCol) && map.get(idCol) == null)
                     map.remove(idCol);
             }
-            for(String columnName : map.keySet()){
-                cols.add("`"+columnName+"`");
+            for (String columnName : map.keySet()) {
+                cols.add("`" + columnName + "`");
                 values.add("?");
                 params.add(map.get(columnName));
             }
@@ -145,7 +145,7 @@ public class Repo<T extends Model> {
             sb.append(String.join(",", values));
             sb.append(");");
             int id = connection.write(sb.toString(), params.toArray());
-            if(info.isAutoIncrement())
+            if (info.isAutoIncrement())
                 info.getField(info.getIdField()).set(entry, id);
             entry.setEntryExists(true);
         } catch (SQLException | IllegalAccessException throwables) {
@@ -153,7 +153,7 @@ public class Repo<T extends Model> {
         }
     }
 
-    public void update(T entry){
+    public void update(T entry) {
         observers.forEach(o -> o.saving(entry));
         observers.forEach(o -> o.updating(entry));
         where(info.getIdField(), getId(entry)).update(entry);
@@ -161,10 +161,10 @@ public class Repo<T extends Model> {
         observers.forEach(o -> o.saved(entry));
     }
 
-    public void delete(T entry){
+    public void delete(T entry) {
         observers.forEach(o -> o.deleting(entry));
         Timestamp timestamp = where(info.getIdField(), getId(entry)).delete();
-        if(timestamp != null){
+        if (timestamp != null) {
             try {
                 info.getField(info.getSoftDeleteField()).set(entry, timestamp);
             } catch (IllegalAccessException e) {
@@ -174,8 +174,8 @@ public class Repo<T extends Model> {
         observers.forEach(o -> o.deleted(entry));
     }
 
-    public void restore(T entry){
-        if(!info.isSoftDelete())
+    public void restore(T entry) {
+        if (!info.isSoftDelete())
             return;
         observers.forEach(o -> o.restoring(entry));
         where(info.getIdField(), getId(entry)).restore();
@@ -187,40 +187,40 @@ public class Repo<T extends Model> {
         observers.forEach(o -> o.restored(entry));
     }
 
-    public void finalDelete(T entry){
+    public void finalDelete(T entry) {
         where(info.getIdField(), getId(entry)).finalDelete();
     }
 
-    public T refresh(T entry){
+    public T refresh(T entry) {
         return where(info.getIdField(), getId(entry)).refresh(entry);
     }
 
-    public T get(Object id){
+    public T get(Object id) {
         return whereId(id).first();
     }
 
-    public List<T> all(){
+    public List<T> all() {
         return query().all();
     }
 
-    public Stream<T> stream(){
+    public Stream<T> stream() {
         return query().stream();
     }
 
-    public int count(){
+    public int count() {
         return query().count();
     }
 
-    public Object getId(Object entity){
-        if(entity == null)
+    public Object getId(Object entity) {
+        if (entity == null)
             return null;
         try {
             Object id = info.getField(info.getIdField()).get(entity);
-            if(id == null)
+            if (id == null)
                 return null;
-            if(id.getClass().equals(Integer.class)){
+            if (id.getClass().equals(Integer.class)) {
                 int intId = (Integer) id;
-                if(intId == 0)
+                if (intId == 0)
                     return null;
             }
             return id;
@@ -229,22 +229,22 @@ public class Repo<T extends Model> {
         }
     }
 
-    public Repo<T> observe(Observer<T> observer){
-        if(info.getConfig().getInjector() != null)
+    public Repo<T> observe(Observer<T> observer) {
+        if (info.getConfig().getInjector() != null)
             info.getConfig().getInjector().inject(observer);
         observers.add(observer);
         return this;
     }
 
-    public void autoMigrate(){
+    public void autoMigrate() {
         AutoMigrator.migrate(this);
     }
 
-    public SQL getConnection(){
+    public SQL getConnection() {
         return connection;
     }
 
-    public TableInfo getInfo(){
+    public TableInfo getInfo() {
         return info;
     }
 
