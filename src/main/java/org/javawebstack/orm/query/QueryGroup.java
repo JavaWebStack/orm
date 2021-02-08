@@ -171,6 +171,22 @@ public class QueryGroup<T extends Model> implements QueryElement {
         return this;
     }
 
+    public QueryGroup<T> whereIn(Object left, Object... values) {
+        return where(left, "IN", values);
+    }
+
+    public QueryGroup<T> whereNotIn(Object left, Object... values) {
+        return where(left, "NOT IN", values);
+    }
+
+    public QueryGroup<T> orWhereIn(Object left, Object... values) {
+        return orWhere(left, "IN", values);
+    }
+
+    public QueryGroup<T> orWhereNotIn(Object left, Object... values) {
+        return orWhere(left, "NOT IN", values);
+    }
+
     public QueryString getQueryString(TableInfo info){
         StringBuilder sb = new StringBuilder("(");
         List<Object> parameters = new ArrayList<>();

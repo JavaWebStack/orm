@@ -215,6 +215,26 @@ public class Query<T extends Model> {
         return this;
     }
 
+    public Query<T> whereIn(Object left, Object... values) {
+        where.whereIn(left, values);
+        return this;
+    }
+
+    public Query<T> whereNotIn(Object left, Object... values) {
+        where.whereNotIn(left, values);
+        return this;
+    }
+
+    public Query<T> orWhereIn(Object left, Object... values) {
+        where.orWhereIn(left, values);
+        return this;
+    }
+
+    public Query<T> orWhereNotIn(Object left, Object... values) {
+        where.orWhereNotIn(left, values);
+        return this;
+    }
+
     public Query<T> accessible(Object accessor) {
         return repo.accessible(this, accessor);
     }
