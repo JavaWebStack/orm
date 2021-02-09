@@ -107,6 +107,7 @@ public class Repo<T extends Model> {
         executeCreate(entry);
         observers.forEach(o -> o.created(entry));
         observers.forEach(o -> o.saved(entry));
+        entry.updateOriginal();
     }
 
     private void executeCreate(T entry) {
@@ -159,6 +160,7 @@ public class Repo<T extends Model> {
         where(info.getIdField(), getId(entry)).update(entry);
         observers.forEach(o -> o.updated(entry));
         observers.forEach(o -> o.saved(entry));
+        entry.updateOriginal();
     }
 
     public void delete(T entry) {
@@ -172,6 +174,7 @@ public class Repo<T extends Model> {
             }
         }
         observers.forEach(o -> o.deleted(entry));
+        entry.updateOriginal();
     }
 
     public void restore(T entry) {
@@ -192,7 +195,9 @@ public class Repo<T extends Model> {
     }
 
     public T refresh(T entry) {
-        return where(info.getIdField(), getId(entry)).refresh(entry);
+        where(info.getIdField(), getId(entry)).refresh(entry);
+        entry.updateOriginal();
+        return entry;
     }
 
     public T get(Object id) {

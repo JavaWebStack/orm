@@ -50,9 +50,9 @@ public class SQLMapper {
         t.setEntryExists(true);
         for (String fieldName : repo.getInfo().getFields()) {
             Object value = getValue(rs, repo.getInfo().getType(fieldName).getJavaType(), repo.getInfo().getTableName(), repo.getInfo().getColumnName(fieldName));
-            t.internalSetLastValue(fieldName, value);
             setValue(repo, fieldName, t, value);
         }
+        t.updateOriginal();
         return t;
     }
 
@@ -125,7 +125,6 @@ public class SQLMapper {
             for (TypeMapper mapper : repo.getInfo().getConfig().getTypeMappers())
                 value = mapper.mapToJava(value, repo.getInfo().getField(fieldName).getType());
             repo.getInfo().getField(fieldName).set(entry, value);
-            entry.internalSetLastValue(fieldName, value);
         } catch (IllegalAccessException e) {
             throw new ORMQueryException(e);
         }

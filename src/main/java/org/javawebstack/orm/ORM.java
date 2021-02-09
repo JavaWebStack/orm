@@ -67,4 +67,8 @@ public class ORM {
         AutoMigrator.migrate(fresh, repositories.values().toArray(new Repo<?>[0]));
     }
 
+    public void reset() {
+        repositories.clear();
+    }
+
 }

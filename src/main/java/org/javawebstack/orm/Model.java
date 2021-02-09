@@ -1,6 +1,5 @@
 package org.javawebstack.orm;
 
-import com.google.gson.annotations.Expose;
 import org.javawebstack.injector.Injector;
 import org.javawebstack.orm.exception.ORMQueryException;
 import org.javawebstack.orm.query.Query;
@@ -8,7 +7,9 @@ import org.javawebstack.orm.query.Query;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -22,6 +23,7 @@ public class Model {
 
     {
         inject();
+        updateOriginal();
     }
 
     static {
@@ -36,20 +38,61 @@ public class Model {
         }
     }
 
-    @Expose(serialize = false, deserialize = false)
-    private boolean internalEntryExists = false;
-    @Expose(serialize = false, deserialize = false)
-    private final Map<Class<? extends Model>, Object> internalJoinedModels = new HashMap<>();
-    @Expose(serialize = false, deserialize = false)
-    private final Map<String, Object> internalLastValue = new HashMap<>();
+    private transient boolean internalEntryExists = false;
+    private transient final Map<Class<? extends Model>, Object> internalJoinedModels = new HashMap<>();
+    private transient Map<String, Object> internalOriginalValues = new HashMap<>();
 
     void internalAddJoinedModel(Class<? extends Model> type, Object entity) {
         internalJoinedModels.put(type, entity);
     }
 
-    void internalSetLastValue(String key, Object value) {
-        if (value == null) internalLastValue.remove(key);
-        else internalLastValue.put(key, value);
+    void updateOriginal() {
+        internalOriginalValues = getFieldValues();
+    }
+
+    public Map<String, Object> getFieldValues() {
+        TableInfo info = Repo.get(getClass()).getInfo();
+        Map<String, Object> values = new HashMap<>();
+        for(String field : info.getFields()) {
+            try {
+                values.put(field, info.getField(field).get(this));
+            } catch (IllegalAccessException ignored) { }
+        }
+        return values;
+    }
+
+    public Map<String, Object> getOriginalValues() {
+        return internalOriginalValues;
+    }
+
+    public <T> T getOriginalValue(String field) {
+        if(internalOriginalValues.get(field) == null)
+            return null;
+        return (T) internalOriginalValues.get(field);
+    }
+
+    public boolean isDirty(String... fields) {
+        List<String> dirty = getDirtyFields();
+        for(String f : fields) {
+            if(dirty.contains(f))
+                return true;
+        }
+        return false;
+    }
+
+    public List<String> getDirtyFields() {
+        List<String> dirty = new ArrayList<>();
+        Map<String, Object> original = getOriginalValues();
+        Map<String, Object> current = getFieldValues();
+        for(String key : current.keySet()) {
+            Object o = original.get(key);
+            Object c = current.get(key);
+            if(o == null && c == null)
+                continue;
+            if(o == null || !o.equals(c))
+                dirty.add(key);
+        }
+        return dirty;
     }
 
     public <T extends Model> T getJoined(Class<T> model) {
@@ -66,26 +109,6 @@ public class Model {
 
     void setEntryExists(boolean exists) {
         this.internalEntryExists = exists;
-    }
-
-    @Deprecated
-    public boolean isDirty(String... fields) {
-        Repo<?> repo = Repo.get(getClass());
-        for (String field : fields) {
-            try {
-                Object value = repo.getInfo().getField(field).get(this);
-                Object oldValue = internalLastValue.get(field);
-                if ((value == null && oldValue != null) || (oldValue == null && value != null))
-                    return true;
-                if (value == null)
-                    continue;
-                if (!value.equals(oldValue))
-                    return true;
-            } catch (IllegalAccessException e) {
-                throw new ORMQueryException(e);
-            }
-        }
-        return false;
     }
 
     public void inject() {
