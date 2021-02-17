@@ -1,4 +1,4 @@
-<p align="center"><img src="https://raw.githubusercontent.com/JavaWebStack/docs/master/src/assets/img/icon.svg" width="100">
+<p align="center"><img src="https://raw.githubusercontent.com/JavaWebStack/docs/master/docs/assets/img/icon.svg" width="100">
 <br><br>
 JWS Object Relational Mapping
 </p>
