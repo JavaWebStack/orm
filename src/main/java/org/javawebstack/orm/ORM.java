@@ -55,6 +55,10 @@ public class ORM {
         return new ArrayList<>(repositories.keySet());
     }
 
+    public static List<Repo<?>> getRepos() {
+        return new ArrayList<>(repositories.values());
+    }
+
     public static void autoDrop() {
         AutoMigrator.drop(repositories.values().toArray(new Repo<?>[0]));
     }
@@ -67,7 +71,7 @@ public class ORM {
         AutoMigrator.migrate(fresh, repositories.values().toArray(new Repo<?>[0]));
     }
 
-    public void reset() {
+    public static void reset() {
         repositories.clear();
     }
 
