@@ -16,6 +16,11 @@ public abstract class ORMTestCase {
         String name = System.getenv("MYSQL_DATABASE");
         String user = System.getenv("MYSQL_USERNAME");
         String password = System.getenv("MYSQL_PASSWORD");
+        System.out.println(host);
+        System.out.println(port);
+        System.out.println(name);
+        System.out.println(user);
+        System.out.println(password);
         sql = new MySQL(
                 host != null ? host : "localhost",
                 port != null ? Integer.parseInt(port) : 3306,
