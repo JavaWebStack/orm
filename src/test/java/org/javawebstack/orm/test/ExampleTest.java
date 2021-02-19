@@ -25,7 +25,7 @@ public class ExampleTest extends ORMTestCase {
         assertEquals("Test", example.title);
     }
 
-    private static class Example extends Model {
+    public static class Example extends Model {
         @Column
         int id;
         @Column
