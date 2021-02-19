@@ -14,6 +14,7 @@ jobs:
           MYSQL_RANDOM_ROOT_PASSWORD: yes
         ports:
           - 3306
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 1.8
@@ -23,6 +24,7 @@ jobs:
       - name: Build
         run: mvn -B package --file pom.xml
         env:
+          MYSQL_HOST: mysql
           MYSQL_USER: test
           MYSQL_PASSWORD: test
       - name: Deploy to JavaWebStack Repository
