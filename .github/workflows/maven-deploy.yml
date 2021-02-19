@@ -25,7 +25,7 @@ jobs:
         run: mvn -B package --file pom.xml
         env:
           MYSQL_HOST: 127.0.0.1
-          MYSQL_PORT: ${{ job.services.mariadb.ports[3306] }}
+          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
           MYSQL_USER: test
           MYSQL_PASSWORD: test
       - name: Deploy to JavaWebStack Repository
