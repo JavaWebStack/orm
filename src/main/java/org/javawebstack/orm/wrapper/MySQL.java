@@ -1,5 +1,8 @@
 package org.javawebstack.orm.wrapper;
 
+import org.javawebstack.orm.exception.ORMQueryException;
+
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -55,8 +58,8 @@ public class MySQL extends BaseSQL {
             e.printStackTrace();
         }
         try {
-            if (c != null && c.isClosed())
-                return null;
+            if (c == null || c.isClosed())
+                throw new ORMQueryException("Connection failed!");
         } catch (SQLException e) {
             e.printStackTrace();
         }
