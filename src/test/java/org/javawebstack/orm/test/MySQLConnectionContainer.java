@@ -8,7 +8,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-public abstract class DatabaseConnection {
+public abstract class MySQLConnectionContainer {
 
     private static final SQL sql;
 
