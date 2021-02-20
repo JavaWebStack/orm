@@ -5,6 +5,7 @@ import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.javawebstack.orm.util.Helper;
 import org.javawebstack.orm.util.KeyType;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -31,6 +32,11 @@ public class TableInfo {
     private String relationField;
     private final Map<String, String> filterable = new HashMap<>();
     private final List<String> searchable = new ArrayList<>();
+
+    private static final Class<?>[] appliesDefaultSize = {
+            String.class,
+            char[].class,
+    };
 
     public TableInfo(Class<? extends Model> model, ORMConfig config) throws ORMConfigurationException {
         this.config = config;
@@ -73,7 +79,7 @@ public class TableInfo {
             fieldConfigs.put(fieldName, fieldConfig);
 
             int fieldSize;
-            if (field.getType().equals(String.class) && fieldConfig.size() == -1)
+            if (Arrays.stream(appliesDefaultSize).anyMatch(type -> type.equals(field.getType())) && fieldConfig.size() == -1)
                 fieldSize = config.getDefaultSize();
             else
                 fieldSize = fieldConfig.size();
