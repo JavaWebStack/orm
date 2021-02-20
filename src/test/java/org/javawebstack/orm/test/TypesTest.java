@@ -42,10 +42,10 @@ public class TypesTest extends ExampleTest {
         assertEquals(model.exampleDouble, 123456789.1234567890D);
         assertEquals(model.exampleLong, 999999999999999999L);
 
-        model.exampleNull = 132847193428d;
+        model.exampleNull = "Text";
         model.save();
         model = Repo.get(ExampleModel.class).get(id);
-        assertEquals(model.exampleDouble, 132847193428d);
+        assertEquals(model.exampleNull, "Text");
     }
 
     public static class ExampleModel extends Model {
@@ -72,7 +72,7 @@ public class TypesTest extends ExampleTest {
         public Type exampleEnum;
 
         @Column
-        public Double exampleNull;
+        public String exampleNull;
 
         public enum Type {
             ADMIN, USER, GUEST
