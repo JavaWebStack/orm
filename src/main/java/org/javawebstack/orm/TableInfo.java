@@ -71,10 +71,17 @@ public class TableInfo {
             }
             fields.put(fieldName, field);
             fieldConfigs.put(fieldName, fieldConfig);
-            SQLType sqlType = config.getType(field.getType(), fieldConfig.size());
+
+            int fieldSize;
+            if (field.getType().equals(String.class) && fieldConfig.size() == -1)
+                fieldSize = config.getDefaultSize();
+            else
+                fieldSize = fieldConfig.size();
+
+                SQLType sqlType = config.getType(field.getType(), fieldSize);
             if (sqlType != null) {
                 sqlTypes.put(fieldName, sqlType);
-                sqlTypeParameters.put(fieldName, config.getTypeParameters(field.getType(), fieldConfig.size()));
+                sqlTypeParameters.put(fieldName, config.getTypeParameters(field.getType(), fieldSize));
             }
             if (!sqlTypes.containsKey(fieldName))
                 throw new ORMConfigurationException("Couldn't find type-mapper for '" + fieldName + "'!");
