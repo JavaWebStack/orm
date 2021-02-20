@@ -5,16 +5,22 @@ import java.sql.Timestamp;
 
 public enum SQLType {
 
-    VARCHAR(String.class),
-    BIGINT(Long.class),
-    INT(Integer.class),
+    // Divided by category and ordered by byte size (MySQL sizes)
     TINYINT(Boolean.class),
-    DOUBLE(Double.class),
+    INT(Integer.class),
+    BIGINT(Long.class),
+
     FLOAT(Float.class),
+    DOUBLE(Double.class),
+
+    VARCHAR(String.class),
     TEXT(String.class),
-    TIMESTAMP(Timestamp.class),
+
     DATE(Date.class),
+    TIMESTAMP(Timestamp.class),
+
     ENUM(String.class),
+
     VARBINARY(byte[].class);
 
     private final Class<?> javaType;
