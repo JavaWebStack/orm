@@ -6,11 +6,18 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Locale;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class Field extends MySQLConnectionContainer {
 
+    String tableName;
+    String fieldName;
     ResultSet resultSet;
 
     public Field(String tableName, String fieldName) throws SQLException {
+        this.tableName = tableName;
+        this.fieldName = fieldName;
+
         String query = String.format("SHOW COLUMNS FROM %s WHERE Field = '%s'", tableName, fieldName);
         resultSet = sql().read(query);
         resultSet.next();
@@ -32,7 +39,11 @@ public class Field extends MySQLConnectionContainer {
         assert(resultSet.getString("NULL").equalsIgnoreCase("no"));
     }
 
-    public void assertType(String type) throws SQLException {
-        assert(resultSet.getString("Type").equalsIgnoreCase(type));
+    public void assertType(String expectedType) throws SQLException {
+        String actualType = resultSet.getString("Type");
+        assertTrue(
+                actualType.equalsIgnoreCase(expectedType),
+                String.format("The type of %s.%s is %s, but type %s was expected.", tableName, fieldName, actualType, expectedType)
+        );
     }
 }
