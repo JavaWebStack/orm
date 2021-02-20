@@ -31,6 +31,8 @@ public class DefaultMapper implements TypeMapper {
             return Double.valueOf((double) source);
         if (type.equals(float.class))
             return Float.valueOf((float) source);
+        if (type.equals(char[].class))
+            return String.valueOf(source);
         if (type.equals(UUID.class))
             return source.toString();
 
@@ -58,11 +60,13 @@ public class DefaultMapper implements TypeMapper {
             return ((Double) source).doubleValue();
         if (type.equals(float.class))
             return ((Float) source).floatValue();
+        if (type.equals(char[].class))
+            return ((String) source).toCharArray();
         return source;
     }
 
     public SQLType getType(Class<?> type, int size) {
-        if (type.equals(String.class))
+        if (type.equals(String.class) || type.equals(char[].class))
             return size > 65535 || size < 1 ? SQLType.TEXT : SQLType.VARCHAR;
         if (type.equals(UUID.class))
             return SQLType.VARCHAR;
@@ -92,7 +96,7 @@ public class DefaultMapper implements TypeMapper {
     public String getTypeParameters(Class<?> type, int size) {
         if (type.isEnum())
             return Arrays.stream(((Class<? extends Enum<?>>) type).getEnumConstants()).map(c -> "'" + c.name() + "'").collect(Collectors.joining(","));
-        if (type.equals(String.class))
+        if (type.equals(String.class) || type.equals(char[].class))
             return size > 65535 || size < 1 ? null : String.valueOf(size);
         if (type.equals(byte[].class))
             return String.valueOf(size > 0 ? size : 255);
