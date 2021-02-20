@@ -26,7 +26,7 @@ public class DatesTest extends ORMTestCase {
         timesModel.save();
 
         timesModel = Repo.get(TimesModel.class).get(timesModel.id);
-        assertNotNull(timesModel.cratedAt);
+        assertNotNull(timesModel.createdAt);
 
         // updated_at test
         timesModel.exampleField = " ";
@@ -52,7 +52,7 @@ public class DatesTest extends ORMTestCase {
         public String exampleField;
 
         @Column
-        public Timestamp cratedAt;
+        public Timestamp createdAt;
 
         @Column
         public Timestamp updatedAt;
