@@ -8,9 +8,12 @@ import org.javawebstack.orm.annotation.Column;
 import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.junit.jupiter.api.Test;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TypesTest extends ExampleTest {
+public class TypesTest extends ORMTestCase {
 
     @Test
     public void testFields() throws ORMConfigurationException {
@@ -18,6 +21,8 @@ public class TypesTest extends ExampleTest {
                 .setDefaultSize(255);
         ORM.register(ExampleModel.class, sql(), config);
         ORM.autoMigrate(true);
+
+        Timestamp timestamp = Timestamp.from(Instant.now());
 
         ExampleModel model   = new ExampleModel();
         model.exampleString  = "Hello ;)";
@@ -27,6 +32,7 @@ public class TypesTest extends ExampleTest {
 
         model.exampleLong    = 999999999999999999L;
         model.exampleBoolean = true;
+        model.timestampTest  = timestamp;
         model.save();
 
         int id = model.id;
@@ -41,6 +47,7 @@ public class TypesTest extends ExampleTest {
         assertEquals(model.exampleFloat, 1.33769f);
         assertEquals(model.exampleDouble, 123456789.1234567890D);
         assertEquals(model.exampleLong, 999999999999999999L);
+        assertEquals(model.timestampTest, timestamp);
 
         model.exampleNull = "Text";
         model.save();
@@ -73,6 +80,9 @@ public class TypesTest extends ExampleTest {
 
         @Column
         public String exampleNull;
+
+        @Column
+        public Timestamp timestampTest;
 
         public enum Type {
             ADMIN, USER, GUEST
