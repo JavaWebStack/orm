@@ -19,6 +19,10 @@ public class DefaultMapper implements TypeMapper {
             return Integer.valueOf(((Boolean) source) ? 1 : 0);
         if (type.equals(boolean.class))
             return Integer.valueOf(((boolean) source) ? 1 : 0);
+        if (type.equals(byte.class))
+            return Byte.valueOf((byte) source);
+        if (type.equals(short.class))
+            return Short.valueOf((short) source);
         if (type.equals(int.class))
             return Integer.valueOf((int) source);
         if (type.equals(long.class))
@@ -29,6 +33,7 @@ public class DefaultMapper implements TypeMapper {
             return Float.valueOf((float) source);
         if (type.equals(UUID.class))
             return source.toString();
+
         return source;
     }
 
@@ -41,10 +46,14 @@ public class DefaultMapper implements TypeMapper {
             return UUID.fromString((String) source);
         if (type.equals(boolean.class))
             return ((Boolean) source).booleanValue();
-        if (type.equals(long.class))
-            return ((Long) source).longValue();
+        if (type.equals(byte.class))
+            return ((Byte) source).byteValue();
+        if (type.equals(short.class))
+            return ((Short) source).shortValue();
         if (type.equals(int.class))
             return ((Integer) source).intValue();
+        if (type.equals(long.class))
+            return ((Long) source).longValue();
         if (type.equals(double.class))
             return ((Double) source).doubleValue();
         if (type.equals(float.class))
@@ -59,8 +68,10 @@ public class DefaultMapper implements TypeMapper {
             return SQLType.VARCHAR;
         if (type.isEnum())
             return SQLType.ENUM;
-        if (type.equals(Boolean.class) || type.equals(boolean.class))
+        if (type.equals(boolean.class) || type.equals(Boolean.class) || type.equals(byte.class) || type.equals(Byte.class))
             return SQLType.TINYINT;
+        if (type.equals(short.class) || type.equals(Short.class))
+            return SQLType.SMALLINT;
         if (type.equals(int.class) || type.equals(Integer.class))
             return SQLType.INT;
         if (type.equals(double.class) || type.equals(Double.class))
@@ -87,6 +98,8 @@ public class DefaultMapper implements TypeMapper {
             return String.valueOf(size > 0 ? size : 255);
         if (type.equals(UUID.class))
             return "36";
+        if (type.equals(boolean.class) || type.equals(Boolean.class))
+            return "1";
         return null;
     }
 
