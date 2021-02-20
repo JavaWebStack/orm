@@ -67,6 +67,8 @@ public class CommonTest extends ORMTestCase {
 
         columnDataTypeMap.put("char_array", "varchar(255)");
 
+        columnDataTypeMap.put("byte_array", "varbinary(255)");
+
         for(Map.Entry<String, String> entry : columnDataTypeMap.entrySet()) {
             checkedField = new Field(tableName, entry.getKey());
 
@@ -130,6 +132,9 @@ public class CommonTest extends ORMTestCase {
 
         @Column
         char[] charArray;
+
+        @Column
+        byte[] byteArray;
 
     }
 }
