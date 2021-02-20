@@ -1,7 +1,6 @@
 package org.javawebstack.orm;
 
 import org.javawebstack.injector.Injector;
-import org.javawebstack.orm.exception.ORMQueryException;
 import org.javawebstack.orm.query.Query;
 
 import java.lang.reflect.Field;
@@ -53,10 +52,11 @@ public class Model {
     public Map<String, Object> getFieldValues() {
         TableInfo info = Repo.get(getClass()).getInfo();
         Map<String, Object> values = new HashMap<>();
-        for(String field : info.getFields()) {
+        for (String field : info.getFields()) {
             try {
                 values.put(field, info.getField(field).get(this));
-            } catch (IllegalAccessException ignored) { }
+            } catch (IllegalAccessException ignored) {
+            }
         }
         return values;
     }
@@ -66,15 +66,15 @@ public class Model {
     }
 
     public <T> T getOriginalValue(String field) {
-        if(internalOriginalValues.get(field) == null)
+        if (internalOriginalValues.get(field) == null)
             return null;
         return (T) internalOriginalValues.get(field);
     }
 
     public boolean isDirty(String... fields) {
         List<String> dirty = getDirtyFields();
-        for(String f : fields) {
-            if(dirty.contains(f))
+        for (String f : fields) {
+            if (dirty.contains(f))
                 return true;
         }
         return false;
@@ -84,12 +84,12 @@ public class Model {
         List<String> dirty = new ArrayList<>();
         Map<String, Object> original = getOriginalValues();
         Map<String, Object> current = getFieldValues();
-        for(String key : current.keySet()) {
+        for (String key : current.keySet()) {
             Object o = original.get(key);
             Object c = current.get(key);
-            if(o == null && c == null)
+            if (o == null && c == null)
                 continue;
-            if(o == null || !o.equals(c))
+            if (o == null || !o.equals(c))
                 dirty.add(key);
         }
         return dirty;
