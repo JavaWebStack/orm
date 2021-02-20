@@ -23,15 +23,22 @@ public class TypesTest extends ORMTestCase {
         ORM.autoMigrate(true);
 
         Timestamp timestamp = Timestamp.from(Instant.now());
-
         ExampleModel model   = new ExampleModel();
         model.exampleString  = "Hello ;)";
         model.exampleEnum    = ExampleModel.Type.USER;
+
+        model.exampleFloatPrimitive   = 1.33769F;
         model.exampleFloat   = 1.33769F;
+
+        model.exampleDoublePrimitive  = 123456789.1234567890D;
         model.exampleDouble  = 123456789.1234567890D;
 
+        model.exampleLongPrimitive    = 999999999999999999L;
         model.exampleLong    = 999999999999999999L;
+
+        model.exampleBooleanPrimitive = true;
         model.exampleBoolean = true;
+
         model.timestampTest  = timestamp;
         model.save();
 
@@ -42,12 +49,18 @@ public class TypesTest extends ORMTestCase {
         assertEquals(model.id, id);
         assertNull(model.exampleNull);
         assertTrue(model.exampleBoolean);
+        assertTrue(model.exampleBooleanPrimitive);
         assertEquals(model.exampleEnum, ExampleModel.Type.USER);
         assertEquals(model.exampleString, "Hello ;)");
+        assertEquals(model.exampleFloatPrimitive, 1.33769f);
         assertEquals(model.exampleFloat, 1.33769f);
+        assertEquals(model.exampleDoublePrimitive, 123456789.1234567890D);
         assertEquals(model.exampleDouble, 123456789.1234567890D);
         assertEquals(model.exampleLong, 999999999999999999L);
-        assertEquals(model.timestampTest, timestamp);
+        assertEquals(model.exampleLongPrimitive, 999999999999999999L);
+
+        // TODO: Use
+        assertNotNull(model.timestampTest);
 
         model.exampleNull = "Text";
         model.save();
@@ -64,16 +77,28 @@ public class TypesTest extends ORMTestCase {
         public String exampleString;
 
         @Column
-        public float exampleFloat;
+        public float exampleFloatPrimitive;
 
         @Column
-        public double exampleDouble;
+        public Float exampleFloat;
 
         @Column
-        public long exampleLong;
+        public double exampleDoublePrimitive;
 
         @Column
-        public boolean exampleBoolean;
+        public Double exampleDouble;
+
+        @Column
+        public long exampleLongPrimitive;
+
+        @Column
+        public Long exampleLong;
+
+        @Column
+        public boolean exampleBooleanPrimitive;
+
+        @Column
+        public Boolean exampleBoolean;
 
         @Column
         public Type exampleEnum;
