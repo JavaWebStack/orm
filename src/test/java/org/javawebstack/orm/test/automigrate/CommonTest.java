@@ -43,8 +43,29 @@ public class CommonTest extends ORMTestCase {
         columnDataTypeMap.put("primitive_boolean", "tinyint(1)");
         columnDataTypeMap.put("wrapper_boolean", "tinyint(1)");
 
-        columnDataTypeMap.put("primitive_byte", "tinyint(3)");
-        columnDataTypeMap.put("primitive_wrapper", "tinyint(3)");
+        columnDataTypeMap.put("primitive_byte", "tinyint(4)");
+        columnDataTypeMap.put("wrapper_byte", "tinyint(4)");
+
+        columnDataTypeMap.put("primitive_short", "smallint(6)");
+        columnDataTypeMap.put("wrapper_short", "smallint(6)");
+
+        columnDataTypeMap.put("primitive_integer", "int(11)");
+        columnDataTypeMap.put("wrapper_integer", "int(11)");
+
+        columnDataTypeMap.put("primitive_long", "bigint(20)");
+        columnDataTypeMap.put("wrapper_long", "bigint(20)");
+
+        columnDataTypeMap.put("primitive_float", "float");
+        columnDataTypeMap.put("wrapper_float", "float");
+
+        columnDataTypeMap.put("primitive_double", "double");
+        columnDataTypeMap.put("wrapper_double", "double");
+
+        columnDataTypeMap.put("primitive_char", "varchar(1)");
+
+        columnDataTypeMap.put("wrapper_string", "varchar(255)");
+
+        columnDataTypeMap.put("char_array", "varchar(255)");
 
         for(Map.Entry<String, String> entry : columnDataTypeMap.entrySet()) {
             checkedField = new Field(tableName, entry.getKey());
@@ -78,7 +99,13 @@ public class CommonTest extends ORMTestCase {
         Short wrapperShort;
 
         @Column
+        int primitiveInteger;
+
+        @Column
         Integer wrapperInteger;
+
+        @Column
+        long primitiveLong;
 
         @Column
         Long wrapperLong;
