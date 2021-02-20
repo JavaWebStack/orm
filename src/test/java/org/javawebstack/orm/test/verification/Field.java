@@ -1,12 +1,12 @@
 package org.javawebstack.orm.test.verification;
 
-import org.javawebstack.orm.test.DatabaseConnection;
-import org.javawebstack.orm.test.ORMTestCase;
+import org.javawebstack.orm.test.MySQLConnectionContainer;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Locale;
 
-public class Field extends DatabaseConnection {
+public class Field extends MySQLConnectionContainer {
 
     ResultSet resultSet;
 
@@ -17,22 +17,22 @@ public class Field extends DatabaseConnection {
     }
 
     public void assertPrimaryKey() throws SQLException {
-        assert(resultSet.getString("Key").equals("PRI"));
+        assert(resultSet.getString("Key").equalsIgnoreCase("PRI"));
     }
 
     public void assertAutoIncrementing() throws SQLException {
-        assert(resultSet.getString("Extra").equals("auto_increment"));
+        assert(resultSet.getString("Extra").equalsIgnoreCase("auto_increment"));
     }
 
     public void assertNullable() throws SQLException {
-        assert(resultSet.getString("NULL").equals("YES"));
+        assert(resultSet.getString("NULL").equalsIgnoreCase("yes"));
     }
 
     public void assertNotNullable() throws SQLException {
-        assert(resultSet.getString("NULL").equals("NO"));
+        assert(resultSet.getString("NULL").equalsIgnoreCase("no"));
     }
 
     public void assertType(String type) throws SQLException {
-        assert(resultSet.getString("Type").equals(type));
+        assert(resultSet.getString("Type").equalsIgnoreCase(type));
     }
 }
