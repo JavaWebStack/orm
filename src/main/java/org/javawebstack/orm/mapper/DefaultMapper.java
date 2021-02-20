@@ -63,7 +63,7 @@ public class DefaultMapper implements TypeMapper {
 
     public SQLType getType(Class<?> type, int size) {
         if (type.equals(String.class))
-            return size > 255 || size < 1 ? SQLType.TEXT : SQLType.VARCHAR;
+            return size > 65535 || size < 1 ? SQLType.TEXT : SQLType.VARCHAR;
         if (type.equals(UUID.class))
             return SQLType.VARCHAR;
         if (type.isEnum())
@@ -93,7 +93,7 @@ public class DefaultMapper implements TypeMapper {
         if (type.isEnum())
             return Arrays.stream(((Class<? extends Enum<?>>) type).getEnumConstants()).map(c -> "'" + c.name() + "'").collect(Collectors.joining(","));
         if (type.equals(String.class))
-            return size > 255 || size < 1 ? null : String.valueOf(size);
+            return size > 65535 || size < 1 ? null : String.valueOf(size);
         if (type.equals(byte[].class))
             return String.valueOf(size > 0 ? size : 255);
         if (type.equals(UUID.class))
