@@ -8,9 +8,11 @@ import org.javawebstack.orm.annotation.Column;
 import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.junit.jupiter.api.Test;
 
+import javax.swing.text.TabSet;
 import java.sql.Timestamp;
 import java.time.Instant;
 
+import static org.javawebstack.orm.test.shared.util.TimestampUtil.diffInNanoseconds;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TypesTest extends ORMTestCase {
@@ -58,10 +60,7 @@ public class TypesTest extends ORMTestCase {
         assertEquals(model.exampleDouble, 123456789.1234567890D);
         assertEquals(model.exampleLong, 999999999999999999L);
         assertEquals(model.exampleLongPrimitive, 999999999999999999L);
-
-        // TODO: Use
-        assertNotNull(model.timestampTest);
-
+        assertTrue(diffInNanoseconds(timestamp, model.timestampTest) < 1);
         model.exampleNull = "Text";
         model.save();
         model = Repo.get(ExampleModel.class).get(id);
