@@ -5,6 +5,7 @@ import org.javawebstack.orm.test.shared.settings.MySQLConnectionContainer;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Field extends MySQLConnectionContainer {
@@ -23,19 +24,45 @@ public class Field extends MySQLConnectionContainer {
     }
 
     public void assertPrimaryKey() throws SQLException {
-        assert(resultSet.getString("Key").equalsIgnoreCase("PRI"));
+        assertTrue(
+                resultSet.getString("Key").equalsIgnoreCase("PRI"),
+                String.format("%s.%s should be a Primary Key but was not.", tableName, fieldName)
+        );
+    }
+
+    public void assertNotPrimaryKey() throws SQLException {
+        assertFalse(
+                resultSet.getString("Key").equalsIgnoreCase("PRI"),
+                String.format("%s.%s should not be a Primary Key but was.", tableName, fieldName)
+        );
     }
 
     public void assertAutoIncrementing() throws SQLException {
-        assert(resultSet.getString("Extra").equalsIgnoreCase("auto_increment"));
+        assertTrue(
+                resultSet.getString("Extra").equalsIgnoreCase("auto_increment"),
+                String.format("%s.%s should be auto incrementing but was not.", tableName, fieldName)
+        );
+    }
+
+    public void assertNotAutoIncrementing() throws SQLException {
+        assertFalse(
+                resultSet.getString("Extra").equalsIgnoreCase("auto_increment"),
+                String.format("%s.%s should not be auto incrementing but was.", tableName, fieldName)
+        );
     }
 
     public void assertNullable() throws SQLException {
-        assert(resultSet.getString("NULL").equalsIgnoreCase("yes"));
+        assertTrue(
+                resultSet.getString("NULL").equalsIgnoreCase("yes"),
+                String.format("%s.%s is not nullable but nullability was expected.", tableName, fieldName)
+        );
     }
 
     public void assertNotNullable() throws SQLException {
-        assert(resultSet.getString("NULL").equalsIgnoreCase("no"));
+        assertTrue(
+                resultSet.getString("NULL").equalsIgnoreCase("no"),
+                String.format("%s.%s is nullable but no nullability was expected.", tableName, fieldName)
+        );
     }
 
     public void assertType(String expectedType) throws SQLException {

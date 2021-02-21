@@ -83,6 +83,8 @@ public class CommonTest extends ORMTestCase {
 
             checkedField.assertType(entry.getValue());
             checkedField.assertNullable();
+            checkedField.assertNotPrimaryKey();
+            checkedField.assertNotAutoIncrementing();
         }
 
     }
