@@ -70,7 +70,7 @@ public class CommonTest extends ORMTestCase {
 
         columnDataTypeMap.put("byte_array", "varbinary(255)");
 
-        columnDataTypeMap.put("timestamp", "datetime(6)");
+        columnDataTypeMap.put("timestamp", "timestamp(6)");
 
         for(Map.Entry<String, String> entry : columnDataTypeMap.entrySet()) {
             checkedField = new Field(tableName, entry.getKey());
