@@ -78,6 +78,8 @@ public class CommonTest extends ORMTestCase {
 
         columnDataTypeMap.put("uuid", "varchar(36)");
 
+        columnDataTypeMap.put("option_enum", "enum('OPTION1','OPTION2')");
+
         for(Map.Entry<String, String> entry : columnDataTypeMap.entrySet()) {
             checkedField = new Field(tableName, entry.getKey());
 
@@ -155,5 +157,15 @@ public class CommonTest extends ORMTestCase {
 
         @Column
         UUID uuid;
+
+        @Column
+        OptionEnum optionEnum;
+
+    }
+
+    public static enum OptionEnum {
+
+        OPTION1,
+        OPTION2;
     }
 }
