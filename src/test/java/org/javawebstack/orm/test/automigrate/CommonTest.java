@@ -11,10 +11,12 @@ import org.javawebstack.orm.test.shared.verification.IdField;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class CommonTest extends ORMTestCase {
 
@@ -71,6 +73,10 @@ public class CommonTest extends ORMTestCase {
         columnDataTypeMap.put("byte_array", "varbinary(255)");
 
         columnDataTypeMap.put("timestamp", "timestamp(6)");
+
+        columnDataTypeMap.put("date", "date");
+
+        columnDataTypeMap.put("uuid", "varchar(36)");
 
         for(Map.Entry<String, String> entry : columnDataTypeMap.entrySet()) {
             checkedField = new Field(tableName, entry.getKey());
@@ -141,5 +147,11 @@ public class CommonTest extends ORMTestCase {
 
         @Column
         Timestamp timestamp;
+
+        @Column
+        Date date;
+
+        @Column
+        UUID uuid;
     }
 }
