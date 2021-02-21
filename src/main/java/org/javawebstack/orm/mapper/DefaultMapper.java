@@ -35,7 +35,8 @@ public class DefaultMapper implements TypeMapper {
             return String.valueOf(source);
         if (type.equals(UUID.class))
             return source.toString();
-
+        if (type.equals(Timestamp.class))
+            return ((Timestamp) source).toString();
         return source;
     }
 
@@ -104,6 +105,8 @@ public class DefaultMapper implements TypeMapper {
             return "36";
         if (type.equals(boolean.class) || type.equals(Boolean.class) || type.equals(char.class))
             return "1";
+        if (type.equals(Timestamp.class))
+            return "6";
         return null;
     }
 
