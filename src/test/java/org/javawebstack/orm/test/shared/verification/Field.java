@@ -1,10 +1,9 @@
-package org.javawebstack.orm.test.verification;
+package org.javawebstack.orm.test.shared.verification;
 
-import org.javawebstack.orm.test.MySQLConnectionContainer;
+import org.javawebstack.orm.test.shared.settings.MySQLConnectionContainer;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

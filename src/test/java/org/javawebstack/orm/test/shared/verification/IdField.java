@@ -1,4 +1,4 @@
-package org.javawebstack.orm.test.verification;
+package org.javawebstack.orm.test.shared.verification;
 
 import org.javawebstack.orm.test.ORMTestCase;
 

@@ -6,8 +6,8 @@ import org.javawebstack.orm.ORMConfig;
 import org.javawebstack.orm.annotation.Column;
 import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.javawebstack.orm.test.ORMTestCase;
-import org.javawebstack.orm.test.verification.Field;
-import org.javawebstack.orm.test.verification.IdField;
+import org.javawebstack.orm.test.shared.verification.Field;
+import org.javawebstack.orm.test.shared.verification.IdField;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -30,12 +30,12 @@ public class CommonTest extends ORMTestCase {
 
 
     @Test
-    public void testId() throws ORMConfigurationException, SQLException {
+    public void testId() throws SQLException {
         IdField.assertCorrectDatabaseFormat(tableName);
     }
 
     @Test
-    public void testPrimitiveIntegerDatatype() throws ORMConfigurationException, SQLException {
+    public void testPrimitiveIntegerDatatype() throws SQLException {
         Field checkedField;
 
         Map<String, String> columnDataTypeMap = new HashMap<>();

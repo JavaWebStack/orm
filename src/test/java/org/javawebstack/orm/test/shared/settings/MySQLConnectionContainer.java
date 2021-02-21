@@ -1,4 +1,4 @@
-package org.javawebstack.orm.test;
+package org.javawebstack.orm.test.shared.settings;
 
 import org.javawebstack.orm.wrapper.MySQL;
 import org.javawebstack.orm.wrapper.SQL;

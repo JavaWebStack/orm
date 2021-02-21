@@ -3,6 +3,7 @@ package org.javawebstack.orm.test;
 import org.javawebstack.orm.ORM;
 import org.javawebstack.orm.Repo;
 import org.javawebstack.orm.migration.AutoMigrator;
+import org.javawebstack.orm.test.shared.settings.MySQLConnectionContainer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 
