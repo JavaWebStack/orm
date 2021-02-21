@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,6 +69,8 @@ public class CommonTest extends ORMTestCase {
         columnDataTypeMap.put("char_array", "varchar(255)");
 
         columnDataTypeMap.put("byte_array", "varbinary(255)");
+
+        columnDataTypeMap.put("timestamp", "datetime(6)");
 
         for(Map.Entry<String, String> entry : columnDataTypeMap.entrySet()) {
             checkedField = new Field(tableName, entry.getKey());
@@ -136,5 +139,7 @@ public class CommonTest extends ORMTestCase {
         @Column
         byte[] byteArray;
 
+        @Column
+        Timestamp timestamp;
     }
 }
