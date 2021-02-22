@@ -105,8 +105,6 @@ public class DefaultMapper implements TypeMapper {
             return "36";
         if (type.equals(boolean.class) || type.equals(Boolean.class) || type.equals(char.class))
             return "1";
-        if (type.equals(Timestamp.class))
-            return "6";
         return null;
     }
 
