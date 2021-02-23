@@ -67,7 +67,7 @@ public class DefaultMapper implements TypeMapper {
         if (type.equals(char[].class))
             return ((String) source).toCharArray();
         if (type.equals(char.class)) {
-            String stringSource = String.valueOf((char) source);
+            String stringSource = (String) source;
             if (stringSource.length() != 1)
                 return ' ';
             else
