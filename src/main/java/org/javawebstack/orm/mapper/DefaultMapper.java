@@ -68,7 +68,7 @@ public class DefaultMapper implements TypeMapper {
 
     public SQLType getType(Class<?> type, int size) {
         if (type.equals(String.class) || type.equals(char[].class))
-            return size > 65535 || size <= 1 ? SQLType.TEXT : SQLType.VARCHAR;
+            return size > 65535 || size < 1 ? SQLType.TEXT : SQLType.VARCHAR;
         if (type.equals(UUID.class) || type.equals(char.class))
             return SQLType.VARCHAR;
         if (type.isEnum())
