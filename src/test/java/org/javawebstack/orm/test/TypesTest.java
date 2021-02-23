@@ -8,7 +8,6 @@ import org.javawebstack.orm.annotation.Column;
 import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.junit.jupiter.api.Test;
 
-import javax.swing.text.TabSet;
 import java.sql.Timestamp;
 import java.time.Instant;
 
@@ -41,6 +40,8 @@ public class TypesTest extends ORMTestCase {
         model.exampleBoolean = true;
 
         model.timestampTest  = timestamp;
+
+        model.exampleCharPrimitive = 'C';
         model.save();
 
         int id = model.id;
@@ -111,6 +112,9 @@ public class TypesTest extends ORMTestCase {
 
         @Column
         public Timestamp timestampTest;
+
+        @Column
+        public char exampleCharPrimitive;
 
         public enum Type {
             ADMIN, USER, GUEST
