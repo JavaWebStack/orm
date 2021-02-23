@@ -16,6 +16,7 @@ public enum SQLType {
     FLOAT(Float.class),
     DOUBLE(Double.class),
 
+    CHAR(char.class),
     VARCHAR(String.class),
     TEXT(String.class),
 
