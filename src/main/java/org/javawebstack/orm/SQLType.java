@@ -18,8 +18,12 @@ public enum SQLType {
 
     // No native char method except for a char stream
     CHAR(String.class),
+
     VARCHAR(String.class),
+    TINYTEXT(String.class),
     TEXT(String.class),
+    MEDIUMTEXT(String.class),
+    LONGTEXT(String.class),
 
     DATE(Date.class),
     TIMESTAMP(Timestamp.class),
