@@ -32,7 +32,7 @@ public class DefaultMapper implements TypeMapper {
         if (type.equals(float.class))
             return Float.valueOf((float) source);
         if (type.equals(char[].class))
-            return String.valueOf(source);
+            return String.valueOf((char[]) source);
         if (type.equals(UUID.class))
             return source.toString();
         if (type.equals(Timestamp.class))
