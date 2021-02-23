@@ -60,7 +60,10 @@ public class TypesTest extends ORMTestCase {
         assertEquals(model.exampleLong, 999999999999999999L);
         assertEquals(model.exampleLongPrimitive, 999999999999999999L);
 
-        assertEquals(timestamp.getTime() / 1000, model.timestampTest.getTime() / 1000);
+
+        assertEquals(model.timestampTest.getTime() / 1000, timestamp.getTime() / 1000);
+
+        assertEquals(model.exampleCharPrimitive, 'C');
 
         model.exampleNull = "Text";
         model.save();
