@@ -8,7 +8,6 @@ import org.javawebstack.orm.annotation.Column;
 import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.junit.jupiter.api.Test;
 
-import javax.swing.text.TabSet;
 import java.sql.Timestamp;
 import java.time.Instant;
 
