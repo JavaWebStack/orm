@@ -37,6 +37,9 @@ public class DefaultMapper implements TypeMapper {
             return source.toString();
         if (type.equals(Timestamp.class))
             return ((Timestamp) source).toString();
+        if (type.equals(char.class))
+            return String.valueOf((char) source);
+
         return source;
     }
 
@@ -63,6 +66,13 @@ public class DefaultMapper implements TypeMapper {
             return ((Float) source).floatValue();
         if (type.equals(char[].class))
             return ((String) source).toCharArray();
+        if (type.equals(char.class)) {
+            String stringSource = String.valueOf((char) source);
+            if (stringSource.length() != 1)
+                return ' ';
+            else
+                return stringSource.charAt(0);
+        }
         return source;
     }
 
