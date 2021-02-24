@@ -43,7 +43,7 @@ public class CommonTest extends ORMTestCase {
         columnDataTypeMap.put("primitive_double", "double");
         columnDataTypeMap.put("wrapper_double", "double");
 
-        columnDataTypeMap.put("primitive_char", "varchar(1)");
+        columnDataTypeMap.put("primitive_char", "char(1)");
 
         columnDataTypeMap.put("wrapper_string", "varchar(255)");
 
@@ -51,7 +51,7 @@ public class CommonTest extends ORMTestCase {
 
         columnDataTypeMap.put("byte_array", "varbinary(255)");
 
-        columnDataTypeMap.put("timestamp", "timestamp(6)");
+        columnDataTypeMap.put("timestamp", "timestamp");
 
         columnDataTypeMap.put("date", "date");
 
