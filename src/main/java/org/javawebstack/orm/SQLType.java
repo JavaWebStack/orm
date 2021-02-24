@@ -3,18 +3,33 @@ package org.javawebstack.orm;
 import java.sql.Date;
 import java.sql.Timestamp;
 
+// The class passed as constructor determines
 public enum SQLType {
 
-    VARCHAR(String.class),
-    BIGINT(Long.class),
-    INT(Integer.class),
+    // Divided by category and ordered by byte size (MySQL sizes)
     TINYINT(Boolean.class),
-    DOUBLE(Double.class),
+    SMALLINT(Short.class),
+    MEDIUMINT(Integer.class),
+    INT(Integer.class),
+    BIGINT(Long.class),
+
     FLOAT(Float.class),
+    DOUBLE(Double.class),
+
+    // No native char method except for a char stream
+    CHAR(String.class),
+
+    VARCHAR(String.class),
+    TINYTEXT(String.class),
     TEXT(String.class),
-    TIMESTAMP(Timestamp.class),
+    MEDIUMTEXT(String.class),
+    LONGTEXT(String.class),
+
     DATE(Date.class),
+    TIMESTAMP(Timestamp.class),
+
     ENUM(String.class),
+
     VARBINARY(byte[].class);
 
     private final Class<?> javaType;

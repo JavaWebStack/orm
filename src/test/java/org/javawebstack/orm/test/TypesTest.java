@@ -40,6 +40,8 @@ public class TypesTest extends ORMTestCase {
         model.exampleBoolean = true;
 
         model.timestampTest  = timestamp;
+
+        model.exampleCharPrimitive = 'C';
         model.save();
 
         int id = model.id;
@@ -59,8 +61,10 @@ public class TypesTest extends ORMTestCase {
         assertEquals(model.exampleLong, 999999999999999999L);
         assertEquals(model.exampleLongPrimitive, 999999999999999999L);
 
-        // TODO: Use
-        assertNotNull(model.timestampTest);
+
+        assertEquals(model.timestampTest.getTime() / 1000, timestamp.getTime() / 1000);
+
+        assertEquals(model.exampleCharPrimitive, 'C');
 
         model.exampleNull = "Text";
         model.save();
@@ -108,6 +112,9 @@ public class TypesTest extends ORMTestCase {
 
         @Column
         public Timestamp timestampTest;
+
+        @Column
+        public char exampleCharPrimitive;
 
         public enum Type {
             ADMIN, USER, GUEST

@@ -5,6 +5,7 @@ import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.javawebstack.orm.util.Helper;
 import org.javawebstack.orm.util.KeyType;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -31,6 +32,11 @@ public class TableInfo {
     private String relationField;
     private final Map<String, String> filterable = new HashMap<>();
     private final List<String> searchable = new ArrayList<>();
+
+    private static final Class<?>[] appliesDefaultSize = {
+            String.class,
+            char[].class,
+    };
 
     public TableInfo(Class<? extends Model> model, ORMConfig config) throws ORMConfigurationException {
         this.config = config;
@@ -71,10 +77,17 @@ public class TableInfo {
             }
             fields.put(fieldName, field);
             fieldConfigs.put(fieldName, fieldConfig);
-            SQLType sqlType = config.getType(field.getType(), fieldConfig.size());
+
+            int fieldSize;
+            if (Arrays.stream(appliesDefaultSize).anyMatch(type -> type.equals(field.getType())) && fieldConfig.size() == -1)
+                fieldSize = config.getDefaultSize();
+            else
+                fieldSize = fieldConfig.size();
+
+                SQLType sqlType = config.getType(field.getType(), fieldSize);
             if (sqlType != null) {
                 sqlTypes.put(fieldName, sqlType);
-                sqlTypeParameters.put(fieldName, config.getTypeParameters(field.getType(), fieldConfig.size()));
+                sqlTypeParameters.put(fieldName, config.getTypeParameters(field.getType(), fieldSize));
             }
             if (!sqlTypes.containsKey(fieldName))
                 throw new ORMConfigurationException("Couldn't find type-mapper for '" + fieldName + "'!");
