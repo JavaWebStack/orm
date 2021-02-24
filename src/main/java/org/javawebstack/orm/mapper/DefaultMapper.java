@@ -10,6 +10,13 @@ import java.util.stream.Collectors;
 
 public class DefaultMapper implements TypeMapper {
 
+    // The following values assume utf8mb4 encoding which uses 4 bytes per character and
+    // quarters the maximum column length accordingly
+    private static final long MAX_SIZE_VARCHAR = (65535 + 1) / 4;
+    private static final long MAX_SIZE_MEDIUMTEXT = (16777215 + 1) / 4;
+    private static final long MAX_SIZE_LONGTEXT = (4294967295L + 1) / 4;
+
+
     public Object mapToSQL(Object source, Class<?> type) {
         if (source == null)
             return null;
@@ -79,13 +86,13 @@ public class DefaultMapper implements TypeMapper {
     public SQLType getType(Class<?> type, int size) {
         if (type.equals(String.class) || type.equals(char[].class))
             // Upper limit of 4294967295 exceeds the int boundaries
-            if (size > 16777215)
+            if (size > MAX_SIZE_MEDIUMTEXT)
                 return SQLType.LONGTEXT;
-            if (size > 65535)
+            if (size > MAX_SIZE_VARCHAR)
                 return SQLType.MEDIUMTEXT;
             if (size > 1)
                 return SQLType.VARCHAR;
-            if (size == 0)
+            if (size == 1)
                 return SQLType.CHAR;
         if (type.equals(UUID.class))
             return SQLType.VARCHAR;
@@ -118,7 +125,7 @@ public class DefaultMapper implements TypeMapper {
         if (type.isEnum())
             return Arrays.stream(((Class<? extends Enum<?>>) type).getEnumConstants()).map(c -> "'" + c.name() + "'").collect(Collectors.joining(","));
         if (type.equals(String.class) || type.equals(char[].class))
-            return size > 65535 || size < 1 ? null : String.valueOf(size);
+            return size > MAX_SIZE_VARCHAR || size < 1 ? null : String.valueOf(size);
         if (type.equals(byte[].class))
             return String.valueOf(size > 0 ? size : 255);
         if (type.equals(UUID.class))
