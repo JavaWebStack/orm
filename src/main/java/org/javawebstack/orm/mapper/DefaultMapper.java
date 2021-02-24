@@ -10,11 +10,20 @@ import java.util.stream.Collectors;
 
 public class DefaultMapper implements TypeMapper {
 
+    // SOURCES:
+    // TEXT Datatypes: https://www.mysqltutorial.org/mysql-text/
+    private static final int BYTES_OVERHEAD_VARCHAR = 4;
+    private static final int BYTES_OVERHEAD_TINYTEXT = 1;
+    private static final int BYTES_OVERHEAD_TEXT = 2;
+    private static final int BYTES_OVERHEAD_MEDIUMTEXT = 3;
+    private static final int BYTES_OVERHEAD_LONGTEXT = 4;
+
+    // The max sizes given in the manual are in bytes. There are overheads which need to be subtracted.
     // The following values assume utf8mb4 encoding which uses 4 bytes per character and
-    // quarters the maximum column length accordingly
-    private static final long MAX_SIZE_VARCHAR = (65535 + 1) / 4;
-    private static final long MAX_SIZE_MEDIUMTEXT = (16777215 + 1) / 4;
-    private static final long MAX_SIZE_LONGTEXT = (4294967295L + 1) / 4;
+    // further quarters the maximum column length accordingly.
+    private static final long MAX_SIZE_VARCHAR = (long) Math.floor((65535 - BYTES_OVERHEAD_VARCHAR) / 4);
+    private static final long MAX_SIZE_MEDIUMTEXT = (long) Math.floor((16777215 - BYTES_OVERHEAD_MEDIUMTEXT) / 4);
+    private static final long MAX_SIZE_LONGTEXT = (long) Math.floor((4294967295L - BYTES_OVERHEAD_LONGTEXT) / 4);
 
 
     public Object mapToSQL(Object source, Class<?> type) {
