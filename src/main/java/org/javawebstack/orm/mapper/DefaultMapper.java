@@ -32,11 +32,14 @@ public class DefaultMapper implements TypeMapper {
         if (type.equals(float.class))
             return Float.valueOf((float) source);
         if (type.equals(char[].class))
-            return String.valueOf(source);
+            return String.valueOf((char[]) source);
         if (type.equals(UUID.class))
             return source.toString();
         if (type.equals(Timestamp.class))
             return ((Timestamp) source).toString();
+        if (type.equals(char.class))
+            return String.valueOf((char) source);
+
         return source;
     }
 
@@ -63,14 +66,31 @@ public class DefaultMapper implements TypeMapper {
             return ((Float) source).floatValue();
         if (type.equals(char[].class))
             return ((String) source).toCharArray();
+        if (type.equals(char.class)) {
+            String stringSource = (String) source;
+            if (stringSource.length() != 1)
+                return ' ';
+            else
+                return stringSource.charAt(0);
+        }
         return source;
     }
 
     public SQLType getType(Class<?> type, int size) {
         if (type.equals(String.class) || type.equals(char[].class))
-            return size > 65535 || size <= 1 ? SQLType.TEXT : SQLType.VARCHAR;
-        if (type.equals(UUID.class) || type.equals(char.class))
+            // Upper limit of 4294967295 exceeds the int boundaries
+            if (size > 16777215)
+                return SQLType.LONGTEXT;
+            if (size > 65535)
+                return SQLType.MEDIUMTEXT;
+            if (size > 1)
+                return SQLType.VARCHAR;
+            if (size == 0)
+                return SQLType.CHAR;
+        if (type.equals(UUID.class))
             return SQLType.VARCHAR;
+        if (type.equals(char.class))
+            return SQLType.CHAR;
         if (type.isEnum())
             return SQLType.ENUM;
         if (type.equals(boolean.class) || type.equals(Boolean.class) || type.equals(byte.class) || type.equals(Byte.class))
@@ -105,8 +125,6 @@ public class DefaultMapper implements TypeMapper {
             return "36";
         if (type.equals(boolean.class) || type.equals(Boolean.class) || type.equals(char.class))
             return "1";
-        if (type.equals(Timestamp.class))
-            return "6";
         return null;
     }
 
