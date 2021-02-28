@@ -1,4 +1,4 @@
-package org.javawebstack.orm.test.automigrate;
+package org.javawebstack.orm.test.automigrate.settings;
 
 import org.javawebstack.orm.Model;
 import org.javawebstack.orm.ORM;
