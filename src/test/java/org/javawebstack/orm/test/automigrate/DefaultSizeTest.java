@@ -55,6 +55,8 @@ public class DefaultSizeTest extends ORMTestCase {
     final static String tableNameCharArray = "just_char_arraies";
     final static String columnNameCharArray = "char_array";
 
+    final static String tableNameDatatype = "datatypes";
+
     @Test
     public void testStringUsesDefaultSizeChar() throws ORMConfigurationException, SQLException {
         setUpWithDefaultSize(JustString.class, 1);
@@ -119,6 +121,30 @@ public class DefaultSizeTest extends ORMTestCase {
             setUpWithDefaultSize(JustCharArray.class, singleParameter);
             (new Field(tableNameCharArray, columnNameCharArray)).assertType("longtext");
         }
+    }
+
+    @Test
+    public void testOtherDataTypesDoNotUseDefaultSize() throws ORMConfigurationException, SQLException {
+        // smallint defaults to the size 6 the default size should therefore not be chosen as 6 or higher;
+        setUpWithDefaultSize(Datatype.class, 5);
+
+        // smallint defaults to 6
+        (new Field(tableNameDatatype, "primitive_short")).assertType("smallint(6)");
+        (new Field(tableNameDatatype, "wrapper_short")).assertType("smallint(6)");
+
+        // tinyint defaults to 11
+        (new Field(tableNameDatatype, "primitive_integer")).assertType("int(11)");
+        (new Field(tableNameDatatype, "wrapper_integer")).assertType("int(11)");
+
+        // bigint defaults to 20
+        (new Field(tableNameDatatype, "primitive_long")).assertType("bigint(20)");
+        (new Field(tableNameDatatype, "wrapper_long")).assertType("bigint(20)");
+
+        (new Field(tableNameDatatype, "primitive_float")).assertType("float");
+        (new Field(tableNameDatatype, "wrapper_float")).assertType("float");
+
+        (new Field(tableNameDatatype, "primitive_double")).assertType("double");
+        (new Field(tableNameDatatype, "wrapper_double")).assertType("double");
     }
 
     private void setUpWithDefaultSize(Class<? extends Model> clazz, int defaultSize) throws ORMConfigurationException {
