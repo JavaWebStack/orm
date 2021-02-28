@@ -7,6 +7,7 @@ import org.javawebstack.orm.annotation.Column;
 import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.javawebstack.orm.test.ORMTestCase;
 import org.javawebstack.orm.test.shared.models.Datatype;
+import org.javawebstack.orm.test.shared.models.JustCharArray;
 import org.javawebstack.orm.test.shared.models.JustString;
 import org.javawebstack.orm.test.shared.verification.Field;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,12 +33,17 @@ public class DefaultSizeTest extends ORMTestCase {
     private static final long MAX_SIZE_MEDIUMTEXT = (long) Math.floor((16777215 - BYTES_OVERHEAD_MEDIUMTEXT) / 4);
     private static final long MAX_SIZE_LONGTEXT = (long) Math.floor((4294967295L - BYTES_OVERHEAD_LONGTEXT) / 4);
 
-    final static String tableName = "just_strings";
+    final static String tableNameString = "just_strings";
+    final static String columnNameString = "string";
+
+    // Not renaming the table name as this is not focus of the test
+    final static String tableNameCharArray = "just_char_arraies";
+    final static String columnNameCharArray = "char_array";
 
     @Test
     public void testStringUsesDefaultSizeChar() throws ORMConfigurationException, SQLException {
         setUpWithDefaultSize(JustString.class, 1);
-        (new Field("just_strings", "string")).assertType("char(1)");
+        (new Field(tableNameString, columnNameString)).assertType("char(1)");
     }
 
     @Test
@@ -45,7 +51,7 @@ public class DefaultSizeTest extends ORMTestCase {
         int[] parameters = {2, 3, 123, 1234, 12345, (int) MAX_SIZE_VARCHAR - 1, (int) MAX_SIZE_VARCHAR};
         for( int singleParameter : parameters) {
             setUpWithDefaultSize(JustString.class, singleParameter);
-            (new Field("just_strings", "string")).assertType(String.format("varchar(%s)", singleParameter));
+            (new Field(tableNameString, columnNameString)).assertType(String.format("varchar(%s)", singleParameter));
         }
     }
 
@@ -54,7 +60,7 @@ public class DefaultSizeTest extends ORMTestCase {
         int[] parameters = {(int) MAX_SIZE_VARCHAR + 1, 123456, 1234567, (int) MAX_SIZE_MEDIUMTEXT - 1};
         for( int singleParameter : parameters) {
             setUpWithDefaultSize(JustString.class, singleParameter);
-            (new Field("just_strings", "string")).assertType("mediumtext");
+            (new Field(tableNameString, columnNameString)).assertType("mediumtext");
         }
     }
 
@@ -63,7 +69,40 @@ public class DefaultSizeTest extends ORMTestCase {
         int[] parameters = {(int) MAX_SIZE_MEDIUMTEXT + 1, 123456789, 123467890, Integer.MAX_VALUE};
         for( int singleParameter : parameters) {
             setUpWithDefaultSize(JustString.class, singleParameter);
-            (new Field("just_strings", "string")).assertType("longtext");
+            (new Field(tableNameString, columnNameString)).assertType("longtext");
+        }
+    }
+
+    @Test
+    public void testCharArrayUsesDefaultSizeChar() throws ORMConfigurationException, SQLException {
+        setUpWithDefaultSize(JustCharArray.class, 1);
+        (new Field(tableNameCharArray, columnNameCharArray)).assertType("char(1)");
+    }
+
+    @Test
+    public void testCharArrayUsesDefaultSizeVarchar() throws ORMConfigurationException, SQLException {
+        int[] parameters = {2, 3, 123, 1234, 12345, (int) MAX_SIZE_VARCHAR - 1, (int) MAX_SIZE_VARCHAR};
+        for( int singleParameter : parameters) {
+            setUpWithDefaultSize(JustCharArray.class, singleParameter);
+            (new Field(tableNameCharArray, columnNameCharArray)).assertType(String.format("varchar(%s)", singleParameter));
+        }
+    }
+
+    @Test
+    public void testCharArrayUsesDefaultSizeMediumText() throws ORMConfigurationException, SQLException {
+        int[] parameters = {(int) MAX_SIZE_VARCHAR + 1, 123456, 1234567, (int) MAX_SIZE_MEDIUMTEXT - 1};
+        for( int singleParameter : parameters) {
+            setUpWithDefaultSize(JustCharArray.class, singleParameter);
+            (new Field(tableNameCharArray, columnNameCharArray)).assertType("mediumtext");
+        }
+    }
+
+    @Test
+    public void testCharArrayUsesDefaultSizeLongText() throws ORMConfigurationException, SQLException {
+        int[] parameters = {(int) MAX_SIZE_MEDIUMTEXT + 1, 123456789, 123467890, Integer.MAX_VALUE};
+        for( int singleParameter : parameters) {
+            setUpWithDefaultSize(JustCharArray.class, singleParameter);
+            (new Field(tableNameCharArray, columnNameCharArray)).assertType("longtext");
         }
     }
 
