@@ -14,6 +14,12 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This class tests:
+ * - correct mapping to appropriate MySQL Types
+ * - no unexpected property is put on the fields
+ * - the id field is the primary key, not nullable and auto-incrementing
+ */
 public class CommonTest extends ORMTestCase {
 
     private static final String tableName = "datatypes";
