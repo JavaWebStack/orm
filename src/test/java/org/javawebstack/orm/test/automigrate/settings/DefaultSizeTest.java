@@ -178,7 +178,7 @@ public class DefaultSizeTest extends ORMTestCase {
     public void defaultSizeIsNegative() {
         assertThrows(
                 ORMConfigurationException.class,
-                () -> setUpWithDefaultSize(JustString.class, -1),
+                () -> new ORMConfig().setDefaultSize(-1),
                 "Registering a class with a negative default size must throw an ORMConfigurationException but it didn't."
         );
     }
