@@ -3,17 +3,17 @@ package org.javawebstack.orm.test.automigrate;
 import org.javawebstack.orm.Model;
 import org.javawebstack.orm.ORM;
 import org.javawebstack.orm.ORMConfig;
-import org.javawebstack.orm.annotation.Column;
 import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.javawebstack.orm.test.ORMTestCase;
 import org.javawebstack.orm.test.shared.models.Datatype;
 import org.javawebstack.orm.test.shared.models.JustCharArray;
 import org.javawebstack.orm.test.shared.models.JustString;
 import org.javawebstack.orm.test.shared.verification.Field;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * This class tests if the default size is being applied for the types:
@@ -29,6 +29,10 @@ import java.sql.SQLException;
  * - Float
  * - double
  * - Double
+ *
+ * And covers the following error cases:
+ * - negative default size has been set
+ * - zero default size has been set
  */
 public class DefaultSizeTest extends ORMTestCase {
 
@@ -57,6 +61,11 @@ public class DefaultSizeTest extends ORMTestCase {
 
     final static String tableNameDatatype = "datatypes";
 
+    /*
+     * Positive Test
+     */
+
+    // String
     @Test
     public void testStringUsesDefaultSizeChar() throws ORMConfigurationException, SQLException {
         setUpWithDefaultSize(JustString.class, 1);
@@ -90,6 +99,7 @@ public class DefaultSizeTest extends ORMTestCase {
         }
     }
 
+    // Char Array
     @Test
     public void testCharArrayUsesDefaultSizeChar() throws ORMConfigurationException, SQLException {
         setUpWithDefaultSize(JustCharArray.class, 1);
@@ -123,6 +133,10 @@ public class DefaultSizeTest extends ORMTestCase {
         }
     }
 
+    /*
+     * Negative Tests
+     */
+
     @Test
     public void testOtherDataTypesDoNotUseDefaultSize() throws ORMConfigurationException, SQLException {
         // smallint defaults to the size 6 the default size should therefore not be chosen as 6 or higher;
@@ -146,6 +160,29 @@ public class DefaultSizeTest extends ORMTestCase {
         (new Field(tableNameDatatype, "primitive_double")).assertType("double");
         (new Field(tableNameDatatype, "wrapper_double")).assertType("double");
     }
+
+    /*
+     * Error Cases
+     */
+
+    @Test
+    public void defaultSizeIsZero() {
+        assertThrows(
+                ORMConfigurationException.class,
+                () -> new ORMConfig().setDefaultSize(0),
+                "Registering a class with a default size of 0 must throw an ORMConfigurationException but it didn't."
+        );
+    }
+
+    @Test
+    public void defaultSizeIsNegative() {
+        assertThrows(
+                ORMConfigurationException.class,
+                () -> setUpWithDefaultSize(JustString.class, -1),
+                "Registering a class with a negative default size must throw an ORMConfigurationException but it didn't."
+        );
+    }
+
 
     private void setUpWithDefaultSize(Class<? extends Model> clazz, int defaultSize) throws ORMConfigurationException {
         ORMConfig config = new ORMConfig()
