@@ -1,7 +1,5 @@
 package org.javawebstack.orm.test.automigrate.settings;
 
-import org.javawebstack.orm.Model;
-import org.javawebstack.orm.ORM;
 import org.javawebstack.orm.ORMConfig;
 import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.javawebstack.orm.test.ORMTestCase;
@@ -13,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
 
+import static org.javawebstack.orm.test.shared.settings.SetUp.setUpWithDefaultSize;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
@@ -184,10 +183,5 @@ public class DefaultSizeTest extends ORMTestCase {
     }
 
 
-    private void setUpWithDefaultSize(Class<? extends Model> clazz, int defaultSize) throws ORMConfigurationException {
-        ORMConfig config = new ORMConfig()
-                .setDefaultSize(defaultSize);
-        ORM.register(clazz, sql(), config);
-        ORM.autoMigrate(true);
-    }
+
 }

@@ -14,6 +14,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.javawebstack.orm.test.shared.settings.SetUp.setUpWithDefaultSize;
+
 /**
  * This class tests:
  * - correct mapping to appropriate MySQL Types
@@ -68,10 +70,7 @@ public class CommonTest extends ORMTestCase {
 
     @BeforeEach
     public void setUp() throws ORMConfigurationException {
-        ORMConfig config = new ORMConfig()
-                .setDefaultSize(255);
-        ORM.register(Datatype.class, sql(), config);
-        ORM.autoMigrate(true);
+        setUpWithDefaultSize(Datatype.class, 255);
     }
 
     @Test
