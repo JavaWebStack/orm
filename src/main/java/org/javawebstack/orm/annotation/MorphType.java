@@ -7,8 +7,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface SoftDelete {
-    String value() default "deletedAt";
-
-    boolean expiryMode() default false;
+public @interface MorphType {
+    String value();
 }

@@ -15,93 +15,108 @@ import java.util.stream.Collectors;
 
 public class AutoMigrator {
 
-    public static void migrate(Repo<?>... repos){
+    public static void migrate(Repo<?>... repos) {
+        migrate(false, repos);
+    }
+
+    public static void migrate(boolean fresh, Repo<?>... repos) {
+        if (fresh)
+            drop(repos);
         Map<SQL, List<String>> tables = new HashMap<>();
-        for(Repo<?> repo : repos){
-            if(!tables.containsKey(repo.getConnection())){
+        for (Repo<?> repo : repos) {
+            if (!tables.containsKey(repo.getConnection())) {
                 tables.put(repo.getConnection(), getTables(repo.getConnection()));
             }
             migrateTable(repo.getConnection(), repo.getInfo(), tables.get(repo.getConnection()).contains(repo.getInfo().getTableName()));
         }
     }
 
-    private static void migrateTable(SQL sql, TableInfo info, boolean tableExists){
+    public static void drop(Repo<?>... repos) {
+        for (Repo<?> repo : repos) {
+            try {
+                repo.getConnection().write("DROP TABLE `" + repo.getInfo().getTableName() + "`;");
+            } catch (SQLException ignored) {
+            }
+        }
+    }
+
+    private static void migrateTable(SQL sql, TableInfo info, boolean tableExists) {
         List<String> addColumns = new ArrayList<>();
         List<String> updateColumns = new ArrayList<>();
         Map<String, String> columnKeys = tableExists ? getColumnKeys(sql, info.getTableName()) : new HashMap<>();
         List<Object> addValues = new ArrayList<>();
         List<Object> updateValues = new ArrayList<>();
-        for(String fieldName : info.getFields()){
+        for (String fieldName : info.getFields()) {
             String columnName = info.getColumnName(fieldName);
             StringBuilder sb = new StringBuilder("`")
-                .append(columnName)
-                .append("` ");
+                    .append(columnName)
+                    .append("` ");
             sb.append(info.getType(fieldName).name());
             String parameterTypes = info.getTypeParameters(fieldName);
 
-            if(parameterTypes != null)
+            if (parameterTypes != null)
                 sb.append('(')
-                .append(parameterTypes)
-                .append(')');
+                        .append(parameterTypes)
+                        .append(')');
             sb.append(info.isNotNull(fieldName) ? " NOT NULL" : " NULL");
-            if(info.isAutoIncrement() && info.getIdField().equals(fieldName))
+            if (info.isAutoIncrement() && info.getIdField().equals(fieldName))
                 sb.append(" AUTO_INCREMENT");
-            if(columnKeys.containsKey(columnName)){
-                if(info.getDefault(fieldName) != null){
+            if (columnKeys.containsKey(columnName)) {
+                if (info.getDefault(fieldName) != null) {
                     sb.append(" DEFAULT(?)");
                     updateValues.add(info.getDefault(fieldName));
                 }
                 updateColumns.add(sb.toString());
-            }else{
-                if(info.getDefault(fieldName) != null){
+            } else {
+                if (info.getDefault(fieldName) != null) {
                     sb.append(" DEFAULT(?)");
                     addValues.add(info.getDefault(fieldName));
                 }
                 addColumns.add(sb.toString());
             }
         }
-        if(info.getPrimaryKey() != null) {
+        if (info.getPrimaryKey() != null) {
             String columnName = info.getColumnName(info.getPrimaryKey());
-            if(!columnKeys.containsKey(columnName) || !columnKeys.get(columnName).contains("PRI"))
+            if (!columnKeys.containsKey(columnName) || !columnKeys.get(columnName).contains("PRI"))
                 addColumns.add("PRIMARY KEY (`" + columnName + "`)");
         }
-        for(String uniqueField : info.getUniqueKeys()){
+        for (String uniqueField : info.getUniqueKeys()) {
             String columnName = info.getColumnName(uniqueField);
-            if(!columnKeys.containsKey(columnName) || !columnKeys.get(columnName).contains("UNI"))
+            if (!columnKeys.containsKey(columnName) || !columnKeys.get(columnName).contains("UNI"))
                 addColumns.add("UNIQUE (`" + columnName + "`)");
         }
-        if(!tableExists){
+        if (!tableExists) {
             try {
                 sql.write(new StringBuilder("CREATE TABLE `")
-                        .append(info.getTableName())
-                        .append("` (")
-                        .append(String.join(",", addColumns))
-                        .append(") DEFAULT CHARSET=utf8mb4;").toString()
-                , addValues.toArray());
+                                .append(info.getTableName())
+                                .append("` (")
+                                .append(String.join(",", addColumns))
+                                .append(") DEFAULT CHARSET=utf8mb4;").toString()
+                        , addValues.toArray());
             } catch (SQLException throwables) {
                 throw new ORMQueryException(throwables);
             }
-        }else{
-            if(addColumns.size() > 0){
+        } else {
+            if (addColumns.size() > 0) {
                 try {
                     sql.write(new StringBuilder("ALTER TABLE `")
-                            .append(info.getTableName())
-                            .append("` ADD (")
-                            .append(String.join(",", addColumns))
-                            .append(");").toString()
-                    , addValues.toArray());
+                                    .append(info.getTableName())
+                                    .append("` ADD (")
+                                    .append(String.join(",", addColumns))
+                                    .append(");").toString()
+                            , addValues.toArray());
                 } catch (SQLException throwables) {
                     throw new ORMQueryException(throwables);
                 }
             }
-            if(updateColumns.size() > 0){
+            if (updateColumns.size() > 0) {
                 try {
                     sql.write(new StringBuilder("ALTER TABLE `")
-                            .append(info.getTableName())
-                            .append("` ")
-                            .append(updateColumns.stream().map(c -> "MODIFY COLUMN " + c).collect(Collectors.joining(",")))
-                            .append(";").toString()
-                    , updateValues.toArray());
+                                    .append(info.getTableName())
+                                    .append("` ")
+                                    .append(updateColumns.stream().map(c -> "MODIFY COLUMN " + c).collect(Collectors.joining(",")))
+                                    .append(";").toString()
+                            , updateValues.toArray());
                 } catch (SQLException throwables) {
                     throw new ORMQueryException(throwables);
                 }
@@ -109,10 +124,10 @@ public class AutoMigrator {
         }
     }
 
-    private static Map<String,String> getColumnKeys(SQL sql, String tableName){
+    private static Map<String, String> getColumnKeys(SQL sql, String tableName) {
         try {
             Map<String, String> columnKeys = new HashMap<>();
-            ResultSet rs = sql.read("SHOW COLUMNS FROM `"+tableName+"`;");
+            ResultSet rs = sql.read("SHOW COLUMNS FROM `" + tableName + "`;");
             while (rs.next()) {
                 columnKeys.put(rs.getString(1), rs.getString(4));
             }
@@ -122,7 +137,7 @@ public class AutoMigrator {
         }
     }
 
-    private static List<String> getTables(SQL sql){
+    private static List<String> getTables(SQL sql) {
         try {
             List<String> tables = new ArrayList<>();
             ResultSet rs = sql.read("SHOW TABLES;");

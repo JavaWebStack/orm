@@ -1,4 +1,4 @@
-<p align="center"><img src="https://raw.githubusercontent.com/JavaWebStack/docs/master/src/assets/img/icon.svg" width="100">
+<p align="center"><img src="https://raw.githubusercontent.com/JavaWebStack/docs/master/docs/assets/img/icon.svg" width="100">
 <br><br>
 JWS Object Relational Mapping
 </p>
@@ -79,12 +79,12 @@ for(User user : Repo.get(User.class).all()){
 ```
 
 ### Driver
-You also need to add the driver you want to use. JavaWebStack ORM comes with a wrapper for com.mysql.jdbc.Driver, but you can also create an own wrapper implementing the interface SQL. (For some reason I needed a pretty old driver version to connect to some servers, so I thought it would be better to link the old version here)
+You also need to add the driver you want to use. JavaWebStack ORM comes with a wrapper for com.mysql.jdbc.Driver, but you can also create an own wrapper implementing the interface SQL.
 ```xml
 <dependency>
     <groupId>mysql</groupId>
     <artifactId>mysql-connector-java</artifactId>
-    <version>5.1.6</version>
+    <version>8.0.22</version>
     <scope>compile</scope>
 </dependency>
 ```

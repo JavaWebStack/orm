@@ -14,25 +14,26 @@ public class SQLite extends BaseSQL {
         this.file = file;
     }
 
-    public Connection getConnection(){
+    public Connection getConnection() {
         try {
-            if(c==null||c.isClosed()){
+            if (c == null || c.isClosed()) {
                 try {
-                    c = DriverManager.getConnection("jdbc:sqlite:"+file);
+                    c = DriverManager.getConnection("jdbc:sqlite:" + file);
                 } catch (SQLException e) {
                     System.out.println("Error: at getConnection()[SQLite.java]  SQLException   " + e.getMessage());
                 }
             }
-        } catch (SQLException e) {e.printStackTrace();}
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         try {
-            if(c!=null&&c.isClosed())
+            if (c != null && c.isClosed())
                 return null;
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return c;
     }
-
 
 
 }

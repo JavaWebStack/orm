@@ -13,25 +13,27 @@ import java.util.stream.Collectors;
 
 public abstract class BaseSQL implements SQL {
 
-    private final Map<ResultSet,Statement> statementMap = new HashMap<>();
+    private final Map<ResultSet, Statement> statementMap = new HashMap<>();
 
     public abstract Connection getConnection();
 
-    public int write(String queryString,Object... parameters) throws SQLException {
-        ORM.LOGGER.log(Level.ALL, queryString, Arrays.stream(parameters).map(o -> o == null ? "null" : o.toString()).collect(Collectors.joining(",")));
-        if(queryString.toLowerCase(Locale.ROOT).startsWith("insert")){
-            PreparedStatement ps = setParams(getConnection().prepareStatement(queryString, Statement.RETURN_GENERATED_KEYS), parameters);
+    public int write(String queryString, Object... parameters) throws SQLException {
+        Connection connection = getConnection();
+        ORM.LOGGER.log(Level.ALL, queryString);
+        ORM.LOGGER.log(Level.ALL, Arrays.stream(parameters).map(o -> o == null ? "null" : o.toString()).collect(Collectors.joining(",")));
+        if (queryString.toLowerCase(Locale.ROOT).startsWith("insert")) {
+            PreparedStatement ps = setParams(connection.prepareStatement(queryString, Statement.RETURN_GENERATED_KEYS), parameters);
             ps.executeUpdate();
             ResultSet rs = ps.getGeneratedKeys();
             int id = 0;
-            if(rs.next()){
+            if (rs.next()) {
                 id = rs.getInt(1);
             }
             rs.close();
             ps.close();
             return id;
-        }else{
-            PreparedStatement ps = setParams(getConnection().prepareStatement(queryString), parameters);
+        } else {
+            PreparedStatement ps = setParams(connection.prepareStatement(queryString), parameters);
             ps.executeUpdate();
             ps.close();
         }
@@ -39,51 +41,55 @@ public abstract class BaseSQL implements SQL {
     }
 
     public ResultSet read(String queryString, Object... parameters) throws SQLException {
-        ORM.LOGGER.log(Level.ALL, queryString, Arrays.stream(parameters).map(o -> o == null ? "null" : o.toString()).collect(Collectors.joining(",")));
-        PreparedStatement ps = setParams(getConnection().prepareStatement(queryString), parameters);
+        Connection connection = getConnection();
+        ORM.LOGGER.log(Level.ALL, queryString);
+        ORM.LOGGER.log(Level.ALL, Arrays.stream(parameters).map(o -> o == null ? "null" : o.toString()).collect(Collectors.joining(",")));
+        PreparedStatement ps = setParams(connection.prepareStatement(queryString), parameters);
         ResultSet rs = ps.executeQuery();
-        statementMap.put(rs,ps);
+        statementMap.put(rs, ps);
         return rs;
     }
 
     private PreparedStatement setParams(PreparedStatement st, Object... parameters) throws SQLException {
         int i = 1;
-        for(Object object : parameters){
-            if(object == null) {
+        for (Object object : parameters) {
+            if (object == null) {
                 st.setNull(i, Types.NULL);
                 i++;
                 continue;
             }
             Class<?> type = object.getClass();
-            if(type.isEnum())
-                st.setString(i,((Enum<?>) object).name());
-            else if(type.equals(String.class))
-                st.setString(i,(String)object);
-            else if(type.equals(Integer.class))
-                st.setInt(i,(int)object);
-            else if(type.equals(Double.class))
-                st.setDouble(i,(double)object);
-            else if(type.equals(Long.class))
-                st.setLong(i,(long)object);
-            else if(type.equals(Short.class))
-                st.setShort(i,(short)object);
-            else if(type.equals(Float.class))
-                st.setFloat(i,(float)object);
-            else if(type.equals(Timestamp.class))
-                st.setTimestamp(i,(Timestamp) object);
-            else if(type.equals(Date.class))
-                st.setDate(i,(Date)object);
-            else if(type.equals(Time.class))
-                st.setTime(i,(Time)object);
+            if (type.isEnum())
+                st.setString(i, ((Enum<?>) object).name());
+            else if (type.equals(String.class))
+                st.setString(i, (String) object);
+            else if (type.equals(Integer.class))
+                st.setInt(i, (int) object);
+            else if (type.equals(Double.class))
+                st.setDouble(i, (double) object);
+            else if (type.equals(Long.class))
+                st.setLong(i, (long) object);
+            else if (type.equals(Short.class))
+                st.setShort(i, (short) object);
+            else if (type.equals(Float.class))
+                st.setFloat(i, (float) object);
+            else if (type.equals(Timestamp.class))
+                st.setTimestamp(i, (Timestamp) object);
+            else if (type.equals(Date.class))
+                st.setDate(i, (Date) object);
+            else if (type.equals(Time.class))
+                st.setTime(i, (Time) object);
+            else if (type.equals(byte[].class))
+                st.setBytes(i, (byte[]) object);
             else
-                throw new ORMQueryException("Can't set parameter of type: "+object.getClass().getName());
+                throw new ORMQueryException("Can't set parameter of type: " + object.getClass().getName());
             i++;
         }
         return st;
     }
 
-    public void close(ResultSet rs){
-        if(statementMap.containsKey(rs)){
+    public void close(ResultSet rs) {
+        if (statementMap.containsKey(rs)) {
             try {
                 statementMap.get(rs).close();
             } catch (SQLException e) {
@@ -98,8 +104,8 @@ public abstract class BaseSQL implements SQL {
         }
     }
 
-    public void cleanUp(){
-        for(ResultSet rs : statementMap.keySet())
+    public void cleanUp() {
+        for (ResultSet rs : statementMap.keySet())
             close(rs);
     }
 
