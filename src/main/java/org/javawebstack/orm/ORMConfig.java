@@ -1,6 +1,7 @@
 package org.javawebstack.orm;
 
 import org.javawebstack.injector.Injector;
+import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.javawebstack.orm.mapper.DefaultMapper;
 import org.javawebstack.orm.mapper.TypeMapper;
 
@@ -30,7 +31,10 @@ public class ORMConfig {
         return this;
     }
 
-    public ORMConfig setDefaultSize(int defaultSize) {
+    public ORMConfig setDefaultSize(int defaultSize) throws ORMConfigurationException {
+        if(defaultSize <= 0)
+            throw new ORMConfigurationException("Default size must be positive and non-zero. If this exceptions occurs unexpectedly make sure no overflow is occurring.");
+
         this.defaultSize = defaultSize;
         return this;
     }

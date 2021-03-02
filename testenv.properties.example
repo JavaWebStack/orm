@@ -1,0 +1,5 @@
+mysql.host=localhost
+mysql.port=3306
+mysql.database=ormtest
+mysql.username=root
+mysql.password=secretpasswordofthetestdbuser
