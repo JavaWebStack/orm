@@ -1,26 +1,21 @@
 package org.javawebstack.orm.wrapper;
 
-import org.javawebstack.orm.ORM;
 import org.javawebstack.orm.exception.ORMQueryException;
 
 import java.sql.*;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.stream.Collectors;
+import java.sql.Date;
+import java.util.*;
 
 public abstract class BaseSQL implements SQL {
 
     private final Map<ResultSet, Statement> statementMap = new HashMap<>();
+    private final List<QueryLogger> loggers = new LinkedList<>();
 
     public abstract Connection getConnection();
 
     public int write(String queryString, Object... parameters) throws SQLException {
+        loggers.forEach(l -> l.log(queryString, parameters));
         Connection connection = getConnection();
-        ORM.LOGGER.log(Level.ALL, queryString);
-        ORM.LOGGER.log(Level.ALL, Arrays.stream(parameters).map(o -> o == null ? "null" : o.toString()).collect(Collectors.joining(",")));
         if (queryString.toLowerCase(Locale.ROOT).startsWith("insert")) {
             PreparedStatement ps = setParams(connection.prepareStatement(queryString, Statement.RETURN_GENERATED_KEYS), parameters);
             ps.executeUpdate();
@@ -41,9 +36,8 @@ public abstract class BaseSQL implements SQL {
     }
 
     public ResultSet read(String queryString, Object... parameters) throws SQLException {
+        loggers.forEach(l -> l.log(queryString, parameters));
         Connection connection = getConnection();
-        ORM.LOGGER.log(Level.ALL, queryString);
-        ORM.LOGGER.log(Level.ALL, Arrays.stream(parameters).map(o -> o == null ? "null" : o.toString()).collect(Collectors.joining(",")));
         PreparedStatement ps = setParams(connection.prepareStatement(queryString), parameters);
         ResultSet rs = ps.executeQuery();
         statementMap.put(rs, ps);
@@ -107,6 +101,14 @@ public abstract class BaseSQL implements SQL {
     public void cleanUp() {
         for (ResultSet rs : statementMap.keySet())
             close(rs);
+    }
+
+    public void addQueryLogger(QueryLogger logger) {
+        loggers.add(logger);
+    }
+
+    public void removeQueryLogger(QueryLogger logger) {
+        loggers.remove(logger);
     }
 
 }
