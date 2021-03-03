@@ -13,6 +13,7 @@ public class UpdateOnlyIfIsDirtyTest extends ORMTestCase {
 
     @Test
     public void testOnlyUpdateIfIsDirty() throws ORMConfigurationException {
+        // Using an array to make force mutability inside lamda expression
         boolean[] updated = new boolean[1];
         QueryLogger logger = (query, parameters) -> {
             if(query.startsWith("UPDATE"))
