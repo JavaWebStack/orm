@@ -73,6 +73,8 @@ public class Model {
 
     public boolean isDirty(String... fields) {
         List<String> dirty = getDirtyFields();
+        if(fields.length == 0 && dirty.size() > 0)
+            return true;
         for (String f : fields) {
             if (dirty.contains(f))
                 return true;

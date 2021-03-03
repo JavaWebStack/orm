@@ -16,6 +16,7 @@ public class ORMConfig {
     private boolean idAutoIncrement = true;
     private final List<TypeMapper> typeMappers = new ArrayList<>();
     private Injector injector;
+    private boolean preventUnnecessaryUpdates = true;
 
     public ORMConfig() {
         typeMappers.add(new DefaultMapper());
@@ -112,5 +113,14 @@ public class ORMConfig {
                 return mapper.getTypeParameters(type, size);
         }
         return null;
+    }
+
+    public boolean shouldPreventUnnecessaryUpdates() {
+        return preventUnnecessaryUpdates;
+    }
+
+    public ORMConfig setPreventUnnecessaryUpdates(boolean preventUnnecessaryUpdates) {
+        this.preventUnnecessaryUpdates = preventUnnecessaryUpdates;
+        return this;
     }
 }
