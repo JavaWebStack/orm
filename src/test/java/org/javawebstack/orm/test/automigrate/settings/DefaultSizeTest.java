@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
 
+import static org.javawebstack.orm.information.DataTypeLimits.MAX_SIZE_MEDIUMTEXT;
+import static org.javawebstack.orm.information.DataTypeLimits.MAX_SIZE_VARCHAR;
 import static org.javawebstack.orm.test.shared.settings.SetUp.setUpWithDefaultSize;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -34,22 +36,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * - zero default size has been set
  */
 public class DefaultSizeTest extends ORMTestCase {
-
-    // Copy from DefaultMapper:
-    // SOURCES:
-    // TEXT Datatypes: https://www.mysqltutorial.org/mysql-text/
-    private static final int BYTES_OVERHEAD_VARCHAR = 4;
-    private static final int BYTES_OVERHEAD_TINYTEXT = 1;
-    private static final int BYTES_OVERHEAD_TEXT = 2;
-    private static final int BYTES_OVERHEAD_MEDIUMTEXT = 3;
-    private static final int BYTES_OVERHEAD_LONGTEXT = 4;
-
-    // The max sizes given in the manual are in bytes. There are overheads which need to be subtracted.
-    // The following values assume utf8mb4 encoding which uses 4 bytes per character and
-    // further quarters the maximum column length accordingly.
-    private static final long MAX_SIZE_VARCHAR = (long) Math.floor((65535 - BYTES_OVERHEAD_VARCHAR) / 4.0);
-    private static final long MAX_SIZE_MEDIUMTEXT = (long) Math.floor((16777215 - BYTES_OVERHEAD_MEDIUMTEXT) / 4.0);
-    private static final long MAX_SIZE_LONGTEXT = (long) Math.floor((4294967295L - BYTES_OVERHEAD_LONGTEXT) / 4.0);
 
     final static String tableNameString = "just_strings";
     final static String columnNameString = "string";
