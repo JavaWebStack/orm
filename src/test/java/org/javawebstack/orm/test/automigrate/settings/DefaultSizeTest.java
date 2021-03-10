@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * - negative default size has been set
  * - zero default size has been set
  */
-public class DefaultSizeTest extends ORMTestCase {
+class DefaultSizeTest extends ORMTestCase {
 
     final static String tableNameString = "just_strings";
     final static String columnNameString = "string";
@@ -52,13 +52,13 @@ public class DefaultSizeTest extends ORMTestCase {
 
     // String
     @Test
-    public void testStringUsesDefaultSizeChar() throws ORMConfigurationException, SQLException {
+    void testStringUsesDefaultSizeChar() throws ORMConfigurationException, SQLException {
         setUpWithDefaultSize(JustString.class, 1);
         (new Field(tableNameString, columnNameString)).assertType("char(1)");
     }
 
     @Test
-    public void testStringUsesDefaultSizeVarchar() throws ORMConfigurationException, SQLException {
+    void testStringUsesDefaultSizeVarchar() throws ORMConfigurationException, SQLException {
         int[] parameters = {2, 3, 123, 1234, 12345, (int) MAX_SIZE_VARCHAR - 1, (int) MAX_SIZE_VARCHAR};
         for( int singleParameter : parameters) {
             setUpWithDefaultSize(JustString.class, singleParameter);
@@ -67,7 +67,7 @@ public class DefaultSizeTest extends ORMTestCase {
     }
 
     @Test
-    public void testStringUsesDefaultSizeMediumText() throws ORMConfigurationException, SQLException {
+    void testStringUsesDefaultSizeMediumText() throws ORMConfigurationException, SQLException {
         int[] parameters = {(int) MAX_SIZE_VARCHAR + 1, 123456, 1234567, (int) MAX_SIZE_MEDIUMTEXT - 1};
         for( int singleParameter : parameters) {
             setUpWithDefaultSize(JustString.class, singleParameter);
@@ -76,7 +76,7 @@ public class DefaultSizeTest extends ORMTestCase {
     }
 
     @Test
-    public void testStringUsesDefaultSizeLongText() throws ORMConfigurationException, SQLException {
+    void testStringUsesDefaultSizeLongText() throws ORMConfigurationException, SQLException {
         int[] parameters = {(int) MAX_SIZE_MEDIUMTEXT + 1, 123456789, 123467890, Integer.MAX_VALUE};
         for( int singleParameter : parameters) {
             setUpWithDefaultSize(JustString.class, singleParameter);
@@ -86,13 +86,13 @@ public class DefaultSizeTest extends ORMTestCase {
 
     // Char Array
     @Test
-    public void testCharArrayUsesDefaultSizeChar() throws ORMConfigurationException, SQLException {
+    void testCharArrayUsesDefaultSizeChar() throws ORMConfigurationException, SQLException {
         setUpWithDefaultSize(JustCharArray.class, 1);
         (new Field(tableNameCharArray, columnNameCharArray)).assertType("char(1)");
     }
 
     @Test
-    public void testCharArrayUsesDefaultSizeVarchar() throws ORMConfigurationException, SQLException {
+    void testCharArrayUsesDefaultSizeVarchar() throws ORMConfigurationException, SQLException {
         int[] parameters = {2, 3, 123, 1234, 12345, (int) MAX_SIZE_VARCHAR - 1, (int) MAX_SIZE_VARCHAR};
         for( int singleParameter : parameters) {
             setUpWithDefaultSize(JustCharArray.class, singleParameter);
@@ -101,7 +101,7 @@ public class DefaultSizeTest extends ORMTestCase {
     }
 
     @Test
-    public void testCharArrayUsesDefaultSizeMediumText() throws ORMConfigurationException, SQLException {
+    void testCharArrayUsesDefaultSizeMediumText() throws ORMConfigurationException, SQLException {
         int[] parameters = {(int) MAX_SIZE_VARCHAR + 1, 123456, 1234567, (int) MAX_SIZE_MEDIUMTEXT - 1};
         for( int singleParameter : parameters) {
             setUpWithDefaultSize(JustCharArray.class, singleParameter);
@@ -110,7 +110,7 @@ public class DefaultSizeTest extends ORMTestCase {
     }
 
     @Test
-    public void testCharArrayUsesDefaultSizeLongText() throws ORMConfigurationException, SQLException {
+    void testCharArrayUsesDefaultSizeLongText() throws ORMConfigurationException, SQLException {
         int[] parameters = {(int) MAX_SIZE_MEDIUMTEXT + 1, 123456789, 123467890, Integer.MAX_VALUE};
         for( int singleParameter : parameters) {
             setUpWithDefaultSize(JustCharArray.class, singleParameter);
@@ -123,7 +123,7 @@ public class DefaultSizeTest extends ORMTestCase {
      */
 
     @Test
-    public void testOtherDataTypesDoNotUseDefaultSize() throws ORMConfigurationException, SQLException {
+    void testOtherDataTypesDoNotUseDefaultSize() throws ORMConfigurationException, SQLException {
         // smallint defaults to the size 6 the default size should therefore not be chosen as 6 or higher;
         setUpWithDefaultSize(Datatype.class, 5);
 
@@ -151,7 +151,7 @@ public class DefaultSizeTest extends ORMTestCase {
      */
 
     @Test
-    public void defaultSizeIsZero() {
+    void defaultSizeIsZero() {
         assertThrows(
                 ORMConfigurationException.class,
                 () -> new ORMConfig().setDefaultSize(0),
@@ -160,7 +160,7 @@ public class DefaultSizeTest extends ORMTestCase {
     }
 
     @Test
-    public void defaultSizeIsNegative() {
+    void defaultSizeIsNegative() {
         assertThrows(
                 ORMConfigurationException.class,
                 () -> new ORMConfig().setDefaultSize(-1),

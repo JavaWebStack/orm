@@ -22,7 +22,7 @@ import static org.javawebstack.orm.test.shared.settings.SetUp.setUpWithDefaultSi
  * - no unexpected property is put on the fields
  * - the id field is the primary key, not nullable and auto-incrementing
  */
-public class CommonTest extends ORMTestCase {
+class CommonTest extends ORMTestCase {
 
     private static final String tableName = "datatypes";
     private final Map<String, String> columnDataTypeMap;
@@ -69,17 +69,17 @@ public class CommonTest extends ORMTestCase {
     }
 
     @BeforeEach
-    public void setUp() throws ORMConfigurationException {
+    void setUp() throws ORMConfigurationException {
         setUpWithDefaultSize(Datatype.class, 255);
     }
 
     @Test
-    public void testId() throws SQLException {
+    void testId() throws SQLException {
         IdField.assertCorrectDatabaseFormat(tableName);
     }
 
     @Test
-    public void testDatatypes() throws SQLException {
+    void testDatatypes() throws SQLException {
         Field checkedField;
 
         for(Map.Entry<String, String> entry : columnDataTypeMap.entrySet()) {
@@ -90,7 +90,7 @@ public class CommonTest extends ORMTestCase {
     }
 
     @Test
-    public void testNullable() throws SQLException {
+    void testNullable() throws SQLException {
         Field checkedField;
 
         for(Map.Entry<String, String> entry : columnDataTypeMap.entrySet()) {
@@ -100,7 +100,7 @@ public class CommonTest extends ORMTestCase {
     }
 
     @Test
-    public void testNotPrimaryKey() throws SQLException {
+    void testNotPrimaryKey() throws SQLException {
         Field checkedField;
 
         for(Map.Entry<String, String> entry : columnDataTypeMap.entrySet()) {
@@ -110,7 +110,7 @@ public class CommonTest extends ORMTestCase {
     }
 
     @Test
-    public void testNotAutoIncrement() throws SQLException {
+    void testNotAutoIncrement() throws SQLException {
         Field checkedField;
 
         for(Map.Entry<String, String> entry : columnDataTypeMap.entrySet()) {
