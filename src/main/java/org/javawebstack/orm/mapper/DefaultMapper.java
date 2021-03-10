@@ -93,7 +93,8 @@ public class DefaultMapper implements TypeMapper {
     }
 
     public SQLType getType(Class<?> type, int size) {
-        if (type.equals(String.class) || type.equals(char[].class))
+
+        if (type.equals(String.class) || type.equals(char[].class)) {
             // Upper limit of 4294967295 exceeds the int boundaries
             if (size > MAX_SIZE_MEDIUMTEXT)
                 return SQLType.LONGTEXT;
@@ -103,6 +104,8 @@ public class DefaultMapper implements TypeMapper {
                 return SQLType.VARCHAR;
             if (size == 1)
                 return SQLType.CHAR;
+        }
+
         if (type.equals(UUID.class))
             return SQLType.VARCHAR;
         if (type.equals(char.class))
