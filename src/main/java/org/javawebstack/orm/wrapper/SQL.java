@@ -14,4 +14,8 @@ public interface SQL {
 
     void close(ResultSet resultSet);
 
+    void addQueryLogger(QueryLogger logger);
+
+    void removeQueryLogger(QueryLogger logger);
+
 }

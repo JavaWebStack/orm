@@ -155,6 +155,8 @@ public class Repo<T extends Model> {
     }
 
     public void update(T entry) {
+        if(info.getConfig().shouldPreventUnnecessaryUpdates() && !entry.isDirty())
+            return;
         observers.forEach(o -> o.saving(entry));
         observers.forEach(o -> o.updating(entry));
         where(info.getIdField(), getId(entry)).update(entry);
