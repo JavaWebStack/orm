@@ -3,6 +3,14 @@
 JWS Object Relational Mapping
 </p>
 
+![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/JavaWebStack/ORM/Maven%20Deploy/master)
+![GitHub](https://img.shields.io/github/license/JavaWebStack/ORM)
+![Maven metadata URL](https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Frepo.javawebstack.org%2Forg%2Fjavawebstack%2FORM%2Fmaven-metadata.xml)
+![GitHub contributors](https://img.shields.io/github/contributors/JavaWebStack/ORM)
+![Lines of code](https://img.shields.io/tokei/lines/github/JavaWebStack/ORM)
+![Discord](https://img.shields.io/discord/815612319378833408?color=%237289DA&label=discord)
+![Twitter Follow](https://img.shields.io/twitter/follow/JavaWebStack?style=social)
+
 ## Introduction
 When it came to using an ORM Lib in java I used ORMLite before. It worked quite well, but I didn't like the query builder.
 
