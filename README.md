@@ -19,7 +19,7 @@ Another thing was that I wanted to have control over the JDBC Wrapper to have a 
 I finally decided to make an own ORM that fits my needs and here it is.
 
 ## Documentation
-Docs for version 2 will follow as soon as version 2 is fully stable.
+You can find the current docs on our [website](https://docs.javawebstack.org/framework/orm). This is a work-in-progress project though so it's not yet complete.
 
 ### Example usage 
 
