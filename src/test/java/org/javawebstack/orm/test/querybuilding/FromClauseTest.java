@@ -3,12 +3,11 @@ package org.javawebstack.orm.test.querybuilding;
 import org.javawebstack.orm.Model;
 import org.javawebstack.orm.ORM;
 import org.javawebstack.orm.Repo;
-import org.javawebstack.orm.annotation.Column;
 import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.javawebstack.orm.test.ORMTestCase;
-import org.javawebstack.orm.test.shared.models.tablenames.One;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -21,6 +20,32 @@ class FromClauseTest extends ORMTestCase {
     void testOneWordSAppendixPlural() throws ORMConfigurationException {
         ORM.register(Word.class, sql());
         String query = getBaseQuery(Word.class);
-        assertTrue(query.contains("FROM `ones`"));
+        assertTrue(query.contains("FROM `words`"));
+    }
+
+
+    /*
+     * Error / Not Closer Specified Cases
+     */
+    @Test
+    void testOneWordAlreadyInPluralDoesntWork() throws ORMConfigurationException {
+        ORM.register(Words.class, sql());
+        String query = getBaseQuery(Words.class);
+        // Should try to find a non-sense plural and not map to itself as plural; for the purpose of
+        // not breaking existing code
+        assertFalse(query.contains("FROM `words`"));
+    }
+
+
+    /*
+     * Boiler Code Reduction Funtions
+     */
+
+    /**
+     * Gets the generated base query for a model when only calling .query() on it.
+     * @return
+     */
+    private String getBaseQuery(Class<? extends Model> clazz) {
+        return Repo.get(clazz).query().getQueryString().getQuery();
     }
 }
