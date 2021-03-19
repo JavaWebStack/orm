@@ -6,7 +6,7 @@ import org.javawebstack.orm.annotation.Column;
 /**
  * Class with the intention to be one name in singular. Short for "One Word" to fit into one word.
  */
-public class One extends Model {
+public class Word extends Model {
 
     @Column
     int id;

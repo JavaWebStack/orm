@@ -11,12 +11,16 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * The focus does not lie on a correct plural with this test, therefore we are only testing it sample-wise.
+ * For tests see the library that is used in TableInfo: https://github.com/atteo/evo-inflector
+ */
 class FromClauseTest extends ORMTestCase {
 
     @Test
-    void testFromClauseWithOneWordSAppendixPlural() throws ORMConfigurationException {
-        ORM.register(One.class, sql());
-        String query = Repo.get(One.class).query().getQueryString().getQuery();
+    void testOneWordSAppendixPlural() throws ORMConfigurationException {
+        ORM.register(Word.class, sql());
+        String query = getBaseQuery(Word.class);
         assertTrue(query.contains("FROM `ones`"));
     }
 }
