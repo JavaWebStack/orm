@@ -47,9 +47,6 @@ public class TableInfo {
             tableName = table.value();
         } else {
             tableName = Helper.toSnakeCase(English.plural(model.getSimpleName()));
-            tableName += tableName.endsWith("ss") ? "es" : "s";
-            if (tableName.endsWith("ys"))
-                tableName = tableName.substring(0, tableName.length() - 2) + "ies";
         }
         if (model.isAnnotationPresent(MorphType.class)) {
             morphType = model.getDeclaredAnnotationsByType(MorphType.class)[0].value();

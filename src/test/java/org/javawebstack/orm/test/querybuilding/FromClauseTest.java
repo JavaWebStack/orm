@@ -1,10 +1,13 @@
 package org.javawebstack.orm.test.querybuilding;
 
+import org.atteo.evo.inflector.English;
 import org.javawebstack.orm.Model;
 import org.javawebstack.orm.ORM;
 import org.javawebstack.orm.Repo;
 import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.javawebstack.orm.test.ORMTestCase;
+import org.javawebstack.orm.test.shared.models.tablenames.Word;
+import org.javawebstack.orm.test.shared.models.tablenames.Words;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -19,6 +22,7 @@ class FromClauseTest extends ORMTestCase {
     @Test
     void testOneWordSAppendixPlural() throws ORMConfigurationException {
         ORM.register(Word.class, sql());
+        System.out.println(English.plural(Word.class.getName()));
         String query = getBaseQuery(Word.class);
         assertTrue(query.contains("FROM `words`"));
     }
