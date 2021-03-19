@@ -1,5 +1,6 @@
 package org.javawebstack.orm;
 
+import org.atteo.evo.inflector.English;
 import org.javawebstack.orm.annotation.*;
 import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.javawebstack.orm.util.Helper;
@@ -45,7 +46,7 @@ public class TableInfo {
             Table table = model.getDeclaredAnnotationsByType(Table.class)[0];
             tableName = table.value();
         } else {
-            tableName = Helper.toSnakeCase(model.getSimpleName());
+            tableName = Helper.toSnakeCase(English.plural(model.getSimpleName()));
             tableName += tableName.endsWith("ss") ? "es" : "s";
             if (tableName.endsWith("ys"))
                 tableName = tableName.substring(0, tableName.length() - 2) + "ies";
