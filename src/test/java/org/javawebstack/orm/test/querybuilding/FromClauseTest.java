@@ -27,6 +27,12 @@ class FromClauseTest extends ORMTestCase {
         assertTrue(query.contains("FROM `words`"));
     }
 
+    @Test
+    void testTwoWordsBecomeSnakeCases() throws ORMConfigurationException {
+        ORM.register(TwoWord.class, sql());
+        String query = getBaseQuery(TwoWord.class);
+        assertTrue(query.contains("FROM `two_words`"));
+    }
 
     /*
      * Error / Not Closer Specified Cases
