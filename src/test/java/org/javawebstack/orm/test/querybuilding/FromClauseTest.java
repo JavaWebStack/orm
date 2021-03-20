@@ -23,21 +23,18 @@ class FromClauseTest extends ORMTestCase {
 
     @Test
     void testOneWordSAppendixPlural() throws ORMConfigurationException {
-        ORM.register(Word.class, sql());
         String query = getBaseQuery(Word.class);
         assertTrue(query.contains("FROM `words`"));
     }
 
     @Test
     void testTwoWordsBecomeSnakeCases() throws ORMConfigurationException {
-        ORM.register(TwoWord.class, sql());
         String query = getBaseQuery(TwoWord.class);
         assertTrue(query.contains("FROM `two_words`"));
     }
 
     @Test
-    void ThreeWordBecomeSnakeCases() throws ORMConfigurationException {
-        ORM.register(ThreeWordClass.class, sql());
+    void testThreeWordBecomeSnakeCases() throws ORMConfigurationException {
         String query = getBaseQuery(ThreeWordClass.class);
         assertTrue(query.contains("FROM `three_word_classes`"));
     }
@@ -47,7 +44,6 @@ class FromClauseTest extends ORMTestCase {
      */
     @Test
     void testOneWordAlreadyInPluralDoesntWork() throws ORMConfigurationException {
-        ORM.register(Words.class, sql());
         String query = getBaseQuery(Words.class);
         // Should try to find a non-sense plural and not map to itself as plural; for the purpose of
         // not breaking existing code
@@ -62,7 +58,8 @@ class FromClauseTest extends ORMTestCase {
      * Gets the generated base query for a model when only calling .query() on it.
      * @return
      */
-    private String getBaseQuery(Class<? extends Model> clazz) {
+    private String getBaseQuery(Class<? extends Model> clazz) throws ORMConfigurationException {
+        ORM.register(clazz, sql());
         return Repo.get(clazz).query().getQueryString().getQuery();
     }
 }
