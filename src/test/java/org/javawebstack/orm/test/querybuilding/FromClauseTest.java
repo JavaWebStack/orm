@@ -53,6 +53,12 @@ class FromClauseTest extends ORMTestCase {
         assertFalse(query.contains("FROM `words`"));
     }
 
+    @Test
+    void testOverwrittenTableName() throws ORMConfigurationException {
+        String query = getBaseQuery(OverwritteTableName.class);
+        assertTrue(query.contains("FROM `oVer_writtenValue`"));
+    }
+
     /*
      * Boiler Code Reduction Funtions
      */
