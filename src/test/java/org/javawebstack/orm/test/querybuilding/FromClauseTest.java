@@ -21,7 +21,6 @@ class FromClauseTest extends ORMTestCase {
     @Test
     void testOneWordSAppendixPlural() throws ORMConfigurationException {
         ORM.register(Word.class, sql());
-        System.out.println(English.plural(Word.class.getSimpleName()));
         String query = getBaseQuery(Word.class);
         assertTrue(query.contains("FROM `words`"));
     }
