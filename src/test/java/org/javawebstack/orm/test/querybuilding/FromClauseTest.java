@@ -6,6 +6,7 @@ import org.javawebstack.orm.ORM;
 import org.javawebstack.orm.Repo;
 import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.javawebstack.orm.test.ORMTestCase;
+import org.javawebstack.orm.test.shared.models.tablenames.ThreeWordClass;
 import org.javawebstack.orm.test.shared.models.tablenames.TwoWord;
 import org.javawebstack.orm.test.shared.models.tablenames.Word;
 import org.javawebstack.orm.test.shared.models.tablenames.Words;
@@ -32,6 +33,13 @@ class FromClauseTest extends ORMTestCase {
         ORM.register(TwoWord.class, sql());
         String query = getBaseQuery(TwoWord.class);
         assertTrue(query.contains("FROM `two_words`"));
+    }
+
+    @Test
+    void ThreeWordBecomeSnakeCases() throws ORMConfigurationException {
+        ORM.register(ThreeWordClass.class, sql());
+        String query = getBaseQuery(ThreeWordClass.class);
+        assertTrue(query.contains("FROM `three_word_classes`"));
     }
 
     /*
