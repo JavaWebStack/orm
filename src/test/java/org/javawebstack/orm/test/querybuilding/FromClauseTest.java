@@ -6,10 +6,7 @@ import org.javawebstack.orm.ORM;
 import org.javawebstack.orm.Repo;
 import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.javawebstack.orm.test.ORMTestCase;
-import org.javawebstack.orm.test.shared.models.tablenames.ThreeWordClass;
-import org.javawebstack.orm.test.shared.models.tablenames.TwoWord;
-import org.javawebstack.orm.test.shared.models.tablenames.Word;
-import org.javawebstack.orm.test.shared.models.tablenames.Words;
+import org.javawebstack.orm.test.shared.models.tablenames.*;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -37,6 +34,12 @@ class FromClauseTest extends ORMTestCase {
     void testThreeWordBecomeSnakeCases() throws ORMConfigurationException {
         String query = getBaseQuery(ThreeWordClass.class);
         assertTrue(query.contains("FROM `three_word_classes`"));
+    }
+
+    @Test
+    void testIrregularWordPlural() throws ORMConfigurationException {
+        String query = getBaseQuery(Mouse.class);
+        assertTrue(query.contains("FROM `mice`"));
     }
 
     /*
