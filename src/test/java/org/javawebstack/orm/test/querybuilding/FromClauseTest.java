@@ -6,7 +6,9 @@ import org.javawebstack.orm.ORM;
 import org.javawebstack.orm.Repo;
 import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.javawebstack.orm.test.ORMTestCase;
+import org.javawebstack.orm.test.shared.models.tablenames.TwoWord;
 import org.javawebstack.orm.test.shared.models.tablenames.Word;
+import org.javawebstack.orm.test.shared.models.tablenames.Words;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -29,15 +31,14 @@ class FromClauseTest extends ORMTestCase {
     /*
      * Error / Not Closer Specified Cases
      */
-//    @Test
-//    void testOneWordAlreadyInPluralDoesntWork() throws ORMConfigurationException {
-//        ORM.register(Words.class, sql());
-//        String query = getBaseQuery(Words.class);
-//        // Should try to find a non-sense plural and not map to itself as plural; for the purpose of
-//        // not breaking existing code
-//        assertFalse(query.contains("FROM `words`"));
-//    }
-
+    @Test
+    void testOneWordAlreadyInPluralDoesntWork() throws ORMConfigurationException {
+        ORM.register(Words.class, sql());
+        String query = getBaseQuery(Words.class);
+        // Should try to find a non-sense plural and not map to itself as plural; for the purpose of
+        // not breaking existing code
+        assertFalse(query.contains("FROM `words`"));
+    }
 
     /*
      * Boiler Code Reduction Funtions
