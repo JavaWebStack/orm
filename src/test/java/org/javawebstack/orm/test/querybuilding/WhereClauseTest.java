@@ -80,6 +80,12 @@ class WhereClauseTest extends ORMTestCase {
         assertContainsAfterWhere("`uuid` = ?", query.getQueryString().getQuery());
     }
 
+    @Test
+    void testNonsenseOperation() {
+        Query<Datatype> query = repo.where("wrapper_boolean", "NOOPERATION", true);
+        assertContainsAfterWhere("`wrapper_boolean` NOOPERATION ?", query.getQueryString().getQuery());
+    }
+
 
 
     private void assertContainsAfterWhere(String containedString, String completeQuery) {
