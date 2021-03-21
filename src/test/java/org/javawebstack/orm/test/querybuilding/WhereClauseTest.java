@@ -90,7 +90,7 @@ class WhereClauseTest extends ORMTestCase {
 
     private void assertContainsAfterWhere(String containedString, String completeQuery) {
         String whereClause = completeQuery.split("WHERE")[1];
-        assertTrue(whereClause.contains(containedString), "Expected the query to conain the string " + containedString + " after the WHERE clause, but got this: " + whereClause);
+        assertTrue(whereClause.contains(containedString), "Expected the query to contain the string " + containedString + " after the WHERE clause, but got this: " + whereClause);
 
     }
 }
