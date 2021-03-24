@@ -61,7 +61,19 @@ class QueryUtilTest {
         ));
 
         this.performeTestOnList(list);
+    }
 
+    @Test
+    void testTrapExpressionsWhichAreEscaped() {
+        List<SectionRecord> list = new LinkedList<>(Arrays.asList(
+                new SectionRecord("SELECT", "`FROM`.`SELECT`, `GROUP BY`.`having`"),
+                new SectionRecord("FROM", "`order by`"),
+                new SectionRecord("WHERE", "`from` LIKE `where` AND 'from' = 'where'"),
+                new SectionRecord("FULL OUTER JOIN", "`from` ON `FROM`.`SELECT`=`select`.`from`"),
+                new SectionRecord("ORDER BY", "`limit`.`where`")
+        ));
+
+        this.performeTestOnList(list);
     }
 
     /*
