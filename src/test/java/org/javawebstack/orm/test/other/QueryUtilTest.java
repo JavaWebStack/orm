@@ -34,6 +34,40 @@ public class QueryUtilTest {
 
     }
 
+    @Test
+    public void testCasingDoesNotMatte() {
+        List<SectionRecord> list = new LinkedList<>(Arrays.asList(
+                new SectionRecord("select", RandomStringUtils.randomAlphanumeric(3, 12)),
+                new SectionRecord("fRom", RandomStringUtils.randomAlphanumeric(3, 10)),
+                new SectionRecord("where", RandomStringUtils.randomAlphanumeric(3, 10)),
+                new SectionRecord("ordEr by", RandomStringUtils.randomAlphanumeric(3, 10)),
+                new SectionRecord("Group By", RandomStringUtils.randomAlphanumeric(3, 10)),
+                new SectionRecord("hAvIng", RandomStringUtils.randomAlphanumeric(3, 10)),
+                new SectionRecord("limit", RandomStringUtils.randomNumeric(1, 100)),
+                new SectionRecord("offset", RandomStringUtils.randomNumeric(1, 100))
+        ));
+
+        this.performeTestOnList(list);
+    }
+
+    // Example from here: https://www.freecodecamp.org/news/sql-example/
+    @Test
+    public void testGetUsualCase() {
+        List<SectionRecord> list = new LinkedList<>(Arrays.asList(
+                new SectionRecord("SELECT", "`Customers`.`CustomerName`, `Orders`.`OrderID`"),
+                new SectionRecord("FROM", "`Customers`"),
+                new SectionRecord("FULL OUTER JOIN", "`Orders` ON `Customers`.`CustomerID`=`Orders`.`CustomerID`"),
+                new SectionRecord("ORDER BY", "`Customers`.`CustomerName`")
+        ));
+
+        this.performeTestOnList(list);
+
+    }
+
+    /*
+     * Boilerplate Code Reduction Methods
+     */
+
     private String getQueryStringFromList(List<SectionRecord> list) {
         StringBuilder builder = new StringBuilder();
 
