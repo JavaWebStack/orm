@@ -233,17 +233,25 @@ public class Model {
         return belongsToMany(other, pivot, Repo.get(getClass()).getInfo().getRelationField(), Repo.get(other).getInfo().getRelationField(), pivotFilter);
     }
 
-    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot, String selfFieldName, String otherFieldName) {
-        return belongsToMany(other, pivot, selfFieldName, otherFieldName, null);
+    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot, String selfPivotFieldName, String otherPivotFieldName) {
+        return belongsToMany(other, pivot, selfPivotFieldName, otherPivotFieldName, null);
     }
 
-    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot, String selfFieldName, String otherFieldName, Function<Query<P>, Query<P>> pivotFilter) {
+    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot, String selfPivotFieldName, String otherPivotFieldName, Function<Query<P>, Query<P>> pivotFilter) {
+        return belongsToMany(other, pivot, selfPivotFieldName, otherPivotFieldName, Repo.get(getClass()).getInfo().getIdField(), Repo.get(other).getInfo().getIdField(), pivotFilter);
+    }
+
+    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot, String selfPivotFieldName, String otherPivotFieldName, String selfFieldName, String otherFieldName) {
+        return belongsToMany(other, pivot, selfPivotFieldName, otherPivotFieldName, selfFieldName, otherFieldName, null);
+    }
+
+    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot, String selfPivotFieldName, String otherPivotFieldName, String selfFieldName, String otherFieldName, Function<Query<P>, Query<P>> pivotFilter) {
         try {
             Repo<?> selfRepo = Repo.get(getClass());
             Repo<T> otherRepo = Repo.get(other);
-            Object id = selfRepo.getInfo().getField(selfRepo.getInfo().getIdField()).get(this);
+            Object id = selfRepo.getInfo().getField(selfFieldName).get(this);
             return otherRepo.whereExists(pivot, q -> {
-                q.where(pivot, selfFieldName, "=", id).where(pivot, otherFieldName, "=", other, otherRepo.getInfo().getIdColumn());
+                q.where(pivot, selfPivotFieldName, "=", id).where(pivot, otherPivotFieldName, "=", other, otherFieldName);
                 if (pivotFilter != null)
                     q = pivotFilter.apply(q);
                 return q;
