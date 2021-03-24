@@ -15,10 +15,10 @@ import java.util.*;
 import static org.javawebstack.orm.test.shared.setup.ModelSetup.setUpModel;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class QueryUtilTest {
+class QueryUtilTest {
 
     @Test
-    public void testGetSectionSimple() {
+    void testGetSectionSimple() {
         List<SectionRecord> list = new LinkedList<>(Arrays.asList(
             new SectionRecord("SELECT", RandomStringUtils.randomAlphanumeric(3, 12)),
             new SectionRecord("FROM", RandomStringUtils.randomAlphanumeric(3, 10)),
@@ -35,7 +35,7 @@ public class QueryUtilTest {
     }
 
     @Test
-    public void testCasingDoesNotMatte() {
+    void testCasingDoesNotMatte() {
         List<SectionRecord> list = new LinkedList<>(Arrays.asList(
                 new SectionRecord("select", RandomStringUtils.randomAlphanumeric(3, 12)),
                 new SectionRecord("fRom", RandomStringUtils.randomAlphanumeric(3, 10)),
@@ -52,7 +52,7 @@ public class QueryUtilTest {
 
     // Example from here: https://www.freecodecamp.org/news/sql-example/
     @Test
-    public void testGetUsualCase() {
+    void testGetUsualCase() {
         List<SectionRecord> list = new LinkedList<>(Arrays.asList(
                 new SectionRecord("SELECT", "`Customers`.`CustomerName`, `Orders`.`OrderID`"),
                 new SectionRecord("FROM", "`Customers`"),
