@@ -28,18 +28,9 @@ public class QueryUtilTest {
             new SectionRecord("HAVING", RandomStringUtils.randomAlphanumeric(3, 10)),
             new SectionRecord("LIMIT", RandomStringUtils.randomNumeric(1, 100)),
             new SectionRecord("OFFSET", RandomStringUtils.randomNumeric(1, 100))
-
         ));
 
-        String query = this.getQueryStringFromList(list);
-        QueryStringUtil verification = new QueryStringUtil(query);
-        for (SectionRecord entry : list)
-            assertEquals(
-                entry.getValue(),
-                verification.getSectionByName(entry.getKey()),
-                String.format("The section name %s has been %s instead of %s.", entry.getKey(), verification.getSectionByName(entry.getKey()), entry.getValue())
-            );
-
+        this.performeTestOnList(list);
 
     }
 
@@ -54,6 +45,17 @@ public class QueryUtilTest {
                 .append(" ");
 
         return builder.toString().trim();
+    }
+
+    private void performeTestOnList(List<SectionRecord> list) {
+        String query = this.getQueryStringFromList(list);
+        QueryStringUtil verification = new QueryStringUtil(query);
+        for (SectionRecord entry : list)
+            assertEquals(
+                    entry.getValue(),
+                    verification.getSectionByName(entry.getKey()),
+                    String.format("The section name %s has been %s instead of %s.", entry.getKey(), verification.getSectionByName(entry.getKey()), entry.getValue())
+            );
     }
 
     @Getter
