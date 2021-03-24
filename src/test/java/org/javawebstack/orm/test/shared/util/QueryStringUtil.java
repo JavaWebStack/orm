@@ -14,7 +14,8 @@ public class QueryStringUtil {
         this.queryString = queryString;
     }
 
-    public String getSectionByName(String sectionName) {
+    public String getSectionByName(String inputSectionName) {
+        String sectionName = inputSectionName.toUpperCase(Locale.ROOT);
         String queryString = this.queryString;
         String capitalizedQueryString = queryString.toUpperCase(Locale.ROOT);
 
@@ -50,7 +51,7 @@ public class QueryStringUtil {
 
             if (
                     startIndex == -1 &&
-                    currentCharacter == sectionName.charAt(0) &&
+                    String.valueOf(currentCharacter).equalsIgnoreCase(String.valueOf(sectionName.charAt(0))) &&
                     capitalizedQueryString.substring(i).startsWith(sectionName)
             ) {
                 // +1 skips the white space after the section name
@@ -61,7 +62,7 @@ public class QueryStringUtil {
                 continue;
             }
 
-            if (startIndex != -1 && endIndex == -1 && this.checkItStartWithSectionName(capitalizedQueryString.substring(i))) {
+            if (startIndex != -1 && this.checkItStartWithSectionName(capitalizedQueryString.substring(i))) {
                 endIndex = i - 1;
                 break;
             }
