@@ -53,16 +53,15 @@ public class QueryStringUtil {
                     currentCharacter == sectionName.charAt(0) &&
                     capitalizedQueryString.substring(i).startsWith(sectionName)
             ) {
-                startIndex = i + sectionName.length();
+                // +1 skips the white space after the section name
+                startIndex = i + sectionName.length() + 1;
                 // The -1 is to counteract the increment after the loop
                 i = startIndex - 1;
 
-                // if we find no other section assume whole rest of the string to be part
-                endIndex = queryString.length() - 1;
                 continue;
             }
 
-            if (startIndex != -1 && this.checkItStartWithSectionName(capitalizedQueryString.substring(i))) {
+            if (startIndex != -1 && endIndex == -1 && this.checkItStartWithSectionName(capitalizedQueryString.substring(i))) {
                 endIndex = i - 1;
                 break;
             }
@@ -72,7 +71,10 @@ public class QueryStringUtil {
             return null;
         }
 
-        return queryString.substring(startIndex, endIndex);
+        if (endIndex == -1)
+            return queryString.substring(startIndex);
+        else
+            return queryString.substring(startIndex, endIndex);
     }
 
 
