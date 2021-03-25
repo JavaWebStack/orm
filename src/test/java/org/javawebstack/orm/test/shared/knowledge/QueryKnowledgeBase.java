@@ -8,7 +8,18 @@ import java.util.HashSet;
  */
 public class QueryKnowledgeBase {
 
+    /**
+     * Top level select keyword are SQL keywords which occur in SELECT statements and do not depend on another keyword
+     * except for SELECT and FROM (which are both included in this set as well).
+     * For example JOIN can appear after FROM statement so it is included. The ON keyword depends on a JOIN keyword though
+     * which we view as a sub keyword of JOIN and therefore not as a top level keyword.
+     */
     public static final HashSet<String> TOP_LEVEL_SELECT_KEYWORDS;
+
+    /**
+     * Quote characters are characters which prevents an SQL parser from picking up on a keyword, if the
+     * wrap the keyword.
+     */
     public static final HashSet<Character> QUOTE_CHARACTERS;
 
 
