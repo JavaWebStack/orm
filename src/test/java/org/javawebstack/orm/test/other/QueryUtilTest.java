@@ -71,6 +71,35 @@ class QueryUtilTest {
         this.performStandardTestOnList(list);
     }
 
+    @Test
+    void testMultipleOccurrences() {
+        List<SectionRecord> list = new LinkedList<>(Arrays.asList(
+                new SectionRecord("SELECT", RandomStringUtils.randomAlphanumeric(3, 12)),
+                new SectionRecord("FROM", RandomStringUtils.randomAlphanumeric(3, 12)),
+                new SectionRecord("JOIN", RandomStringUtils.randomAlphanumeric(3, 12)),
+                new SectionRecord("JOIN", RandomStringUtils.randomAlphanumeric(3, 12)),
+                new SectionRecord("JOIN", RandomStringUtils.randomAlphanumeric(3, 12))
+        ));
+
+        String queryString = this.getQueryStringFromList(list);
+        QueryStringUtil util = new QueryStringUtil(queryString);
+
+        SectionRecord currentRecord = list.get(0);
+        assertEquals(currentRecord.getValue(), util.getTopLevelSectionsByKeyword(currentRecord.getKey()).get(0));
+
+        currentRecord = list.get(1);
+        assertEquals(currentRecord.getValue(), util.getTopLevelSectionsByKeyword(currentRecord.getKey()).get(0));
+
+        currentRecord = list.get(2);
+        assertEquals(currentRecord.getValue(), util.getTopLevelSectionsByKeyword(currentRecord.getKey()).get(0));
+
+        currentRecord = list.get(3);
+        assertEquals(currentRecord.getValue(), util.getTopLevelSectionsByKeyword(currentRecord.getKey()).get(1));
+
+        currentRecord = list.get(4);
+        assertEquals(currentRecord.getValue(), util.getTopLevelSectionsByKeyword(currentRecord.getKey()).get(2));
+
+    }
     /*
      * Boilerplate Code Reduction Methods
      */
