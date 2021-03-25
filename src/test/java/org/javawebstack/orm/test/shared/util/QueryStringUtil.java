@@ -2,14 +2,13 @@ package org.javawebstack.orm.test.shared.util;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
 import static org.javawebstack.orm.test.shared.knowledge.QueryKnowledgeBase.QUOTE_CHARACTERS;
-import static org.javawebstack.orm.test.shared.knowledge.QueryKnowledgeBase.TOP_LEVEL_KEYWORDS;
+import static org.javawebstack.orm.test.shared.knowledge.QueryKnowledgeBase.TOP_LEVEL_SELECT_KEYWORDS;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class QueryStringUtil {
@@ -42,7 +41,7 @@ public class QueryStringUtil {
         String capitalizedKeyword = topLevelKeyword.toUpperCase(Locale.ROOT);
         String capitalizedQueryString = queryString.toUpperCase(Locale.ROOT);
 
-        if(!TOP_LEVEL_KEYWORDS.contains(capitalizedKeyword))
+        if(!TOP_LEVEL_SELECT_KEYWORDS.contains(capitalizedKeyword))
             fail(String.format("Section name %s is not supported.", capitalizedKeyword));
 
         boolean insideQuote = false;
@@ -103,7 +102,7 @@ public class QueryStringUtil {
 
 
     public boolean checkQueryStringStartsWithSectionName(String partialQueryString) {
-        for (String singleSectionName : TOP_LEVEL_KEYWORDS)
+        for (String singleSectionName : TOP_LEVEL_SELECT_KEYWORDS)
             if(partialQueryString.toUpperCase(Locale.ROOT).startsWith(singleSectionName))
                 return true;
 
