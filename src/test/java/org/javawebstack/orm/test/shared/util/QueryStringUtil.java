@@ -11,6 +11,10 @@ import static org.javawebstack.orm.test.shared.knowledge.QueryKnowledgeBase.QUOT
 import static org.javawebstack.orm.test.shared.knowledge.QueryKnowledgeBase.TOP_LEVEL_SELECT_KEYWORDS;
 import static org.junit.jupiter.api.Assertions.fail;
 
+/**
+ * The QueryStringUtil class wraps a normal string which is assumed, but not verified, to be an SQL query and provides
+ * various utility functions for tests purposes on them.
+ */
 public class QueryStringUtil {
 
     String queryString;
@@ -20,6 +24,13 @@ public class QueryStringUtil {
     }
 
 
+    /**
+     * Retrieves all sections of the query prefaced by the given top level keyword. Does not include the keyword and
+     * is delimited by the next top level keyword occurrence if it exists.
+     * @param topLevelKeyword The top level SQL select query keyword to look for.
+     * @return A list of strings containing only the inner part of the query. It will include additional spaces if the
+     * query had more than one space.
+     */
     public List<String> getTopLevelSectionsByKeyword(String topLevelKeyword) {
         String capitalizedKeyword = topLevelKeyword.toUpperCase(Locale.ROOT);
         String queryString = this.queryString;
