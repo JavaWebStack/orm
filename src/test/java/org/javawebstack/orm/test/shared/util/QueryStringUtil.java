@@ -2,8 +2,8 @@ package org.javawebstack.orm.test.shared.util;
 
 import java.util.Locale;
 
-import static org.javawebstack.orm.test.shared.knowledge.QueryKnowledgeBase.quoteCharacters;
-import static org.javawebstack.orm.test.shared.knowledge.QueryKnowledgeBase.sectionNames;
+import static org.javawebstack.orm.test.shared.knowledge.QueryKnowledgeBase.QUOTE_CHARACTERS;
+import static org.javawebstack.orm.test.shared.knowledge.QueryKnowledgeBase.TOP_LEVEL_KEYWORDS;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class QueryStringUtil {
@@ -19,7 +19,7 @@ public class QueryStringUtil {
         String queryString = this.queryString;
         String capitalizedQueryString = queryString.toUpperCase(Locale.ROOT);
 
-        if(!sectionNames.contains(sectionName))
+        if(!TOP_LEVEL_KEYWORDS.contains(sectionName))
             fail(String.format("Section name %s is not supported.", sectionName));
 
         boolean insideQuote = false;
@@ -40,7 +40,7 @@ public class QueryStringUtil {
                 continue;
             }
 
-            if (quoteCharacters.contains(currentCharacter)) {
+            if (QUOTE_CHARACTERS.contains(currentCharacter)) {
                 insideQuote = true;
                 lastQuoteChar = currentCharacter;
                 continue;
@@ -80,7 +80,7 @@ public class QueryStringUtil {
 
 
     public boolean checkQueryStringStartsWithSectionName(String partialQueryString) {
-        for (String singleSectionName : sectionNames)
+        for (String singleSectionName : TOP_LEVEL_KEYWORDS)
             if(partialQueryString.toUpperCase(Locale.ROOT).startsWith(singleSectionName))
                 return true;
 

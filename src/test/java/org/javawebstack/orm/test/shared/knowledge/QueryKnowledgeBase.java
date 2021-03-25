@@ -5,12 +5,12 @@ import java.util.HashSet;
 
 public class QueryKnowledgeBase {
 
-    public static HashSet<String> sectionNames;
-    public static HashSet<Character> quoteCharacters;
+    public static final HashSet<String> TOP_LEVEL_KEYWORDS;
+    public static final HashSet<Character> QUOTE_CHARACTERS;
 
 
     static {
-        sectionNames = new HashSet<>(Arrays.asList(
+        TOP_LEVEL_KEYWORDS = new HashSet<>(Arrays.asList(
                 "SELECT",
                 "FROM",
                 "WHERE",
@@ -28,7 +28,7 @@ public class QueryKnowledgeBase {
                 "OFFSET"
         ));
 
-        quoteCharacters = new HashSet<>(Arrays.asList(
+        QUOTE_CHARACTERS = new HashSet<>(Arrays.asList(
                 '`',
                 '\''
         ));
