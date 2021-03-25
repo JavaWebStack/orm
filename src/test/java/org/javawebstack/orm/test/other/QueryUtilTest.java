@@ -10,6 +10,10 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+
+/*
+ * The scope of this class is to test the QueryUtility as it will be used to write other tests.
+ */
 class QueryUtilTest {
 
     @Test
