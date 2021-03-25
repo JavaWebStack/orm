@@ -25,7 +25,7 @@ class QueryUtilTest {
             new SectionRecord("OFFSET", RandomStringUtils.randomNumeric(1, 100))
         ));
 
-        this.performTestOnList(list);
+        this.performStandardTestOnList(list);
 
     }
 
@@ -42,7 +42,7 @@ class QueryUtilTest {
                 new SectionRecord("offset", RandomStringUtils.randomNumeric(1, 100))
         ));
 
-        this.performTestOnList(list);
+        this.performStandardTestOnList(list);
     }
 
     // Example from here: https://www.freecodecamp.org/news/sql-example/
@@ -55,7 +55,7 @@ class QueryUtilTest {
                 new SectionRecord("ORDER BY", "`Customers`.`CustomerName`")
         ));
 
-        this.performTestOnList(list);
+        this.performStandardTestOnList(list);
     }
 
     @Test
@@ -68,7 +68,7 @@ class QueryUtilTest {
                 new SectionRecord("ORDER BY", "`limit`.`where`")
         ));
 
-        this.performTestOnList(list);
+        this.performStandardTestOnList(list);
     }
 
     /*
@@ -88,15 +88,28 @@ class QueryUtilTest {
         return builder.toString().trim();
     }
 
-    private void performTestOnList(List<SectionRecord> list) {
+    /*
+     * The standard test in this case will be that each section cnly exists once and as defined per list.
+     */
+    private void performStandardTestOnList(List<SectionRecord> list) {
         String query = this.getQueryStringFromList(list);
         QueryStringUtil verification = new QueryStringUtil(query);
-        for (SectionRecord entry : list)
+
+        for (SectionRecord entry : list) {
+            List<String> foundSections = verification.getTopLevelSectionsByKeyword(entry.getKey());
+            String firstSection = foundSections.get(0);
+            assertEquals(1, foundSections.size(), "More than one section or no section was found, but only one unique section was expected.");
             assertEquals(
                     entry.getValue(),
-                    verification.getSectionByName(entry.getKey()),
-                    String.format("The section name %s has been %s instead of %s.", entry.getKey(), verification.getSectionByName(entry.getKey()), entry.getValue())
+                    firstSection,
+                    String.format(
+                        "The section name %s has been %s instead of %s.",
+                        entry.getKey(),
+                        firstSection,
+                        entry.getValue()
+                    )
             );
+        }
     }
 
     @Getter
