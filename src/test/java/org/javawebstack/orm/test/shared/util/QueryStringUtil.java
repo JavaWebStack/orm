@@ -62,7 +62,7 @@ public class QueryStringUtil {
                 continue;
             }
 
-            if (startIndex != -1 && this.checkItStartWithSectionName(capitalizedQueryString.substring(i))) {
+            if (startIndex != -1 && this.checkQueryStringStartsWithSectionName(capitalizedQueryString.substring(i))) {
                 endIndex = i - 1;
                 break;
             }
@@ -79,7 +79,7 @@ public class QueryStringUtil {
     }
 
 
-    public boolean checkItStartWithSectionName(String partialQueryString) {
+    public boolean checkQueryStringStartsWithSectionName(String partialQueryString) {
         for (String singleSectionName : sectionNames)
             if(partialQueryString.toUpperCase(Locale.ROOT).startsWith(singleSectionName))
                 return true;

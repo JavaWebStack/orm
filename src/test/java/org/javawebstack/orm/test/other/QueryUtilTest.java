@@ -2,17 +2,12 @@ package org.javawebstack.orm.test.other;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.javawebstack.orm.Repo;
-import org.javawebstack.orm.test.shared.models.Datatype;
 import org.javawebstack.orm.test.shared.util.QueryStringUtil;
-import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-import static org.javawebstack.orm.test.shared.setup.ModelSetup.setUpModel;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class QueryUtilTest {
@@ -30,12 +25,12 @@ class QueryUtilTest {
             new SectionRecord("OFFSET", RandomStringUtils.randomNumeric(1, 100))
         ));
 
-        this.performeTestOnList(list);
+        this.performTestOnList(list);
 
     }
 
     @Test
-    void testCasingDoesNotMatte() {
+    void testCasingDoesNotMatter() {
         List<SectionRecord> list = new LinkedList<>(Arrays.asList(
                 new SectionRecord("select", RandomStringUtils.randomAlphanumeric(3, 12)),
                 new SectionRecord("fRom", RandomStringUtils.randomAlphanumeric(3, 10)),
@@ -47,7 +42,7 @@ class QueryUtilTest {
                 new SectionRecord("offset", RandomStringUtils.randomNumeric(1, 100))
         ));
 
-        this.performeTestOnList(list);
+        this.performTestOnList(list);
     }
 
     // Example from here: https://www.freecodecamp.org/news/sql-example/
@@ -60,7 +55,7 @@ class QueryUtilTest {
                 new SectionRecord("ORDER BY", "`Customers`.`CustomerName`")
         ));
 
-        this.performeTestOnList(list);
+        this.performTestOnList(list);
     }
 
     @Test
@@ -73,7 +68,7 @@ class QueryUtilTest {
                 new SectionRecord("ORDER BY", "`limit`.`where`")
         ));
 
-        this.performeTestOnList(list);
+        this.performTestOnList(list);
     }
 
     /*
@@ -93,7 +88,7 @@ class QueryUtilTest {
         return builder.toString().trim();
     }
 
-    private void performeTestOnList(List<SectionRecord> list) {
+    private void performTestOnList(List<SectionRecord> list) {
         String query = this.getQueryStringFromList(list);
         QueryStringUtil verification = new QueryStringUtil(query);
         for (SectionRecord entry : list)
