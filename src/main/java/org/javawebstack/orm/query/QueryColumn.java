@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 public class QueryColumn {
 
-    private static final Pattern NAME_PATTERN = Pattern.compile("[A-Za-z0-9_-]+");
+    private static final Pattern NAME_PATTERN = Pattern.compile("[A-Za-z0-9_\\-.]+");
 
     private final String name;
     private final boolean raw;
