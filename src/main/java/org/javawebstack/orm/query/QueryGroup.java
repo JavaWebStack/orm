@@ -80,6 +80,14 @@ public class QueryGroup<T extends Model> implements QueryElement {
     public QueryGroup<T> notNull(Object left) {
         return where(left, "IS NOT NULL", null);
     }
+    
+    public QueryGroup<T> whereNull(Object left) {
+        return where(left, "IS NULL", null);
+    }
+    
+    public QueryGroup<T> whereNotNull(Object left) {
+        return where(left, "IS NOT NULL", null);
+    }
 
     public QueryGroup<T> lessThan(Object left, Object right) {
         return where(left, "<", right);
