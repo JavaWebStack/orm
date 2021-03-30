@@ -48,7 +48,7 @@ public class QueryVerification {
         String sectionString;
 
         try {
-            sectionString = new QueryStringUtil(this.query.getQueryString().getQuery())
+            sectionString = new QueryStringUtil(this.query.getRepo().getConnection().builder().buildQuery(this.query, false).getQuery())
                     .getTopLevelSectionsByKeyword(topLevelKeyword)
                     .get(sectionIndex);
         } catch (IndexOutOfBoundsException ignored) {
