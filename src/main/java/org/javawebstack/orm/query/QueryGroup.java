@@ -3,6 +3,7 @@ package org.javawebstack.orm.query;
 import org.javawebstack.orm.Model;
 import org.javawebstack.orm.Repo;
 import org.javawebstack.orm.TableInfo;
+import org.javawebstack.orm.wrapper.builder.SQLQueryString;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -185,20 +186,6 @@ public class QueryGroup<T extends Model> implements QueryElement {
 
     public QueryGroup<T> orWhereNotIn(Object left, Object... values) {
         return orWhere(left, "NOT IN", values);
-    }
-
-    public QueryString getQueryString(TableInfo info) {
-        StringBuilder sb = new StringBuilder("(");
-        List<Object> parameters = new ArrayList<>();
-        for (QueryElement element : queryElements) {
-            if (sb.length() > 1)
-                sb.append(' ');
-            QueryString s = element.getQueryString(info);
-            sb.append(s.getQuery());
-            parameters.addAll(s.getParameters());
-        }
-        sb.append(')');
-        return new QueryString(sb.toString(), parameters);
     }
 
 }

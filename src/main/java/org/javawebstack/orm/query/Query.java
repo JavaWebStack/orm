@@ -4,6 +4,7 @@ import org.javawebstack.orm.Model;
 import org.javawebstack.orm.Repo;
 import org.javawebstack.orm.SQLMapper;
 import org.javawebstack.orm.exception.ORMQueryException;
+import org.javawebstack.orm.wrapper.builder.SQLQueryString;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,7 +27,6 @@ public class Query<T extends Model> {
     private QueryColumn order;
     private boolean desc = false;
     private boolean withDeleted = false;
-    private final Map<Class<? extends Model>, QueryCondition> leftJoins = new HashMap<>();
 
     public Query(Class<T> model) {
         this(Repo.get(model), model);
@@ -38,13 +38,36 @@ public class Query<T extends Model> {
         this.where = new QueryGroup<>();
     }
 
-    public Class<T> getModel() {
-        return model;
+    public boolean isWithDeleted() {
+        return withDeleted;
     }
 
-    public Query<T> leftJoin(Class<? extends Model> model, String self, String other) {
-        leftJoins.put(model, new QueryCondition(new QueryColumn(repo.getInfo().getTableName() + "." + self), "=", new QueryColumn(Repo.get(model).getInfo().getTableName() + "." + other)));
-        return this;
+    public QueryGroup<T> getWhereGroup() {
+        return where;
+    }
+
+    public Integer getLimit() {
+        return limit;
+    }
+
+    public Integer getOffset() {
+        return offset;
+    }
+
+    public QueryColumn getOrder() {
+        return order;
+    }
+
+    public boolean isDescOrder() {
+        return desc;
+    }
+
+    public Repo<T> getRepo() {
+        return repo;
+    }
+
+    public Class<T> getModel() {
+        return model;
     }
 
     public Query<T> and(Function<QueryGroup<T>, QueryGroup<T>> group) {
@@ -286,59 +309,10 @@ public class Query<T extends Model> {
         return this;
     }
 
-    public QueryString getQueryString() {
-        return getQueryString(false);
-    }
-
-    public QueryString getQueryString(boolean count) {
-        List<Object> parameters = new ArrayList<>();
-        StringBuilder sb = new StringBuilder("SELECT ")
-                .append(count ? "COUNT(*)" : "*")
-                .append(" FROM `")
-                .append(repo.getInfo().getTableName())
-                .append('`');
-        for (Class<? extends Model> type : leftJoins.keySet()) {
-            sb.append(" LEFT JOIN `")
-                    .append(Repo.get(type).getInfo().getTableName())
-                    .append("` ON ")
-                    .append(leftJoins.get(type).getQueryString(repo.getInfo()).getQuery());
-        }
-        considerSoftDelete();
-        if (where.getQueryElements().size() > 0) {
-            QueryString qs = where.getQueryString(repo.getInfo());
-            sb.append(" WHERE ").append(qs.getQuery());
-            parameters.addAll(qs.getParameters());
-        }
-        if (order != null) {
-            sb.append(" ORDER BY ").append(order.toString(repo.getInfo()));
-            if (desc)
-                sb.append(" DESC");
-        }
-        if (offset != null && limit == null)
-            limit = Integer.MAX_VALUE;
-        if (limit != null) {
-            sb.append(" LIMIT ?");
-            if (offset != null) {
-                sb.append(",?");
-                parameters.add(offset);
-            }
-            parameters.add(limit);
-        }
-        return new QueryString(sb.toString(), SQLMapper.mapParams(repo, parameters));
-    }
-
     public void finalDelete() {
-        List<Object> parameters = new ArrayList<>();
-        StringBuilder sb = new StringBuilder("DELETE FROM `")
-                .append(repo.getInfo().getTableName())
-                .append('`');
-        if (where.getQueryElements().size() > 0) {
-            QueryString qs = where.getQueryString(repo.getInfo());
-            sb.append(" WHERE ").append(qs.getQuery());
-            parameters = qs.getParameters();
-        }
+        SQLQueryString qs = repo.getConnection().builder().buildDelete(this);
         try {
-            repo.getConnection().write(sb.toString(), SQLMapper.mapParams(repo, parameters).toArray());
+            repo.getConnection().write(qs.getQuery(), qs.getParameters().toArray());
         } catch (SQLException throwables) {
             throw new ORMQueryException(throwables);
         }
@@ -364,18 +338,10 @@ public class Query<T extends Model> {
         withDeleted().update(values);
     }
 
-    private void considerSoftDelete() {
-        if (repo.getInfo().isSoftDelete() && !withDeleted) {
-            if (where.getQueryElements().size() > 0)
-                where.getQueryElements().add(0, QueryConjunction.AND);
-            where.getQueryElements().add(0, new QueryCondition(new QueryColumn(repo.getInfo().getColumnName(repo.getInfo().getSoftDeleteField())), "IS NULL", null));
-        }
-    }
-
     public T refresh(T entity) {
-        QueryString qs = getQueryString(false);
+        SQLQueryString qs = repo.getConnection().builder().buildQuery(this, false);
         try {
-            ResultSet rs = repo.getConnection().read(qs.getQuery(), SQLMapper.mapParams(repo, SQLMapper.mapParams(repo, qs.getParameters())).toArray());
+            ResultSet rs = repo.getConnection().read(qs.getQuery(), qs.getParameters().toArray());
             SQLMapper.mapBack(repo, rs, entity);
             repo.getConnection().close(rs);
             return entity;
@@ -389,39 +355,19 @@ public class Query<T extends Model> {
     }
 
     public void update(Map<String, Object> values) {
-        if (repo.getInfo().hasUpdated())
-            values.put(repo.getInfo().getColumnName(repo.getInfo().getUpdatedField()), Timestamp.from(Instant.now()));
-        List<Object> parameters = new ArrayList<>();
-        List<String> sets = new ArrayList<>();
-        values.forEach((key, value) -> {
-            sets.add("`" + key + "`=?");
-            parameters.add(value);
-        });
-        StringBuilder sb = new StringBuilder("UPDATE `")
-                .append(repo.getInfo().getTableName())
-                .append("` SET ")
-                .append(String.join(",", sets));
-        considerSoftDelete();
-        if (where.getQueryElements().size() > 0) {
-            QueryString qs = where.getQueryString(repo.getInfo());
-            sb.append(" WHERE ").append(qs.getQuery());
-            parameters.addAll(qs.getParameters());
-        }
-        sb.append(';');
+        SQLQueryString queryString = repo.getConnection().builder().buildUpdate(this, values);
         try {
-            repo.getConnection().write(sb.toString(), SQLMapper.mapParams(repo, parameters).toArray());
+            repo.getConnection().write(queryString.getQuery(), queryString.getParameters().toArray());
         } catch (SQLException throwables) {
             throw new ORMQueryException(throwables);
         }
     }
 
     public List<T> all() {
-        QueryString qs = getQueryString(false);
+        SQLQueryString qs = repo.getConnection().builder().buildQuery(this, false);
         try {
-            ResultSet rs = repo.getConnection().read(qs.getQuery(), SQLMapper.mapParams(repo, qs.getParameters()).toArray());
-            List<Class<? extends Model>> joinedModels = new ArrayList<>();
-            joinedModels.addAll(leftJoins.keySet());
-            List<T> list = SQLMapper.map(repo, rs, joinedModels);
+            ResultSet rs = repo.getConnection().read(qs.getQuery(), qs.getParameters().toArray());
+            List<T> list = SQLMapper.map(repo, rs, new ArrayList<>());
             repo.getConnection().close(rs);
             return list;
         } catch (SQLException throwables) {
@@ -445,9 +391,9 @@ public class Query<T extends Model> {
     }
 
     public int count() {
-        QueryString qs = getQueryString(true);
+        SQLQueryString qs = repo.getConnection().builder().buildQuery(this, true);
         try {
-            ResultSet rs = repo.getConnection().read(qs.getQuery(), SQLMapper.mapParams(repo, qs.getParameters()).toArray());
+            ResultSet rs = repo.getConnection().read(qs.getQuery(), qs.getParameters().toArray());
             int c = 0;
             if (rs.next())
                 c = rs.getInt(1);

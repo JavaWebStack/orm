@@ -1,6 +1,8 @@
 package org.javawebstack.orm.wrapper;
 
 import org.javawebstack.orm.exception.ORMQueryException;
+import org.javawebstack.orm.wrapper.builder.MySQLQueryStringBuilder;
+import org.javawebstack.orm.wrapper.builder.QueryStringBuilder;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -63,6 +65,10 @@ public class MySQL extends BaseSQL {
             e.printStackTrace();
         }
         return c;
+    }
+
+    public QueryStringBuilder builder() {
+        return MySQLQueryStringBuilder.INSTANCE;
     }
 
 
