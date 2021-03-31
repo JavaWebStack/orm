@@ -38,16 +38,6 @@ public class QueryVerification {
     }
 
     /**
-     * Asserts that in ORDER BY section the given string is contained.
-     * This method uses the String.contains method internally and is therefore case sensitive.
-     *
-     * @param containedSubstring The substring which should be contained in ORDER BY section.
-     */
-    public void assertOrderByContains(String containedSubstring) {
-        this.assertSectionContains("ORDER BY", containedSubstring);
-    }
-
-    /**
      * Asserts that in the i-th occurring section of a given top level keyword, the given string is contained.
      * This method uses the String.contains method internally and is therefore case sensitive.
      *
@@ -61,17 +51,27 @@ public class QueryVerification {
             sectionString = getSection(topLevelKeyword, sectionIndex);
         } catch (SectionIndexOutOfBoundException e) {
             fail(String.format(
-                "A top level section of type %s and index %d was tested but only %d sections of that type existed.",
-                e.getTopLevelKeyword(),
-                e.getAttemptedIndex(),
-                e.getSectionCount()
+                    "A top level section of type %s and index %d was tested but only %d sections of that type existed.",
+                    e.getTopLevelKeyword(),
+                    e.getAttemptedIndex(),
+                    e.getSectionCount()
             ));
         }
 
         assertTrue(
-            sectionString.contains(containedSubstring),
-            String.format("The occurrence of index %d of %s section of the query did not contain a substring %s but looked like this: %s. Note that the match is case-sensitive.", sectionIndex, topLevelKeyword, containedSubstring, sectionString)
+                sectionString.contains(containedSubstring),
+                String.format("The occurrence of index %d of %s section of the query did not contain a substring %s but looked like this: %s. Note that the match is case-sensitive.", sectionIndex, topLevelKeyword, containedSubstring, sectionString)
         );
+    }
+
+    /**
+     * Asserts that in ORDER BY section the given string is contained.
+     * This method uses the String.contains method internally and is therefore case sensitive.
+     *
+     * @param containedSubstring The substring which should be contained in ORDER BY section.
+     */
+    public void assertOrderByContains(String containedSubstring) {
+        this.assertSectionContains("ORDER BY", containedSubstring);
     }
 
     /**
