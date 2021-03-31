@@ -50,12 +50,7 @@ public class QueryVerification {
         try {
             sectionString = getSection(topLevelKeyword, sectionIndex);
         } catch (SectionIndexOutOfBoundException e) {
-            fail(String.format(
-                    "A top level section of type %s and index %d was tested but only %d sections of that type existed.",
-                    e.getTopLevelKeyword(),
-                    e.getAttemptedIndex(),
-                    e.getSectionCount()
-            ));
+            this.failDueToSectionIndexOutOfBounds(e);
         }
 
         assertTrue(
@@ -72,6 +67,39 @@ public class QueryVerification {
      */
     public void assertOrderByContains(String containedSubstring) {
         this.assertSectionContains("ORDER BY", containedSubstring);
+    }
+
+    /**
+     * Asserts that the first occurring section of a given top level keyword is equal to the given string.
+     * This method uses the String.equals method internally and is therefore case sensitive.
+     *
+     * @param topLevelKeyword The top level keyword that prefaces the section.
+     * @param expectedString The substring which the first section of the given type should be equal to.
+     */
+    public void assertSectionEquals(String topLevelKeyword, String expectedString) {
+        this.assertSectionEquals(topLevelKeyword, expectedString, 0);
+    }
+
+    /**
+     * Asserts that the i-th occurring section of a given top level keyword equal to the given string.
+     * This method uses the String.equals method internally and is therefore case sensitive.
+     *
+     * @param topLevelKeyword The top level keyword that prefaces the section.
+     * @param expectedString The substring which the specified section of the given type should be equal to.
+     * @param sectionIndex The index of the section to be checked, thus 0 refers to the first occurrence etc.
+     */
+    public void assertSectionEquals(String topLevelKeyword, String expectedString, int sectionIndex) {
+        String sectionString = null;
+        try {
+            sectionString = getSection(topLevelKeyword, sectionIndex);
+        } catch (SectionIndexOutOfBoundException e) {
+            this.failDueToSectionIndexOutOfBounds(e);
+        }
+
+        assertTrue(
+                sectionString.equals(expectedString),
+                String.format("The occurrence of index %d of %s section of the query was not equal to the string %s but looked like this: %s. Note that the match is case-sensitive.", sectionIndex, topLevelKeyword, expectedString, sectionString)
+        );
     }
 
     /**
@@ -121,6 +149,15 @@ public class QueryVerification {
     public List<String> getSectionList(String topLevelKeyword) {
         return new QueryStringUtil(this.query.getQueryString().getQuery())
                 .getTopLevelSectionsByKeyword(topLevelKeyword);
+    }
+
+    private void failDueToSectionIndexOutOfBounds(SectionIndexOutOfBoundException exception) {
+        fail(String.format(
+                "A top level section of type %s and index %d was tested but only %d sections of that type existed.",
+                exception.getTopLevelKeyword(),
+                exception.getAttemptedIndex(),
+                exception.getSectionCount()
+        ));
     }
 
 }
