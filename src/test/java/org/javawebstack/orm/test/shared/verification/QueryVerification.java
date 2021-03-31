@@ -22,7 +22,6 @@ public class QueryVerification {
 
     public QueryVerification(Query<?> query) {
         this.query = query;
-
     }
 
     /**
@@ -34,6 +33,16 @@ public class QueryVerification {
      */
     public void assertSectionContains(String topLevelKeyword, String containedSubstring) {
         this.assertSectionContains(topLevelKeyword, containedSubstring, 0);
+    }
+
+    /**
+     * Asserts that in ORDER BY section the given string is contained.
+     * This method uses the String.contains method internally and is therefore case sensitive.
+     *
+     * @param containedSubstring The substring which should be contained in ORDER BY section.
+     */
+    public void assertOrderByContains(String containedSubstring) {
+        this.assertSectionContains("ORDER BY", containedSubstring);
     }
 
     /**
