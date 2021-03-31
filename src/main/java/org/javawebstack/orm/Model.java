@@ -6,6 +6,7 @@ import org.javawebstack.orm.query.Query;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -165,12 +166,22 @@ public class Model {
     }
 
     public <T extends Model> Query<T> belongsTo(Class<T> parent, String fieldName) {
+        return belongsTo(parent, fieldName, Repo.get(parent).getInfo().getIdField());
+    }
+
+    public <T extends Model> Query<T> belongsTo(Class<T> parent, String fieldName, String otherFieldName) {
         try {
             Object id = Repo.get(getClass()).getInfo().getField(fieldName).get(this);
-            return Repo.get(parent).whereId(id);
+            return Repo.get(parent).where(otherFieldName, id);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public <T extends Model> void assignTo(T value) {
+        if(value == null)
+            throw new InvalidParameterException("You need to specify a parent type if the value is null");
+        assignTo((Class<T>) value.getClass(), value);
     }
 
     public <T extends Model> void assignTo(Class<T> parent, T value) {
@@ -178,13 +189,17 @@ public class Model {
     }
 
     public <T extends Model> void assignTo(Class<T> parent, T value, String fieldName) {
+        assignTo(parent, value, fieldName, Repo.get(parent).getInfo().getIdField());
+    }
+
+    public <T extends Model> void assignTo(Class<T> parent, T value, String fieldName, String otherFieldName) {
         try {
             Field f = Repo.get(getClass()).getInfo().getField(fieldName);
             if (value == null) {
                 f.set(this, null);
             } else {
                 Repo<T> repo = Repo.get(parent);
-                Object id = repo.getInfo().getField(repo.getInfo().getIdField()).get(value);
+                Object id = repo.getInfo().getField(otherFieldName).get(value);
                 f.set(this, id);
             }
         } catch (IllegalAccessException e) {
@@ -197,9 +212,13 @@ public class Model {
     }
 
     public <T extends Model> Query<T> hasMany(Class<T> child, String fieldName) {
+        return hasMany(child, fieldName, Repo.get(getClass()).getInfo().getIdField());
+    }
+
+    public <T extends Model> Query<T> hasMany(Class<T> child, String fieldName, String ownFieldName) {
         try {
             Repo<?> ownRepo = Repo.get(getClass());
-            Object id = ownRepo.getInfo().getField(ownRepo.getInfo().getIdField()).get(this);
+            Object id = ownRepo.getInfo().getField(ownFieldName).get(this);
             return Repo.get(child).where(fieldName, id);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
@@ -214,17 +233,25 @@ public class Model {
         return belongsToMany(other, pivot, Repo.get(getClass()).getInfo().getRelationField(), Repo.get(other).getInfo().getRelationField(), pivotFilter);
     }
 
-    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot, String selfFieldName, String otherFieldName) {
-        return belongsToMany(other, pivot, selfFieldName, otherFieldName, null);
+    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot, String selfPivotFieldName, String otherPivotFieldName) {
+        return belongsToMany(other, pivot, selfPivotFieldName, otherPivotFieldName, null);
     }
 
-    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot, String selfFieldName, String otherFieldName, Function<Query<P>, Query<P>> pivotFilter) {
+    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot, String selfPivotFieldName, String otherPivotFieldName, Function<Query<P>, Query<P>> pivotFilter) {
+        return belongsToMany(other, pivot, selfPivotFieldName, otherPivotFieldName, Repo.get(getClass()).getInfo().getIdField(), Repo.get(other).getInfo().getIdField(), pivotFilter);
+    }
+
+    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot, String selfPivotFieldName, String otherPivotFieldName, String selfFieldName, String otherFieldName) {
+        return belongsToMany(other, pivot, selfPivotFieldName, otherPivotFieldName, selfFieldName, otherFieldName, null);
+    }
+
+    public <T extends Model, P extends Model> Query<T> belongsToMany(Class<T> other, Class<P> pivot, String selfPivotFieldName, String otherPivotFieldName, String selfFieldName, String otherFieldName, Function<Query<P>, Query<P>> pivotFilter) {
         try {
             Repo<?> selfRepo = Repo.get(getClass());
             Repo<T> otherRepo = Repo.get(other);
-            Object id = selfRepo.getInfo().getField(selfRepo.getInfo().getIdField()).get(this);
+            Object id = selfRepo.getInfo().getField(selfFieldName).get(this);
             return otherRepo.whereExists(pivot, q -> {
-                q.where(pivot, selfFieldName, "=", id).where(pivot, otherFieldName, "=", other, otherRepo.getInfo().getIdColumn());
+                q.where(pivot, selfPivotFieldName, "=", id).where(pivot, otherPivotFieldName, "=", other, otherFieldName);
                 if (pivotFilter != null)
                     q = pivotFilter.apply(q);
                 return q;
@@ -232,19 +259,6 @@ public class Model {
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public void setMorph(String name, Class<? extends Model> type, Object id) {
-        TableInfo info = Repo.get(getClass()).getInfo();
-        try {
-            info.getField(name + "Id").set(this, id);
-            info.getField(name + "Type").set(this, Repo.get(type).getInfo().getMorphType());
-        } catch (IllegalAccessException ignored) {
-        }
-    }
-
-    public void setMorph(String name, Model model) {
-        setMorph(name, model.getClass(), Repo.get(model.getClass()).getId(model));
     }
 
 }
