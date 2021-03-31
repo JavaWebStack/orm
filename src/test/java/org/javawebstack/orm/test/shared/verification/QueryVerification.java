@@ -7,8 +7,7 @@ import org.javawebstack.orm.test.shared.util.QueryStringUtil;
 import java.util.HashSet;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The QueryVerification class wraps an JWS Query Object and provides assertion methods regarding the raw query string.
@@ -92,8 +91,9 @@ public class QueryVerification {
             return this;
         }
 
-        assertTrue(
-                sectionString.equals(expectedString),
+        assertEquals(
+                expectedString,
+                sectionString,
                 String.format("The occurrence of index %d of %s section of the query was not equal to the string %s but looked like this: %s. Note that the match is case-sensitive.", sectionIndex, topLevelKeyword, expectedString, sectionString)
         );
 
