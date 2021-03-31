@@ -33,8 +33,9 @@ public class QueryVerification {
      * @param topLevelKeyword The top level keyword that prefaces the section.
      * @param containedSubstring The substring which should be contained in the first section of the given type.
      */
-    public void assertSectionContains(String topLevelKeyword, String containedSubstring) {
+    public QueryVerification assertSectionContains(String topLevelKeyword, String containedSubstring) {
         this.assertSectionContains(topLevelKeyword, containedSubstring, 0);
+        return this;
     }
 
     /**
@@ -45,18 +46,21 @@ public class QueryVerification {
      * @param containedSubstring The substring which should be contained in the first section of the given type.
      * @param sectionIndex The index of the section to be checked, thus 0 refers to the first occurrence etc.
      */
-    public void assertSectionContains(String topLevelKeyword, String containedSubstring, int sectionIndex) {
+    public QueryVerification assertSectionContains(String topLevelKeyword, String containedSubstring, int sectionIndex) {
         String sectionString = null;
         try {
             sectionString = getSection(topLevelKeyword, sectionIndex);
         } catch (SectionIndexOutOfBoundException e) {
             this.failDueToSectionIndexOutOfBounds(e);
+            return this;
         }
 
         assertTrue(
                 sectionString.contains(containedSubstring),
                 String.format("The occurrence of index %d of %s section of the query did not contain a substring %s but looked like this: %s. Note that the match is case-sensitive.", sectionIndex, topLevelKeyword, containedSubstring, sectionString)
         );
+
+        return this;
     }
 
     /**
@@ -66,8 +70,9 @@ public class QueryVerification {
      * @param topLevelKeyword The top level keyword that prefaces the section.
      * @param expectedString The substring which the first section of the given type should be equal to.
      */
-    public void assertSectionEquals(String topLevelKeyword, String expectedString) {
+    public QueryVerification assertSectionEquals(String topLevelKeyword, String expectedString) {
         this.assertSectionEquals(topLevelKeyword, expectedString, 0);
+        return this;
     }
 
     /**
@@ -78,18 +83,21 @@ public class QueryVerification {
      * @param expectedString The substring which the specified section of the given type should be equal to.
      * @param sectionIndex The index of the section to be checked, thus 0 refers to the first occurrence etc.
      */
-    public void assertSectionEquals(String topLevelKeyword, String expectedString, int sectionIndex) {
+    public QueryVerification assertSectionEquals(String topLevelKeyword, String expectedString, int sectionIndex) {
         String sectionString = null;
         try {
             sectionString = getSection(topLevelKeyword, sectionIndex);
         } catch (SectionIndexOutOfBoundException e) {
             this.failDueToSectionIndexOutOfBounds(e);
+            return this;
         }
 
         assertTrue(
                 sectionString.equals(expectedString),
                 String.format("The occurrence of index %d of %s section of the query was not equal to the string %s but looked like this: %s. Note that the match is case-sensitive.", sectionIndex, topLevelKeyword, expectedString, sectionString)
         );
+
+        return this;
     }
 
     /**
