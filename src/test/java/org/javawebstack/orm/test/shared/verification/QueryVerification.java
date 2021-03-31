@@ -60,16 +60,6 @@ public class QueryVerification {
     }
 
     /**
-     * Asserts that in ORDER BY section the given string is contained.
-     * This method uses the String.contains method internally and is therefore case sensitive.
-     *
-     * @param containedSubstring The substring which should be contained in ORDER BY section.
-     */
-    public void assertOrderByContains(String containedSubstring) {
-        this.assertSectionContains("ORDER BY", containedSubstring);
-    }
-
-    /**
      * Asserts that the first occurring section of a given top level keyword is equal to the given string.
      * This method uses the String.equals method internally and is therefore case sensitive.
      *
