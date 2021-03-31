@@ -41,6 +41,7 @@ public class Model {
     private transient boolean internalEntryExists = false;
     private transient final Map<Class<? extends Model>, Object> internalJoinedModels = new HashMap<>();
     private transient Map<String, Object> internalOriginalValues = new HashMap<>();
+    private transient Map<String, Object> internalExtraFields = new HashMap<>();
 
     void internalAddJoinedModel(Class<? extends Model> type, Object entity) {
         internalJoinedModels.put(type, entity);
@@ -60,6 +61,14 @@ public class Model {
             }
         }
         return values;
+    }
+
+    public Map<String, Object> getExtraFields() {
+        return internalExtraFields;
+    }
+
+    public <T> T getExtraField(String key) {
+        return (T) internalExtraFields.get(key);
     }
 
     public Map<String, Object> getOriginalValues() {

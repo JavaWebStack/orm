@@ -27,6 +27,7 @@ public class Query<T extends Model> {
     private QueryColumn order;
     private boolean desc = false;
     private boolean withDeleted = false;
+    private final List<QueryWith> withs = new ArrayList<>();
 
     public Query(Class<T> model) {
         this(Repo.get(model), model);
@@ -44,6 +45,10 @@ public class Query<T extends Model> {
 
     public QueryGroup<T> getWhereGroup() {
         return where;
+    }
+
+    public List<QueryWith> getWiths() {
+        return withs;
     }
 
     public Integer getLimit() {
@@ -68,6 +73,15 @@ public class Query<T extends Model> {
 
     public Class<T> getModel() {
         return model;
+    }
+
+    public Query<T> with(String extra) {
+        return with(extra, null);
+    }
+
+    public Query<T> with(String extra, String as) {
+        withs.add(new QueryWith(extra, as));
+        return this;
     }
 
     public Query<T> and(Function<QueryGroup<T>, QueryGroup<T>> group) {
