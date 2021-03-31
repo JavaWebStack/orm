@@ -111,7 +111,13 @@ public class QueryVerification {
         }
     }
 
-
+    /**
+     * Retrieve list of all sections prefaced with the specified top level keyword. The list will have the same order
+     * as the occurrences of each section.
+     *
+     * @param topLevelKeyword The top level keyword that prefaces the sections.
+     * @return The order sensitive string list of inner sections.
+     */
     public List<String> getSectionList(String topLevelKeyword) {
         return new QueryStringUtil(this.query.getQueryString().getQuery())
                 .getTopLevelSectionsByKeyword(topLevelKeyword);
