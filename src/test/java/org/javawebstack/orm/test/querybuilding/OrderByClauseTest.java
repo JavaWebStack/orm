@@ -13,28 +13,28 @@ public class OrderByClauseTest {
     void testOneExistingColumnDefaultOrderBy() {
         Query<Datatype> query = setUpModel(Datatype.class).query()
                 .order("wrapper_integer");
-        new QueryVerification(query).assertSectionEquals("ORDER BY", "`wrapper_integer` ASC");
+        new QueryVerification(query).assertSectionEquals("ORDER BY", "`wrapper_integer`");
     }
 
     @Test
     void testOneNonExistingColumnDefaultOrderBy() {
         Query<Datatype> query = setUpModel(Datatype.class).query()
                 .order("does_not_exist");
-        new QueryVerification(query).assertSectionEquals("ORDER BY", "`does_not_exist` ASC");
+        new QueryVerification(query).assertSectionEquals("ORDER BY", "`does_not_exist`");
     }
 
     @Test
     void testOneExistingColumnASCOrderBy() {
         Query<Datatype> query = setUpModel(Datatype.class).query()
                 .order("wrapper_integer", false);
-        new QueryVerification(query).assertSectionEquals("ORDER BY", "`wrapper_integer` ASC");
+        new QueryVerification(query).assertSectionEquals("ORDER BY", "`wrapper_integer`");
     }
 
     @Test
     void testOneNonExistingColumnASCOrderBy() {
         Query<Datatype> query = setUpModel(Datatype.class).query()
                 .order("does_not_exist", false);
-        new QueryVerification(query).assertSectionEquals("ORDER BY", "`does_not_exist` ASC");
+        new QueryVerification(query).assertSectionEquals("ORDER BY", "`does_not_exist`");
     }
 
     @Test
@@ -58,8 +58,8 @@ public class OrderByClauseTest {
                 .order("primitive_integer");
 
         new QueryVerification(query)
-                .assertSectionContains("ORDER BY", "`wrapper_integer` ASC")
-                .assertSectionContains("ORDER BY", "`primitive_integer` ASC");
+                .assertSectionContains("ORDER BY", "`wrapper_integer`")
+                .assertSectionContains("ORDER BY", "`primitive_integer`");
     }
 
     @Test
@@ -80,7 +80,7 @@ public class OrderByClauseTest {
                 .order("primitive_integer", true);
 
         new QueryVerification(query)
-                .assertSectionContains("ORDER BY", "`wrapper_integer` ASC")
+                .assertSectionContains("ORDER BY", "`wrapper_integer`")
                 .assertSectionContains("ORDER BY", "`primitive_integer` DESC");
     }
 
@@ -92,7 +92,7 @@ public class OrderByClauseTest {
 
         new QueryVerification(query)
                 .assertSectionContains("ORDER BY", "`primitive_integer` DESC")
-                .assertSectionContains("ORDER BY", "`wrapper_integer` ASC");
+                .assertSectionContains("ORDER BY", "`wrapper_integer`");
     }
 
 }
