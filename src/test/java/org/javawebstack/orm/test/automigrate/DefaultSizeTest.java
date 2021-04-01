@@ -56,7 +56,7 @@ public class DefaultSizeTest extends ORMTestCase {
     final static String columnNameString = "string";
 
     // Not renaming the table name as this is not focus of the test
-    final static String tableNameCharArray = "just_char_arraies";
+    final static String tableNameCharArray = "just_char_arrays";
     final static String columnNameCharArray = "char_array";
 
     final static String tableNameDatatype = "datatypes";

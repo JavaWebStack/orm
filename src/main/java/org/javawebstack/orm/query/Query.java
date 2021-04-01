@@ -164,6 +164,16 @@ public class Query<T extends Model> {
         where.notNull(left);
         return this;
     }
+    
+    public Query<T> whereNull(Object left) {
+        where.isNull(left);
+        return this;
+    }
+    
+    public Query<T> whereNotNull(Object left) {
+        where.notNull(left);
+        return this;
+    }
 
     public Query<T> lessThan(Object left, Object right) {
         where.lessThan(left, right);
