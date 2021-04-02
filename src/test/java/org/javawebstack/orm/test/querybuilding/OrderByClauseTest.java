@@ -1,11 +1,19 @@
 package org.javawebstack.orm.test.querybuilding;
 
 import org.javawebstack.orm.query.Query;
+import org.javawebstack.orm.test.exception.SectionIndexOutOfBoundException;
 import org.javawebstack.orm.test.shared.models.Datatype;
 import org.javawebstack.orm.test.shared.verification.QueryVerification;
 import org.junit.jupiter.api.Test;
 
+import javax.xml.crypto.Data;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
 import static org.javawebstack.orm.test.shared.setup.ModelSetup.setUpModel;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class OrderByClauseTest {
 
@@ -84,6 +92,43 @@ public class OrderByClauseTest {
                 .assertSectionContains("ORDER BY", "`primitive_integer` DESC");
     }
 
+
+    @Test
+    // This test is important because putting the order by statements in different order is relevant (they set priorities)
+    void testMultipleOrderByClausesOfRandomOrderForCorrectOrder() throws SectionIndexOutOfBoundException {
+        Query<Datatype> query = setUpModel(Datatype.class).query();
+        ArrayList<String> columnNames = new ArrayList<>(Datatype.columnNames);
+
+        LinkedList<String> callOrder = new LinkedList<>();
+
+        Random r = new Random();
+        columnNames.stream().unordered().forEach((singleColumn) -> {
+            query.order(singleColumn, r.nextBoolean());
+            callOrder.add(singleColumn);
+        });
+
+        String queryString = new QueryVerification(query).getSection("ORDER BY");
+        int lastIndex = 0;
+        int foundIndex = -1;
+        for (String nextInCallOrder : callOrder) {
+            foundIndex = queryString.indexOf("`" + nextInCallOrder + "`");
+            if(foundIndex < lastIndex) {
+                if (foundIndex == -1)
+                    fail("Not all columns occurred in the query string.");
+                else
+                    fail("The columns did not appear an the correct order.");
+
+                break;
+            }
+
+            lastIndex = foundIndex;
+        }
+
+        // If it came until here the test should count as passed.
+        assertTrue(true);
+
+    }
+
     @Test
     void testMultipleOrderByClausesOfMixedOrderReversed() {
         Query<Datatype> query = setUpModel(Datatype.class).query()
@@ -94,5 +139,4 @@ public class OrderByClauseTest {
                 .assertSectionContains("ORDER BY", "`primitive_integer` DESC")
                 .assertSectionContains("ORDER BY", "`wrapper_integer`");
     }
-
 }
