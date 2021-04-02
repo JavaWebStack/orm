@@ -4,6 +4,9 @@ import org.javawebstack.orm.TableInfo;
 
 import java.util.Objects;
 
+/**
+ * The QueryOrderByElement class encodes an Order By Statement.
+ */
 public class QueryOrderByElement {
     private final QueryColumn queryColumn;
     private final boolean desc;
@@ -18,26 +21,35 @@ public class QueryOrderByElement {
         this.desc = desc;
     }
 
+    /**
+     * Retrieves the QueryColumn of the statement which encodes the column name.
+     *
+     * @return The encoding QueryColumn object.
+     */
     public QueryColumn getQueryColumn() {
         return queryColumn;
     }
 
+    /**
+     * Retrieves the information if this column is ordered ascendingly or descendingly.
+     *
+     * @return false if ascending, true if descending.
+     */
     public boolean isDesc() {
         return desc;
     }
 
+    /**
+     * Compares the encoded column name.
+     *
+     * @param o An object to compare to.
+     * @return True if the object is a QueryOrderByElement with a QueryColumn with generates the same identifier.
+     */
     public boolean hasEqualColumn(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         QueryOrderByElement that = (QueryOrderByElement) o;
         return getQueryColumn().equals(that.getQueryColumn());
-    }
-
-    public boolean hasEqualOrderDirection(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        QueryOrderByElement that = (QueryOrderByElement) o;
-        return isDesc() == that.isDesc();
     }
 
     @Override
