@@ -4,6 +4,7 @@ import org.javawebstack.orm.TableInfo;
 import org.javawebstack.orm.exception.ORMQueryException;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -48,4 +49,16 @@ public class QueryColumn {
             throw new ORMQueryException("Invalid column name '" + name + "' (Use raw in case you know what you're doing)");
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        QueryColumn that = (QueryColumn) o;
+        return toString().equals(that.toString());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(toString());
+    }
 }
