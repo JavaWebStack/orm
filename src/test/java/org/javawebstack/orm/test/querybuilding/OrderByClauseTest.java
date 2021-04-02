@@ -1,5 +1,6 @@
 package org.javawebstack.orm.test.querybuilding;
 
+import org.javawebstack.orm.exception.ORMQueryException;
 import org.javawebstack.orm.query.Query;
 import org.javawebstack.orm.test.exception.SectionIndexOutOfBoundException;
 import org.javawebstack.orm.test.shared.models.Datatype;
@@ -12,8 +13,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.javawebstack.orm.test.shared.setup.ModelSetup.setUpModel;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class OrderByClauseTest {
 
@@ -92,6 +92,17 @@ public class OrderByClauseTest {
                 .assertSectionContains("ORDER BY", "`primitive_integer` DESC");
     }
 
+    @Test
+    void testMultipleOrderByClausesOfMixedOrderReversed() {
+        Query<Datatype> query = setUpModel(Datatype.class).query()
+                .order("primitive_integer", true)
+                .order("wrapper_integer", false);
+
+        new QueryVerification(query)
+                .assertSectionContains("ORDER BY", "`primitive_integer` DESC")
+                .assertSectionContains("ORDER BY", "`wrapper_integer`");
+    }
+
 
     @Test
     // This test is important because putting the order by statements in different order is relevant (they set priorities)
@@ -129,14 +140,14 @@ public class OrderByClauseTest {
 
     }
 
+    /*
+     * Error Cases
+     */
     @Test
-    void testMultipleOrderByClausesOfMixedOrderReversed() {
+    void testCannotCallOrderOnSameColumnTwice() {
         Query<Datatype> query = setUpModel(Datatype.class).query()
-                .order("primitive_integer", true)
-                .order("wrapper_integer", false);
+                .order("primitive_integer", true);
 
-        new QueryVerification(query)
-                .assertSectionContains("ORDER BY", "`primitive_integer` DESC")
-                .assertSectionContains("ORDER BY", "`wrapper_integer`");
+        assertThrows(ORMQueryException.class, () -> query.order("primitive_integer"));
     }
 }
