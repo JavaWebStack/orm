@@ -296,20 +296,43 @@ public class Query<T extends Model> {
         return this;
     }
 
-    public Query<T> order(String orderBy) {
-        return order(orderBy, false);
+    /**
+     * Sorts the results by the given column name ascendingly.
+     *
+     * @param columnName The name of the column to sort ascendingly by.
+     * @return The Query object with the given order by information added.
+     * @throws ORMQueryException if the order operation is called twice on a column specification with the same name.
+     */
+    public Query<T> order(String columnName) throws ORMQueryException {
+        return order(columnName, false);
     }
 
-    public Query<T> order(String orderBy, boolean desc) {
-        return order(new QueryColumn(orderBy), desc);
+    /**
+     * Sorts the results by the given column name with the given order direction.
+     *
+     * @param columnName The name of the column to sort ascendingly by.
+     * @param desc If true it will order descendingly, if false it will order ascendingly.
+     * @return The Query object with the given order by information added.
+     * @throws ORMQueryException if the order operation is called twice on a column specification with the same name.
+     */
+    public Query<T> order(String columnName, boolean desc) throws ORMQueryException {
+        return order(new QueryColumn(columnName), desc);
     }
 
-    public Query<T> order(QueryColumn orderBy, boolean desc) {
-        boolean success = this.order.add(orderBy, desc);
+    /**
+     * Sorts the results by the given column  with the given order direction.
+     *
+     * @param column The column encoded as QueryColumn object.
+     * @param desc If true it will order descendingly, if false it will order ascendingly.
+     * @return The Query object with the given order by information added.
+     * @throws ORMQueryException if the order operation is called twice on a column specification with the same name.
+     */
+    public Query<T> order(QueryColumn column, boolean desc) throws ORMQueryException{
+        boolean success = this.order.add(column, desc);
         if(!success) {
             throw new ORMQueryException(String.format(
                 "The column %s could not be ordered %s. This is probably caused by calling .order() on this column twice.",
-                orderBy.toString(),
+                column.toString(),
                 desc ? "descendingly" : "ascendingly"
             ));
         }
