@@ -7,6 +7,7 @@ import org.javawebstack.orm.filter.QueryFilter;
 import org.javawebstack.orm.migration.AutoMigrator;
 import org.javawebstack.orm.query.Query;
 import org.javawebstack.orm.wrapper.SQL;
+import org.javawebstack.orm.wrapper.builder.SQLQueryString;
 
 import java.lang.reflect.Field;
 import java.sql.SQLException;
@@ -124,28 +125,14 @@ public class Repo<T extends Model> {
                 if (field.get(entry) == null)
                     field.set(entry, UUID.randomUUID());
             }
-            List<Object> params = new ArrayList<>();
-            StringBuilder sb = new StringBuilder("INSERT INTO `");
-            sb.append(info.getTableName());
-            sb.append("` (");
-            List<String> cols = new ArrayList<>();
-            List<String> values = new ArrayList<>();
             Map<String, Object> map = SQLMapper.map(this, entry);
             if (info.isAutoIncrement()) {
                 String idCol = info.getColumnName(info.getIdField());
                 if (map.containsKey(idCol) && map.get(idCol) == null)
                     map.remove(idCol);
             }
-            for (String columnName : map.keySet()) {
-                cols.add("`" + columnName + "`");
-                values.add("?");
-                params.add(map.get(columnName));
-            }
-            sb.append(String.join(",", cols));
-            sb.append(") VALUES (");
-            sb.append(String.join(",", values));
-            sb.append(");");
-            int id = connection.write(sb.toString(), params.toArray());
+            SQLQueryString qs = getConnection().builder().buildInsert(info, map);
+            int id = connection.write(qs.getQuery(), qs.getParameters().toArray());
             if (info.isAutoIncrement())
                 info.getField(info.getIdField()).set(entry, id);
             entry.setEntryExists(true);
