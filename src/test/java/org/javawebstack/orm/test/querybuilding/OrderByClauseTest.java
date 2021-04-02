@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import static org.javawebstack.orm.test.shared.setup.ModelSetup.setUpModel;
 import static org.junit.jupiter.api.Assertions.*;
 
+// This class tests the query generation for order by statements an MySQL
 public class OrderByClauseTest {
 
     @Test
@@ -143,6 +144,8 @@ public class OrderByClauseTest {
     /*
      * Error Cases
      */
+
+    // This test might not be correct here as it does not purely look at the query
     @Test
     void testCannotCallOrderOnSameColumnTwice() {
         Query<Datatype> query = setUpModel(Datatype.class).query()
