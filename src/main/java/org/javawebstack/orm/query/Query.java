@@ -24,8 +24,7 @@ public class Query<T extends Model> {
     private final QueryGroup<T> where;
     private Integer offset;
     private Integer limit;
-    private QueryColumn order;
-    private boolean desc = false;
+    private QueryOrderBy order;
     private boolean withDeleted = false;
     private final List<QueryWith> withs = new ArrayList<>();
 
@@ -37,6 +36,7 @@ public class Query<T extends Model> {
         this.repo = repo;
         this.model = model;
         this.where = new QueryGroup<>();
+        this.order = new QueryOrderBy();
     }
 
     public boolean isWithDeleted() {
@@ -59,12 +59,8 @@ public class Query<T extends Model> {
         return offset;
     }
 
-    public QueryColumn getOrder() {
+    public QueryOrderBy getOrder() {
         return order;
-    }
-
-    public boolean isDescOrder() {
-        return desc;
     }
 
     public Repo<T> getRepo() {
@@ -300,18 +296,25 @@ public class Query<T extends Model> {
         return this;
     }
 
+    public Query<T> order(String orderBy) {
+        return order(orderBy, false);
+    }
+
     public Query<T> order(String orderBy, boolean desc) {
         return order(new QueryColumn(orderBy), desc);
     }
 
     public Query<T> order(QueryColumn orderBy, boolean desc) {
-        this.order = orderBy;
-        this.desc = desc;
-        return this;
-    }
+        boolean success = this.order.add(orderBy, desc);
+        if(!success) {
+            throw new ORMQueryException(String.format(
+                "The column %s could not be ordered %s. This is probably caused by calling .order() on this column twice.",
+                orderBy.toString(),
+                desc ? "descendingly" : "ascendingly"
+            ));
+        }
 
-    public Query<T> order(String orderBy) {
-        return order(orderBy, false);
+        return this;
     }
 
     public Query<T> limit(int offset, int limit) {
