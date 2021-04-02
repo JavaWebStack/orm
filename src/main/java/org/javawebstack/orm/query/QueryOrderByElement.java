@@ -1,10 +1,12 @@
 package org.javawebstack.orm.query;
 
+import org.javawebstack.orm.TableInfo;
+
 import java.util.Objects;
 
 public class QueryOrderByElement {
-    private QueryColumn queryColumn;
-    private boolean desc;
+    private final QueryColumn queryColumn;
+    private final boolean desc;
 
     QueryOrderByElement(String columnName, boolean desc) {
         queryColumn = new QueryColumn(columnName);
@@ -49,5 +51,18 @@ public class QueryOrderByElement {
     @Override
     public int hashCode() {
         return Objects.hash(getQueryColumn(), isDesc());
+    }
+
+    @Override
+    public String toString() {
+        return this.toString(null);
+    }
+
+    public String toString(TableInfo info) {
+        String stringifiedOrderBy = getQueryColumn().toString(info);
+        if (isDesc())
+            stringifiedOrderBy += " DESC";
+
+        return stringifiedOrderBy;
     }
 }

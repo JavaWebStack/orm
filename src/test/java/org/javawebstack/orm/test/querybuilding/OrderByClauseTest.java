@@ -65,8 +65,8 @@ public class OrderByClauseTest {
     @Test
     void testMultipleOrderByClausesOfDESCOrder() {
         Query<Datatype> query = setUpModel(Datatype.class).query()
-                .order("wrapper_integer")
-                .order("primitive_integer");
+                .order("wrapper_integer", true)
+                .order("primitive_integer", true);
 
         new QueryVerification(query)
                 .assertSectionContains("ORDER BY", "`wrapper_integer` DESC")

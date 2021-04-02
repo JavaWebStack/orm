@@ -1,7 +1,9 @@
 package org.javawebstack.orm.query;
 
+import org.javawebstack.orm.TableInfo;
+
 import java.util.LinkedList;
-import java.util.List;
+import java.util.stream.Collectors;
 
 public class QueryOrderBy extends LinkedList<QueryOrderByElement>{
 
@@ -24,5 +26,16 @@ public class QueryOrderBy extends LinkedList<QueryOrderByElement>{
 
     private boolean willOverwrite(QueryOrderByElement element) {
         return this.stream().anyMatch(element::hasEqualColumn);
+    }
+
+    @Override
+    public String toString() {
+        return toString(null);
+    }
+
+    public String toString(TableInfo info) {
+        return this.stream()
+                .map(QueryOrderByElement::toString)
+                .collect(Collectors.joining(","));
     }
 }
