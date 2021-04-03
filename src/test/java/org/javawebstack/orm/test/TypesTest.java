@@ -9,7 +9,6 @@ import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;
-import java.time.Clock;
 import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
