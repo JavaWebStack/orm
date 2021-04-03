@@ -23,7 +23,7 @@ public class TypesTest extends ORMTestCase {
         ORM.register(ExampleModel.class, sql(), config);
         ORM.autoMigrate(true);
 
-        Timestamp timestamp = Timestamp.from(Instant.now(Clock.systemDefaultZone()));
+        Timestamp timestamp = Timestamp.from(Instant.now());
         ExampleModel model   = new ExampleModel();
         model.exampleString  = "Hello ;)";
         model.exampleEnum    = ExampleModel.Type.USER;
