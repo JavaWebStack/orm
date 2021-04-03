@@ -9,6 +9,7 @@ import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;
+import java.time.Clock;
 import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,7 +23,7 @@ public class TypesTest extends ORMTestCase {
         ORM.register(ExampleModel.class, sql(), config);
         ORM.autoMigrate(true);
 
-        Timestamp timestamp = Timestamp.from(Instant.now());
+        Timestamp timestamp = Timestamp.from(Instant.now(Clock.systemDefaultZone()));
         ExampleModel model   = new ExampleModel();
         model.exampleString  = "Hello ;)";
         model.exampleEnum    = ExampleModel.Type.USER;
@@ -62,7 +63,7 @@ public class TypesTest extends ORMTestCase {
         assertEquals(model.exampleLongPrimitive, 999999999999999999L);
 
 
-        assertEquals(model.timestampTest.getTime() / 1000, timestamp.getTime() / 1000);
+        assertEquals(timestamp.getTime() / 1000, model.timestampTest.getTime() / 1000);
 
         assertEquals(model.exampleCharPrimitive, 'C');
 

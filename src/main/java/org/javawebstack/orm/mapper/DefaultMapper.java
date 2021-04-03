@@ -51,8 +51,6 @@ public class DefaultMapper implements TypeMapper {
             return String.valueOf((char[]) source);
         if (type.equals(UUID.class))
             return source.toString();
-        if (type.equals(Timestamp.class))
-            return ((Timestamp) source).toString();
         if (type.equals(char.class))
             return String.valueOf((char) source);
 
