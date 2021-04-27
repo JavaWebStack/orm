@@ -69,4 +69,8 @@ public class QueryCondition implements QueryElement {
             throw new ORMQueryException("The given operator '" + operator + "' is invalid or not supported");
     }
 
+    public enum Operator {
+        
+    }
+
 }
