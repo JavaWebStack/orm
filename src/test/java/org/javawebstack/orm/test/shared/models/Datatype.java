@@ -5,6 +5,8 @@ import org.javawebstack.orm.annotation.Column;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 /*
@@ -84,4 +86,30 @@ public class Datatype extends Model {
         OPTION1,
         OPTION2,
     }
+
+    public static final List<String> columnNames = Arrays.asList(
+            "id",
+            "primitive_boolean",
+            "wrapper_boolean",
+            "primitive_byte",
+            "wrapper_byte",
+            "primitive_short",
+            "wrapper_short",
+            "primitive_integer",
+            "wrapper_integer",
+            "primitive_long",
+            "wrapper_long",
+            "primitive_float",
+            "wrapper_float",
+            "primitive_double",
+            "wrapper_double",
+            "primitive_char",
+            "wrapper_string",
+            "char_array",
+            "byte_array",
+            "timestamp",
+            "date",
+            "uuid",
+            "option_enum"
+    );
 }
