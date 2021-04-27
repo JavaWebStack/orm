@@ -50,11 +50,13 @@ public class MySQLQueryStringBuilder implements QueryStringBuilder {
             sb.append(" WHERE ").append(qs.getQuery());
             parameters.addAll(qs.getParameters());
         }
-        if (query.getOrder() != null) {
-            sb.append(" ORDER BY ").append(query.getOrder().toString(repo.getInfo()));
-            if (query.isDescOrder())
-                sb.append(" DESC");
+
+        QueryOrderBy orderBy = query.getOrder();
+        if (!orderBy.isEmpty()) {
+            sb.append(" ORDER BY ")
+                .append(orderBy.toString());
         }
+
         Integer offset = query.getOffset();
         Integer limit = query.getLimit();
         if (offset != null && limit == null)

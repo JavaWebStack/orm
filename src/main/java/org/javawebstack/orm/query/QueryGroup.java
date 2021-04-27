@@ -10,6 +10,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
+/**
+ * Queries grouped via the QueryGroup class will be put inside parenthesis.
+ * This makes expressions as the following possible (MySQL example):
+ * ... `column_a` = 'A' OR (`column_b` = 'B' AND `column_c´ = 'C') ...
+ *
+ * In the above example `column_b` = 'B' AND `column_c´ = 'C' would be in a QueryGroup.
+ *
+ * @param <T> The model under which the QueryGroups functions. Currently purely semantic without functionality.
+ */
 public class QueryGroup<T extends Model> implements QueryElement {
 
     private final List<QueryElement> queryElements = new ArrayList<>();
