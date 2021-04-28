@@ -21,50 +21,50 @@ public class OrderByClauseTest {
     @Test
     void testOneExistingColumnDefaultOrderBy() {
         Query<Datatype> query = setUpModel(Datatype.class).query()
-                .order("wrapper_integer");
+                .order("wrapperInteger");
         new QueryVerification(query).assertSectionEquals("ORDER BY", "`wrapper_integer`");
     }
 
     @Test
     void testOneNonExistingColumnDefaultOrderBy() {
         Query<Datatype> query = setUpModel(Datatype.class).query()
-                .order("does_not_exist");
+                .order("doesNotExist");
         new QueryVerification(query).assertSectionEquals("ORDER BY", "`does_not_exist`");
     }
 
     @Test
     void testOneExistingColumnASCOrderBy() {
         Query<Datatype> query = setUpModel(Datatype.class).query()
-                .order("wrapper_integer", false);
+                .order("wrapperInteger", false);
         new QueryVerification(query).assertSectionEquals("ORDER BY", "`wrapper_integer`");
     }
 
     @Test
     void testOneNonExistingColumnASCOrderBy() {
         Query<Datatype> query = setUpModel(Datatype.class).query()
-                .order("does_not_exist", false);
+                .order("doesNotExist", false);
         new QueryVerification(query).assertSectionEquals("ORDER BY", "`does_not_exist`");
     }
 
     @Test
     void testOneExistingColumnDESCOrderBy() {
         Query<Datatype> query = setUpModel(Datatype.class).query()
-                .order("wrapper_integer", true);
+                .order("wrapperInteger", true);
         new QueryVerification(query).assertSectionEquals("ORDER BY", "`wrapper_integer` DESC");
     }
 
     @Test
     void testOneNonExistingColumnDESCOrderBy() {
         Query<Datatype> query = setUpModel(Datatype.class).query()
-                .order("does_not_exist", true);
+                .order("doesNotExist", true);
         new QueryVerification(query).assertSectionEquals("ORDER BY", "`does_not_exist` DESC");
     }
 
     @Test
     void testMultipleOrderByClausesOfASCOrder() {
         Query<Datatype> query = setUpModel(Datatype.class).query()
-                .order("wrapper_integer")
-                .order("primitive_integer");
+                .order("wrapperInteger")
+                .order("primitiveInteger");
 
         new QueryVerification(query)
                 .assertSectionContains("ORDER BY", "`wrapper_integer`")
@@ -74,8 +74,8 @@ public class OrderByClauseTest {
     @Test
     void testMultipleOrderByClausesOfDESCOrder() {
         Query<Datatype> query = setUpModel(Datatype.class).query()
-                .order("wrapper_integer", true)
-                .order("primitive_integer", true);
+                .order("wrapperInteger", true)
+                .order("primitiveInteger", true);
 
         new QueryVerification(query)
                 .assertSectionContains("ORDER BY", "`wrapper_integer` DESC")
@@ -85,8 +85,8 @@ public class OrderByClauseTest {
     @Test
     void testMultipleOrderByClausesOfMixedOrder() {
         Query<Datatype> query = setUpModel(Datatype.class).query()
-                .order("wrapper_integer", false)
-                .order("primitive_integer", true);
+                .order("wrapperInteger", false)
+                .order("primitiveInteger", true);
 
         new QueryVerification(query)
                 .assertSectionContains("ORDER BY", "`wrapper_integer`")
@@ -96,8 +96,8 @@ public class OrderByClauseTest {
     @Test
     void testMultipleOrderByClausesOfMixedOrderReversed() {
         Query<Datatype> query = setUpModel(Datatype.class).query()
-                .order("primitive_integer", true)
-                .order("wrapper_integer", false);
+                .order("primitiveInteger", true)
+                .order("wrapperInteger", false);
 
         new QueryVerification(query)
                 .assertSectionContains("ORDER BY", "`primitive_integer` DESC")
@@ -108,6 +108,7 @@ public class OrderByClauseTest {
     @Test
     // This test is important because putting the order by statements in different order is relevant (they set priorities)
     void testMultipleOrderByClausesOfRandomOrderForCorrectOrder() throws SectionIndexOutOfBoundException {
+        // This test does not use camel cases as input
         Query<Datatype> query = setUpModel(Datatype.class).query();
         ArrayList<String> columnNames = new ArrayList<>(Datatype.columnNames);
 
@@ -149,8 +150,8 @@ public class OrderByClauseTest {
     @Test
     void testCannotCallOrderOnSameColumnTwice() {
         Query<Datatype> query = setUpModel(Datatype.class).query()
-                .order("primitive_integer", true);
+                .order("primitiveInteger", true);
 
-        assertThrows(ORMQueryException.class, () -> query.order("primitive_integer"));
+        assertThrows(ORMQueryException.class, () -> query.order("primitiveInteger"));
     }
 }
