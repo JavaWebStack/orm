@@ -101,8 +101,6 @@ public class Repo<T extends Model> {
     }
 
     public void create(T entry) {
-        if (info.getConfig().getInjector() != null)
-            info.getConfig().getInjector().inject(entry);
         observers.forEach(o -> o.saving(entry));
         observers.forEach(o -> o.creating(entry));
         executeCreate(entry);
@@ -224,8 +222,6 @@ public class Repo<T extends Model> {
     }
 
     public Repo<T> observe(Observer<T> observer) {
-        if (info.getConfig().getInjector() != null)
-            info.getConfig().getInjector().inject(observer);
         observers.add(observer);
         return this;
     }

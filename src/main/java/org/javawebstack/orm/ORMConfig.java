@@ -1,6 +1,5 @@
 package org.javawebstack.orm;
 
-import org.javawebstack.injector.Injector;
 import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.javawebstack.orm.mapper.DefaultMapper;
 import org.javawebstack.orm.mapper.TypeMapper;
@@ -15,7 +14,6 @@ public class ORMConfig {
     private boolean idPrimaryKey = true;
     private boolean idAutoIncrement = true;
     private final List<TypeMapper> typeMappers = new ArrayList<>();
-    private Injector injector;
     private boolean preventUnnecessaryUpdates = true;
 
     public ORMConfig() {
@@ -55,11 +53,6 @@ public class ORMConfig {
         return this;
     }
 
-    public ORMConfig setInjector(Injector injector) {
-        this.injector = injector;
-        return this;
-    }
-
     public boolean isCamelToSnakeCase() {
         return camelToSnakeCase;
     }
@@ -82,10 +75,6 @@ public class ORMConfig {
 
     public boolean isIdAutoIncrement() {
         return idAutoIncrement;
-    }
-
-    public Injector getInjector() {
-        return injector;
     }
 
     public TypeMapper getTypeMapper(Class<?> type, int size) {

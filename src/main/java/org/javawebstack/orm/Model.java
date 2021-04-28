@@ -1,6 +1,5 @@
 package org.javawebstack.orm;
 
-import org.javawebstack.injector.Injector;
 import org.javawebstack.orm.query.Query;
 
 import java.lang.reflect.Field;
@@ -22,7 +21,6 @@ public class Model {
     private static final Method refreshMethod;
 
     {
-        inject();
         updateOriginal();
     }
 
@@ -121,12 +119,6 @@ public class Model {
 
     void setEntryExists(boolean exists) {
         this.internalEntryExists = exists;
-    }
-
-    public void inject() {
-        Injector injector = Repo.get(getClass()).getInfo().getConfig().getInjector();
-        if (injector != null)
-            injector.inject(this);
     }
 
     public void save() {
