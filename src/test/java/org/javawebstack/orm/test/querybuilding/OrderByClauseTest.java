@@ -6,17 +6,12 @@ import org.javawebstack.orm.test.exception.SectionIndexOutOfBoundException;
 import org.javawebstack.orm.test.shared.models.Datatype;
 import org.javawebstack.orm.test.shared.verification.QueryVerification;
 import org.junit.jupiter.api.Test;
-
-import javax.xml.crypto.Data;
-
 import java.util.*;
-import java.util.stream.Collectors;
-
 import static org.javawebstack.orm.test.shared.setup.ModelSetup.setUpModel;
 import static org.junit.jupiter.api.Assertions.*;
 
 // This class tests the query generation for order by statements an MySQL
-public class OrderByClauseTest {
+class OrderByClauseTest {
 
     @Test
     void testOneExistingColumnDefaultOrderBy() {
@@ -122,7 +117,7 @@ public class OrderByClauseTest {
 
         String queryString = new QueryVerification(query).getSection("ORDER BY");
         int lastIndex = 0;
-        int foundIndex = -1;
+        int foundIndex;
         for (String nextInCallOrder : callOrder) {
             foundIndex = queryString.indexOf("`" + nextInCallOrder + "`");
             if(foundIndex < lastIndex) {
