@@ -137,6 +137,13 @@ class OrderByClauseTest {
 
     }
 
+    @Test
+    void testWillUseOverwrittenColumnName() {
+        Query<OverwrittenColumnName> query = setUpModel(OverwrittenColumnName.class).query()
+                .order("dummyString");
+        new QueryVerification(query).assertSectionEquals("ORDER BY", "`oVer_writtenColumn-name`");
+    }
+
     /*
      * Error Cases
      */
