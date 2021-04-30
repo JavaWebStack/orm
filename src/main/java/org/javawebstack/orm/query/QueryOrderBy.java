@@ -64,7 +64,7 @@ public class QueryOrderBy extends LinkedList<QueryOrderByElement>{
 
     public String toString(TableInfo info) {
         return this.stream()
-                .map((singleOrderByElement) -> singleOrderByElement.toString(info))
+                .map(singleOrderByElement -> singleOrderByElement.toString(info))
                 .collect(Collectors.joining(","));
     }
 }
