@@ -4,6 +4,7 @@ import org.javawebstack.orm.exception.ORMQueryException;
 import org.javawebstack.orm.query.Query;
 import org.javawebstack.orm.test.exception.SectionIndexOutOfBoundException;
 import org.javawebstack.orm.test.shared.models.Datatype;
+import org.javawebstack.orm.test.shared.models.columnnames.OverwrittenColumnName;
 import org.javawebstack.orm.test.shared.verification.QueryVerification;
 import org.junit.jupiter.api.Test;
 import java.util.*;
@@ -24,7 +25,9 @@ class OrderByClauseTest {
     void testOneNonExistingColumnDefaultOrderBy() {
         Query<Datatype> query = setUpModel(Datatype.class).query()
                 .order("doesNotExist");
-        new QueryVerification(query).assertSectionEquals("ORDER BY", "`does_not_exist`");
+
+        // Not in snake case as it is not in the mapping
+        new QueryVerification(query).assertSectionEquals("ORDER BY", "`doesNotExist`");
     }
 
     @Test
@@ -38,7 +41,9 @@ class OrderByClauseTest {
     void testOneNonExistingColumnASCOrderBy() {
         Query<Datatype> query = setUpModel(Datatype.class).query()
                 .order("doesNotExist", false);
-        new QueryVerification(query).assertSectionEquals("ORDER BY", "`does_not_exist`");
+
+        // Not in snake case as it is not in the mapping
+        new QueryVerification(query).assertSectionEquals("ORDER BY", "`doesNotExist`");
     }
 
     @Test
@@ -52,7 +57,8 @@ class OrderByClauseTest {
     void testOneNonExistingColumnDESCOrderBy() {
         Query<Datatype> query = setUpModel(Datatype.class).query()
                 .order("doesNotExist", true);
-        new QueryVerification(query).assertSectionEquals("ORDER BY", "`does_not_exist` DESC");
+        // Not in snake case as it is not in the mapping
+        new QueryVerification(query).assertSectionEquals("ORDER BY", "`doesNotExist` DESC");
     }
 
     @Test
