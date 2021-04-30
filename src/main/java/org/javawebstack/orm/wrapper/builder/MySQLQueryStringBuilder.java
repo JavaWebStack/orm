@@ -54,7 +54,7 @@ public class MySQLQueryStringBuilder implements QueryStringBuilder {
         QueryOrderBy orderBy = query.getOrder();
         if (!orderBy.isEmpty()) {
             sb.append(" ORDER BY ")
-                .append(orderBy.toString());
+                .append(orderBy.toString(repo.getInfo()));
         }
 
         Integer offset = query.getOffset();
