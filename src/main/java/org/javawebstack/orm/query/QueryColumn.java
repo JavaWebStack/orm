@@ -2,7 +2,6 @@ package org.javawebstack.orm.query;
 
 import org.javawebstack.orm.TableInfo;
 import org.javawebstack.orm.exception.ORMQueryException;
-import org.javawebstack.orm.util.Helper;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -42,7 +41,7 @@ public class QueryColumn {
     public String toString(TableInfo info) {
         if (raw)
             return name;
-        return Arrays.stream((info != null ? info.getColumnName(Helper.toSnakeCase(name)) : Helper.toSnakeCase(name)).split("\\.")).map(s -> "`" + s + "`").collect(Collectors.joining("."));
+        return Arrays.stream((info != null ? info.getColumnName(name) : name).split("\\.")).map(s -> "`" + s + "`").collect(Collectors.joining("."));
     }
 
     private static void validateName(String name) {
