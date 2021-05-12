@@ -6,10 +6,8 @@ import org.javawebstack.orm.mapper.DefaultMapper;
 import org.javawebstack.orm.mapper.TypeMapper;
 
 import java.lang.reflect.InvocationTargetException;
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
