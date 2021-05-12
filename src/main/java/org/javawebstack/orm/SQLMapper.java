@@ -2,6 +2,7 @@ package org.javawebstack.orm;
 
 import org.javawebstack.injector.Injector;
 import org.javawebstack.orm.exception.ORMQueryException;
+import org.javawebstack.orm.mapper.DefaultMapper;
 import org.javawebstack.orm.mapper.TypeMapper;
 
 import java.lang.reflect.InvocationTargetException;
@@ -96,30 +97,10 @@ public class SQLMapper {
             } catch (SQLException ex) {
                 return null;
             }
-            if (sqlType.equals(String.class))
-                return rs.getString(columnName);
-            if (sqlType.equals(Short.class))
-                return rs.getShort(columnName);
-            if (sqlType.equals(Integer.class))
-                return rs.getInt(columnName);
-            if (sqlType.equals(Boolean.class))
-                return rs.getBoolean(columnName);
-            if (sqlType.equals(Long.class))
-                return rs.getLong(columnName);
-            if (sqlType.equals(Double.class))
-                return rs.getDouble(columnName);
-            if (sqlType.equals(Float.class))
-                return rs.getFloat(columnName);
-            if (sqlType.equals(Timestamp.class))
-                return rs.getTimestamp(columnName);
-            if (sqlType.equals(Date.class))
-                return rs.getDate(columnName);
-            if (sqlType.equals(byte[].class))
-                return rs.getBytes(columnName);
+            return rs.getObject(columnName, DefaultMapper.TYPE_MAPPING);
         } catch (SQLException e) {
             throw new ORMQueryException(e);
         }
-        return null;
     }
 
     private static <T extends Model> void setValue(Repo<T> repo, String fieldName, T entry, Object value) {
