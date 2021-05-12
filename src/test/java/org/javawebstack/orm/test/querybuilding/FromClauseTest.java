@@ -1,6 +1,5 @@
 package org.javawebstack.orm.test.querybuilding;
 
-import org.atteo.evo.inflector.English;
 import org.javawebstack.orm.Model;
 import org.javawebstack.orm.ORM;
 import org.javawebstack.orm.Repo;
@@ -55,7 +54,7 @@ class FromClauseTest extends ORMTestCase {
 
     @Test
     void testOverwrittenTableName() throws ORMConfigurationException {
-        String query = getBaseQuery(OverwritteTableName.class);
+        String query = getBaseQuery(OverwrittenTableName.class);
         assertTrue(query.contains("FROM `oVer_writtenValue`"));
     }
 

@@ -5,7 +5,6 @@ import org.javawebstack.orm.SQLMapper;
 import org.javawebstack.orm.TableInfo;
 import org.javawebstack.orm.query.*;
 
-import java.lang.reflect.Field;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.*;
@@ -23,10 +22,10 @@ public class MySQLQueryStringBuilder implements QueryStringBuilder {
         sb.append("` (");
         List<String> cols = new ArrayList<>();
         List<String> vals = new ArrayList<>();
-        for (String columnName : values.keySet()) {
-            cols.add("`" + columnName + "`");
+        for (Map.Entry<String, Object> columnValueMapping : values.entrySet()) {
+            cols.add("`" + columnValueMapping.getKey() + "`");
             vals.add("?");
-            params.add(values.get(columnName));
+            params.add(columnValueMapping.getValue());
         }
         sb.append(String.join(",", cols));
         sb.append(") VALUES (");
@@ -45,7 +44,7 @@ public class MySQLQueryStringBuilder implements QueryStringBuilder {
                 .append('`');
         QueryGroup<?> where = query.getWhereGroup();
         checkWithDeleted(repo, query.isWithDeleted(), where);
-        if (where.getQueryElements().size() > 0) {
+        if (!where.getQueryElements().isEmpty()) {
             SQLQueryString qs = convertGroup(repo.getInfo(), where);
             sb.append(" WHERE ").append(qs.getQuery());
             parameters.addAll(qs.getParameters());
@@ -54,7 +53,7 @@ public class MySQLQueryStringBuilder implements QueryStringBuilder {
         QueryOrderBy orderBy = query.getOrder();
         if (!orderBy.isEmpty()) {
             sb.append(" ORDER BY ")
-                .append(orderBy.toString());
+                .append(orderBy.toString(repo.getInfo()));
         }
 
         Integer offset = query.getOffset();
@@ -88,7 +87,7 @@ public class MySQLQueryStringBuilder implements QueryStringBuilder {
                 .append(String.join(",", sets));
         QueryGroup<?> where = query.getWhereGroup();
         checkWithDeleted(repo, query.isWithDeleted(), where);
-        if (where.getQueryElements().size() > 0) {
+        if (!where.getQueryElements().isEmpty()) {
             SQLQueryString qs = convertGroup(repo.getInfo(), where);
             sb.append(" WHERE ").append(qs.getQuery());
             parameters.addAll(qs.getParameters());
@@ -104,7 +103,7 @@ public class MySQLQueryStringBuilder implements QueryStringBuilder {
         StringBuilder sb = new StringBuilder("DELETE FROM `")
                 .append(repo.getInfo().getTableName())
                 .append('`');
-        if (where.getQueryElements().size() > 0) {
+        if (!where.getQueryElements().isEmpty()) {
             SQLQueryString qs = convertGroup(repo.getInfo(), where);
             sb.append(" WHERE ").append(qs.getQuery());
             parameters = qs.getParameters();
@@ -114,7 +113,7 @@ public class MySQLQueryStringBuilder implements QueryStringBuilder {
 
     private void checkWithDeleted(Repo<?> repo, boolean withDeleted, QueryGroup<?> where) {
         if (repo.getInfo().isSoftDelete() && !withDeleted) {
-            if (where.getQueryElements().size() > 0)
+            if (!where.getQueryElements().isEmpty())
                 where.getQueryElements().add(0, QueryConjunction.AND);
             where.getQueryElements().add(0, new QueryCondition(new QueryColumn(repo.getInfo().getColumnName(repo.getInfo().getSoftDeleteField())), "IS NULL", null));
         }
