@@ -256,7 +256,7 @@ public class TableInfo {
 
     public boolean isNotNull(String fieldName) {
         if (idField.equals(fieldName))
-            return false;
+            return true;
         return false;
     }
 
