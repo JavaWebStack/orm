@@ -4,6 +4,7 @@ import org.javawebstack.orm.Model;
 import org.javawebstack.orm.Repo;
 import org.javawebstack.orm.SQLMapper;
 import org.javawebstack.orm.exception.ORMQueryException;
+import org.javawebstack.orm.wrapper.builder.SQLQueryString;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -23,10 +24,9 @@ public class Query<T extends Model> {
     private final QueryGroup<T> where;
     private Integer offset;
     private Integer limit;
-    private QueryColumn order;
-    private boolean desc = false;
+    private QueryOrderBy order;
     private boolean withDeleted = false;
-    private final Map<Class<? extends Model>, QueryCondition> leftJoins = new HashMap<>();
+    private final List<QueryWith> withs = new ArrayList<>();
 
     public Query(Class<T> model) {
         this(Repo.get(model), model);
@@ -36,14 +36,47 @@ public class Query<T extends Model> {
         this.repo = repo;
         this.model = model;
         this.where = new QueryGroup<>();
+        this.order = new QueryOrderBy();
+    }
+
+    public boolean isWithDeleted() {
+        return withDeleted;
+    }
+
+    public QueryGroup<T> getWhereGroup() {
+        return where;
+    }
+
+    public List<QueryWith> getWiths() {
+        return withs;
+    }
+
+    public Integer getLimit() {
+        return limit;
+    }
+
+    public Integer getOffset() {
+        return offset;
+    }
+
+    public QueryOrderBy getOrder() {
+        return order;
+    }
+
+    public Repo<T> getRepo() {
+        return repo;
     }
 
     public Class<T> getModel() {
         return model;
     }
 
-    public Query<T> leftJoin(Class<? extends Model> model, String self, String other) {
-        leftJoins.put(model, new QueryCondition(new QueryColumn(repo.getInfo().getTableName() + "." + self), "=", new QueryColumn(Repo.get(model).getInfo().getTableName() + "." + other)));
+    public Query<T> with(String extra) {
+        return with(extra, null);
+    }
+
+    public Query<T> with(String extra, String as) {
+        withs.add(new QueryWith(extra, as));
         return this;
     }
 
@@ -263,18 +296,48 @@ public class Query<T extends Model> {
         return this;
     }
 
-    public Query<T> order(String orderBy, boolean desc) {
-        return order(new QueryColumn(orderBy), desc);
+    /**
+     * Sorts the results by the given column name ascendingly.
+     *
+     * @param columnName The name of the column to sort ascendingly by.
+     * @return The Query object with the given order by information added.
+     * @throws ORMQueryException if the order operation is called twice on a column specification with the same name.
+     */
+    public Query<T> order(String columnName) throws ORMQueryException {
+        return order(columnName, false);
     }
 
-    public Query<T> order(QueryColumn orderBy, boolean desc) {
-        this.order = orderBy;
-        this.desc = desc;
+    /**
+     * Sorts the results by the given column name with the given order direction.
+     *
+     * @param columnName The name of the column to sort ascendingly by.
+     * @param desc If true it will order descendingly, if false it will order ascendingly.
+     * @return The Query object with the given order by information added.
+     * @throws ORMQueryException if the order operation is called twice on a column specification with the same name.
+     */
+    public Query<T> order(String columnName, boolean desc) throws ORMQueryException {
+        return order(new QueryColumn(columnName), desc);
+    }
+
+    /**
+     * Sorts the results by the given column  with the given order direction.
+     *
+     * @param column The column encoded as QueryColumn object.
+     * @param desc If true it will order descendingly, if false it will order ascendingly.
+     * @return The Query object with the given order by information added.
+     * @throws ORMQueryException if the order operation is called twice on a column specification with the same name.
+     */
+    public Query<T> order(QueryColumn column, boolean desc) throws ORMQueryException{
+        boolean success = this.order.add(column, desc);
+        if(!success) {
+            throw new ORMQueryException(String.format(
+                "The column %s could not be ordered %s. This is probably caused by calling .order() on this column twice.",
+                column.toString(),
+                desc ? "descendingly" : "ascendingly"
+            ));
+        }
+
         return this;
-    }
-
-    public Query<T> order(String orderBy) {
-        return order(orderBy, false);
     }
 
     public Query<T> limit(int offset, int limit) {
@@ -296,59 +359,10 @@ public class Query<T extends Model> {
         return this;
     }
 
-    public QueryString getQueryString() {
-        return getQueryString(false);
-    }
-
-    public QueryString getQueryString(boolean count) {
-        List<Object> parameters = new ArrayList<>();
-        StringBuilder sb = new StringBuilder("SELECT ")
-                .append(count ? "COUNT(*)" : "*")
-                .append(" FROM `")
-                .append(repo.getInfo().getTableName())
-                .append('`');
-        for (Class<? extends Model> type : leftJoins.keySet()) {
-            sb.append(" LEFT JOIN `")
-                    .append(Repo.get(type).getInfo().getTableName())
-                    .append("` ON ")
-                    .append(leftJoins.get(type).getQueryString(repo.getInfo()).getQuery());
-        }
-        considerSoftDelete();
-        if (where.getQueryElements().size() > 0) {
-            QueryString qs = where.getQueryString(repo.getInfo());
-            sb.append(" WHERE ").append(qs.getQuery());
-            parameters.addAll(qs.getParameters());
-        }
-        if (order != null) {
-            sb.append(" ORDER BY ").append(order.toString(repo.getInfo()));
-            if (desc)
-                sb.append(" DESC");
-        }
-        if (offset != null && limit == null)
-            limit = Integer.MAX_VALUE;
-        if (limit != null) {
-            sb.append(" LIMIT ?");
-            if (offset != null) {
-                sb.append(",?");
-                parameters.add(offset);
-            }
-            parameters.add(limit);
-        }
-        return new QueryString(sb.toString(), SQLMapper.mapParams(repo, parameters));
-    }
-
     public void finalDelete() {
-        List<Object> parameters = new ArrayList<>();
-        StringBuilder sb = new StringBuilder("DELETE FROM `")
-                .append(repo.getInfo().getTableName())
-                .append('`');
-        if (where.getQueryElements().size() > 0) {
-            QueryString qs = where.getQueryString(repo.getInfo());
-            sb.append(" WHERE ").append(qs.getQuery());
-            parameters = qs.getParameters();
-        }
+        SQLQueryString qs = repo.getConnection().builder().buildDelete(this);
         try {
-            repo.getConnection().write(sb.toString(), SQLMapper.mapParams(repo, parameters).toArray());
+            repo.getConnection().write(qs.getQuery(), qs.getParameters().toArray());
         } catch (SQLException throwables) {
             throw new ORMQueryException(throwables);
         }
@@ -374,18 +388,10 @@ public class Query<T extends Model> {
         withDeleted().update(values);
     }
 
-    private void considerSoftDelete() {
-        if (repo.getInfo().isSoftDelete() && !withDeleted) {
-            if (where.getQueryElements().size() > 0)
-                where.getQueryElements().add(0, QueryConjunction.AND);
-            where.getQueryElements().add(0, new QueryCondition(new QueryColumn(repo.getInfo().getColumnName(repo.getInfo().getSoftDeleteField())), "IS NULL", null));
-        }
-    }
-
     public T refresh(T entity) {
-        QueryString qs = getQueryString(false);
+        SQLQueryString qs = repo.getConnection().builder().buildQuery(this, false);
         try {
-            ResultSet rs = repo.getConnection().read(qs.getQuery(), SQLMapper.mapParams(repo, SQLMapper.mapParams(repo, qs.getParameters())).toArray());
+            ResultSet rs = repo.getConnection().read(qs.getQuery(), qs.getParameters().toArray());
             SQLMapper.mapBack(repo, rs, entity);
             repo.getConnection().close(rs);
             return entity;
@@ -399,39 +405,19 @@ public class Query<T extends Model> {
     }
 
     public void update(Map<String, Object> values) {
-        if (repo.getInfo().hasUpdated())
-            values.put(repo.getInfo().getColumnName(repo.getInfo().getUpdatedField()), Timestamp.from(Instant.now()));
-        List<Object> parameters = new ArrayList<>();
-        List<String> sets = new ArrayList<>();
-        values.forEach((key, value) -> {
-            sets.add("`" + key + "`=?");
-            parameters.add(value);
-        });
-        StringBuilder sb = new StringBuilder("UPDATE `")
-                .append(repo.getInfo().getTableName())
-                .append("` SET ")
-                .append(String.join(",", sets));
-        considerSoftDelete();
-        if (where.getQueryElements().size() > 0) {
-            QueryString qs = where.getQueryString(repo.getInfo());
-            sb.append(" WHERE ").append(qs.getQuery());
-            parameters.addAll(qs.getParameters());
-        }
-        sb.append(';');
+        SQLQueryString queryString = repo.getConnection().builder().buildUpdate(this, values);
         try {
-            repo.getConnection().write(sb.toString(), SQLMapper.mapParams(repo, parameters).toArray());
+            repo.getConnection().write(queryString.getQuery(), queryString.getParameters().toArray());
         } catch (SQLException throwables) {
             throw new ORMQueryException(throwables);
         }
     }
 
     public List<T> all() {
-        QueryString qs = getQueryString(false);
+        SQLQueryString qs = repo.getConnection().builder().buildQuery(this, false);
         try {
-            ResultSet rs = repo.getConnection().read(qs.getQuery(), SQLMapper.mapParams(repo, qs.getParameters()).toArray());
-            List<Class<? extends Model>> joinedModels = new ArrayList<>();
-            joinedModels.addAll(leftJoins.keySet());
-            List<T> list = SQLMapper.map(repo, rs, joinedModels);
+            ResultSet rs = repo.getConnection().read(qs.getQuery(), qs.getParameters().toArray());
+            List<T> list = SQLMapper.map(repo, rs, new ArrayList<>());
             repo.getConnection().close(rs);
             return list;
         } catch (SQLException throwables) {
@@ -455,9 +441,9 @@ public class Query<T extends Model> {
     }
 
     public int count() {
-        QueryString qs = getQueryString(true);
+        SQLQueryString qs = repo.getConnection().builder().buildQuery(this, true);
         try {
-            ResultSet rs = repo.getConnection().read(qs.getQuery(), SQLMapper.mapParams(repo, qs.getParameters()).toArray());
+            ResultSet rs = repo.getConnection().read(qs.getQuery(), qs.getParameters().toArray());
             int c = 0;
             if (rs.next())
                 c = rs.getInt(1);

@@ -2,6 +2,7 @@ package org.javawebstack.orm.query;
 
 import org.javawebstack.orm.Model;
 import org.javawebstack.orm.TableInfo;
+import org.javawebstack.orm.wrapper.builder.SQLQueryString;
 
 public class QueryExists<T extends Model> implements QueryElement {
 
@@ -13,9 +14,12 @@ public class QueryExists<T extends Model> implements QueryElement {
         this.not = not;
     }
 
-    public QueryString getQueryString(TableInfo info) {
-        QueryString qs = query.getQueryString();
-        return new QueryString((not ? "NOT " : "") + "EXISTS (" + qs.getQuery() + ")", qs.getParameters());
+    public Query<T> getQuery() {
+        return query;
+    }
+
+    public boolean isNot() {
+        return not;
     }
 
 }

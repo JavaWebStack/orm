@@ -3,12 +3,22 @@ package org.javawebstack.orm.query;
 import org.javawebstack.orm.Model;
 import org.javawebstack.orm.Repo;
 import org.javawebstack.orm.TableInfo;
+import org.javawebstack.orm.wrapper.builder.SQLQueryString;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
+/**
+ * Queries grouped via the QueryGroup class will be put inside parenthesis.
+ * This makes expressions as the following possible (MySQL example):
+ * ... `column_a` = 'A' OR (`column_b` = 'B' AND `column_c´ = 'C') ...
+ *
+ * In the above example `column_b` = 'B' AND `column_c´ = 'C' would be in a QueryGroup.
+ *
+ * @param <T> The model under which the QueryGroups functions. Currently purely semantic without functionality.
+ */
 public class QueryGroup<T extends Model> implements QueryElement {
 
     private final List<QueryElement> queryElements = new ArrayList<>();
@@ -201,20 +211,6 @@ public class QueryGroup<T extends Model> implements QueryElement {
 
     public QueryGroup<T> orWhereNotIn(Object left, Object... values) {
         return orWhere(left, "NOT IN", values);
-    }
-
-    public QueryString getQueryString(TableInfo info) {
-        StringBuilder sb = new StringBuilder("(");
-        List<Object> parameters = new ArrayList<>();
-        for (QueryElement element : queryElements) {
-            if (sb.length() > 1)
-                sb.append(' ');
-            QueryString s = element.getQueryString(info);
-            sb.append(s.getQuery());
-            parameters.addAll(s.getParameters());
-        }
-        sb.append(')');
-        return new QueryString(sb.toString(), parameters);
     }
 
 }

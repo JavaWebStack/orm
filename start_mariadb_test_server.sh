@@ -1,0 +1,1 @@
+docker run -p 3306:3306 -e MYSQL_DATABASE=ormtest -e MYSQL_ROOT_PASSWORD=testpassword -d mariadb:10.5.9
