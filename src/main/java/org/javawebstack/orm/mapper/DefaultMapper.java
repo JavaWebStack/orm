@@ -5,6 +5,8 @@ import org.javawebstack.orm.SQLType;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -25,6 +27,21 @@ public class DefaultMapper implements TypeMapper {
     private static final long MAX_SIZE_MEDIUMTEXT = (long) Math.floor((16777215 - BYTES_OVERHEAD_MEDIUMTEXT) / 4);
     private static final long MAX_SIZE_LONGTEXT = (long) Math.floor((4294967295L - BYTES_OVERHEAD_LONGTEXT) / 4);
 
+    public static final Map<String, Class<?>> TYPE_MAPPING = new HashMap<String, Class<?>>(){{
+        put("FLOAT", Float.class);
+        put("DOUBLE", Double.class);
+        put("INT", Integer.class);
+        put("BIGINT", Long.class);
+        put("VARCHAR", String.class);
+        put("TEXT", String.class);
+        put("SHORTTEXT", String.class);
+        put("LONGTEXT", String.class);
+        put("TIMESTAMP", Timestamp.class);
+        put("DATE", Date.class);
+        put("VARBINARY", byte[].class);
+        put("CHARARRAY", char[].class);
+        put("TINYINT", Short.class);
+    }};
 
     public Object mapToSQL(Object source, Class<?> type) {
         if (source == null)
