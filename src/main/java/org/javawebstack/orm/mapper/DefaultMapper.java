@@ -40,6 +40,7 @@ public class DefaultMapper implements TypeMapper {
         put("DATE", Date.class);
         put("VARBINARY", byte[].class);
         put("CHARARRAY", char[].class);
+        put("SMALLINT", Short.class);
         put("TINYINT", Short.class);
     }};
 
