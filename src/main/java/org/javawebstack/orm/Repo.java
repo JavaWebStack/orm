@@ -113,10 +113,14 @@ public class Repo<T extends Model> {
         try {
             if (info.hasDates()) {
                 Timestamp now = Timestamp.from(Instant.now());
-                if (info.hasCreated())
-                    info.getField(info.getCreatedField()).set(entry, now);
-                if (info.hasUpdated())
-                    info.getField(info.getUpdatedField()).set(entry, now);
+                if (info.hasCreated()) {
+                    if(info.getField(info.getCreatedField()).get(entry) == null)
+                        info.getField(info.getCreatedField()).set(entry, now);
+                }
+                if (info.hasUpdated()) {
+                    if(info.getField(info.getUpdatedField()).get(entry) == null)
+                        info.getField(info.getUpdatedField()).set(entry, now);
+                }
             }
             if (info.getIdType().equals(UUID.class)) {
                 Field field = info.getField(info.getIdField());
