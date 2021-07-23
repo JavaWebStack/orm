@@ -92,7 +92,7 @@ You also need to add the driver you want to use. JavaWebStack ORM comes with a w
 <dependency>
     <groupId>mysql</groupId>
     <artifactId>mysql-connector-java</artifactId>
-    <version>8.0.22</version>
+    <version>8.0.25</version>
     <scope>compile</scope>
 </dependency>
 ```
