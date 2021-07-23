@@ -113,7 +113,7 @@ public class TableInfo {
         if (model.isAnnotationPresent(RelationField.class)) {
             relationField = model.getDeclaredAnnotationsByType(RelationField.class)[0].value();
         } else {
-            relationField = Helper.pascalToCamelCase(model.getSimpleName()) + (getIdType().equals(UUID.class) ? "UUID" : "Id");
+            relationField = Helper.pascalToCamelCase(model.getSimpleName()) + ((getIdType().equals(UUID.class) && !idField.equalsIgnoreCase("id")) ? "UUID" : "Id");
         }
         if (config.isIdPrimaryKey()) {
             if (primaryKey == null)
