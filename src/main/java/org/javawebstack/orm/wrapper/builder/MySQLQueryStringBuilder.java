@@ -50,6 +50,18 @@ public class MySQLQueryStringBuilder implements QueryStringBuilder {
             parameters.addAll(qs.getParameters());
         }
 
+        if(query.getGroupBy().size() > 0) {
+            sb.append(" GROUP BY ");
+            sb.append(query.getGroupBy().stream().map(c -> c.toString(repo.getInfo())).collect(Collectors.joining(",")));
+        }
+
+        if(query.getHaving() != null) {
+            sb.append(" HAVING ");
+            SQLQueryString group = convertGroup(repo.getInfo(), query.getHaving());
+            sb.append(group.getQuery());
+            parameters.addAll(group.getParameters());
+        }
+
         QueryOrderBy orderBy = query.getOrder();
         if (!orderBy.isEmpty()) {
             sb.append(" ORDER BY ")

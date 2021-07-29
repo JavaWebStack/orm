@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -27,6 +28,8 @@ public class Query<T extends Model> {
     private QueryOrderBy order;
     private boolean withDeleted = false;
     private final List<QueryWith> withs = new ArrayList<>();
+    private final List<QueryColumn> groupBy = new ArrayList<>();
+    private QueryGroup<T> having;
 
     public Query(Class<T> model) {
         this(Repo.get(model), model);
@@ -49,6 +52,14 @@ public class Query<T extends Model> {
 
     public List<QueryWith> getWiths() {
         return withs;
+    }
+
+    public List<QueryColumn> getGroupBy() {
+        return groupBy;
+    }
+
+    public QueryGroup<T> getHaving() {
+        return having;
     }
 
     public Integer getLimit() {
@@ -275,6 +286,22 @@ public class Query<T extends Model> {
 
     public Query<T> orWhereNotIn(Object left, Object... values) {
         where.orWhereNotIn(left, values);
+        return this;
+    }
+
+    public Query<T> groupBy(String column) {
+        groupBy.add(new QueryColumn(column));
+        return this;
+    }
+
+    public Query<T> groupBy(QueryColumn column) {
+        groupBy.add(column);
+        return this;
+    }
+
+    public Query<T> having(Consumer<QueryGroup<T>> consumer) {
+        having = new QueryGroup<>();
+        consumer.accept(having);
         return this;
     }
 
