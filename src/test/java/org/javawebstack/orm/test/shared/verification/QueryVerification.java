@@ -145,7 +145,7 @@ public class QueryVerification {
      * @return The order sensitive string list of inner sections.
      */
     public List<String> getSectionList(String topLevelKeyword) {
-        return new QueryStringUtil(this.query.getRepo().getConnection().builder().buildQuery(this.query, false).getQuery())
+        return new QueryStringUtil(this.query.getRepo().getConnection().builder().buildQuery(this.query).getQuery())
                 .getTopLevelSectionsByKeyword(topLevelKeyword);
     }
 

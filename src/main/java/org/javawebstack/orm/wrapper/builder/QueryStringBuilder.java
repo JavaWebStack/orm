@@ -8,7 +8,7 @@ import java.util.Map;
 public interface QueryStringBuilder {
 
     SQLQueryString buildInsert(TableInfo info, Map<String, Object> values);
-    SQLQueryString buildQuery(Query<?> query, boolean count);
+    SQLQueryString buildQuery(Query<?> query);
     SQLQueryString buildUpdate(Query<?> query, Map<String, Object> values);
     SQLQueryString buildDelete(Query<?> query);
 

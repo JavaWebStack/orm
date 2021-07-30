@@ -34,11 +34,15 @@ public class MySQLQueryStringBuilder implements QueryStringBuilder {
         return new SQLQueryString(sb.toString(), params);
     }
 
-    public SQLQueryString buildQuery(Query<?> query, boolean count) {
+    public SQLQueryString buildQuery(Query<?> query) {
         Repo<?> repo = query.getRepo();
         List<Object> parameters = new ArrayList<>();
-        StringBuilder sb = new StringBuilder("SELECT ")
-                .append(count ? "COUNT(*)" : "*")
+        StringBuilder sb = new StringBuilder("SELECT ");
+        if(query.getSelect().size() == 0)
+            sb.append("*");
+        else
+            sb.append(String.join(",", query.getSelect()));
+        sb
                 .append(" FROM `")
                 .append(repo.getInfo().getTableName())
                 .append('`');
@@ -138,7 +142,7 @@ public class MySQLQueryStringBuilder implements QueryStringBuilder {
             return new SQLQueryString(((QueryConjunction) element).name());
         if(element instanceof QueryExists) {
             QueryExists<?> queryExists = (QueryExists<?>) element;
-            SQLQueryString qs = buildQuery(queryExists.getQuery(), false);
+            SQLQueryString qs = buildQuery(queryExists.getQuery());
             return new SQLQueryString((queryExists.isNot() ? "NOT " : "") + "EXISTS (" + qs.getQuery() + ")", qs.getParameters());
         }
         if(element instanceof QueryGroup)
@@ -167,6 +171,10 @@ public class MySQLQueryStringBuilder implements QueryStringBuilder {
         List<Object> parameters = new ArrayList<>();
         if (condition.getLeft() instanceof QueryColumn) {
             sb.append(((QueryColumn) condition.getLeft()).toString(info));
+        } else if(condition.getLeft() instanceof Query) {
+            SQLQueryString qs = buildQuery((Query<?>) condition.getLeft());
+            sb.append("(").append(qs.getQuery()).append(")");
+            parameters.addAll(qs.getParameters());
         } else {
             sb.append('?');
             parameters.add(condition.getLeft());
@@ -181,6 +189,10 @@ public class MySQLQueryStringBuilder implements QueryStringBuilder {
                 parameters.addAll(Arrays.asList(values));
             } else if (condition.getRight() instanceof QueryColumn) {
                 sb.append(((QueryColumn) condition.getRight()).toString(info));
+            } else if(condition.getRight() instanceof Query) {
+                SQLQueryString qs = buildQuery((Query<?>) condition.getRight());
+                sb.append("(").append(qs.getQuery()).append(")");
+                parameters.addAll(qs.getParameters());
             } else {
                 sb.append('?');
                 parameters.add(condition.getRight());

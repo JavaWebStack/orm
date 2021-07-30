@@ -8,6 +8,7 @@ import org.javawebstack.orm.wrapper.builder.SQLQueryString;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -195,6 +196,14 @@ public class QueryGroup<T extends Model> implements QueryElement {
         Query<M> query = consumer.apply(new Query<>(model).limit(1));
         queryElements.add(new QueryExists<>(query, true));
         return this;
+    }
+
+    public QueryGroup<T> has(Query<?> relation, String operator, int count) {
+        return where(relation.select("count(*)"), operator, count);
+    }
+
+    public QueryGroup<T> has(Query<?> relation) {
+        return has(relation, ">=", 1);
     }
 
     public QueryGroup<T> whereIn(Object left, Object... values) {

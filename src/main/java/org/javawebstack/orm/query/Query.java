@@ -10,10 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -22,12 +19,12 @@ public class Query<T extends Model> {
 
     private final Repo<T> repo;
     private final Class<T> model;
+    private List<String> select = new ArrayList<>();
     private final QueryGroup<T> where;
     private Integer offset;
     private Integer limit;
     private QueryOrderBy order;
     private boolean withDeleted = false;
-    private final List<QueryWith> withs = new ArrayList<>();
     private final List<QueryColumn> groupBy = new ArrayList<>();
     private QueryGroup<T> having;
 
@@ -50,8 +47,8 @@ public class Query<T extends Model> {
         return where;
     }
 
-    public List<QueryWith> getWiths() {
-        return withs;
+    public List<String> getSelect() {
+        return select;
     }
 
     public List<QueryColumn> getGroupBy() {
@@ -82,12 +79,8 @@ public class Query<T extends Model> {
         return model;
     }
 
-    public Query<T> with(String extra) {
-        return with(extra, null);
-    }
-
-    public Query<T> with(String extra, String as) {
-        withs.add(new QueryWith(extra, as));
+    public Query<T> select(String... columns) {
+        this.select = Arrays.asList(columns);
         return this;
     }
 
@@ -305,6 +298,15 @@ public class Query<T extends Model> {
         return this;
     }
 
+    public Query<T> has(Query<?> relation, String operator, int count) {
+        where.has(relation, operator, count);
+        return this;
+    }
+
+    public Query<T> has(Query<?> relation) {
+        return has(relation, ">=", 1);
+    }
+
     public Query<T> accessible(Object accessor) {
         return repo.accessible(this, accessor);
     }
@@ -416,7 +418,7 @@ public class Query<T extends Model> {
     }
 
     public T refresh(T entity) {
-        SQLQueryString qs = repo.getConnection().builder().buildQuery(this, false);
+        SQLQueryString qs = repo.getConnection().builder().buildQuery(this);
         try {
             ResultSet rs = repo.getConnection().read(qs.getQuery(), qs.getParameters().toArray());
             SQLMapper.mapBack(repo, rs, entity);
@@ -441,7 +443,7 @@ public class Query<T extends Model> {
     }
 
     public List<T> all() {
-        SQLQueryString qs = repo.getConnection().builder().buildQuery(this, false);
+        SQLQueryString qs = repo.getConnection().builder().buildQuery(this);
         try {
             ResultSet rs = repo.getConnection().read(qs.getQuery(), qs.getParameters().toArray());
             List<T> list = SQLMapper.map(repo, rs, new ArrayList<>());
@@ -468,7 +470,7 @@ public class Query<T extends Model> {
     }
 
     public int count() {
-        SQLQueryString qs = repo.getConnection().builder().buildQuery(this, true);
+        SQLQueryString qs = repo.getConnection().builder().buildQuery(this.select("count(*)"));
         try {
             ResultSet rs = repo.getConnection().read(qs.getQuery(), qs.getParameters().toArray());
             int c = 0;

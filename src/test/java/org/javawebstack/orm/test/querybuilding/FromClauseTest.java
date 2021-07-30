@@ -68,6 +68,6 @@ class FromClauseTest extends ORMTestCase {
      */
     private String getBaseQuery(Class<? extends Model> clazz) throws ORMConfigurationException {
         ORM.register(clazz, sql());
-        return Repo.get(clazz).getConnection().builder().buildQuery(Repo.get(clazz).query(), false).getQuery();
+        return Repo.get(clazz).getConnection().builder().buildQuery(Repo.get(clazz).query()).getQuery();
     }
 }
