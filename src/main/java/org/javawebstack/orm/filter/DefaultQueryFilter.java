@@ -27,15 +27,11 @@ public class DefaultQueryFilter implements QueryFilter {
             filter.forEach((key, v) -> {
                 if(!filterable.containsKey(key))
                     key = Helper.toCamelCase(key);
-                if(!filterable.containsKey(key)) {
-                    System.out.println("Filterable not found: " + key);
+                if(!filterable.containsKey(key))
                     return;
-                }
                 Field field = info.getField(filterable.get(key));
-                if(field == null) {
-                    System.out.println("Field null!");
+                if(field == null)
                     return;
-                }
                 if(v.equals("null")) {
                     q.whereNull(key);
                     return;
