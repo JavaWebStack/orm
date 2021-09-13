@@ -20,36 +20,30 @@ public class DefaultQueryFilter implements QueryFilter {
     }
 
     public void filter(Query<? extends Model> query, Map<String, String> filter) {
+        if(filter.size() == 0)
+            return;
         TableInfo info = query.getRepo().getInfo();
         query.and(q -> {
-            filter.keySet().stream().filter(filterable.keySet()::contains).forEach(key -> {
-                boolean not = false;
-                if(key.endsWith("!")) {
-                    key = key.substring(0, key.length()-1);
-                    not = true;
-                }
-                key = filterable.get(key);
-                String v = filter.get(key);
-                Field field = info.getField(key);
-                if(field == null) {
+            filter.forEach((key, v) -> {
+                if(!filterable.containsKey(key))
                     key = Helper.toCamelCase(key);
-                    field = info.getField(key);
-                }
+                if(!filterable.containsKey(key))
+                    return;
+                Field field = info.getField(filterable.get(key));
                 if(field == null)
                     return;
                 if(v.equals("null")) {
-                    if(not)
-                        q.whereNull(key);
-                    else
-                        q.whereNotNull(key);
+                    q.whereNull(key);
                     return;
                 }
                 if(field.getType().equals(Boolean.class) || field.getType().equals(boolean.class)) {
-                    q.where(key, not ? "!=" : "=", v.equals("1") || v.equals("true"));
+                    q.where(key, "=", v.equals("1") || v.equals("true"));
                     return;
                 }
-                q.where(key, not ? "!=" : "=", v);
+                q.where(key, "=", v);
             });
+            if(q.getQueryElements().size() == 0)
+                q.where(1, "=", 1);
             return q;
         });
     }
