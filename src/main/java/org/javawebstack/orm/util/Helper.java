@@ -35,7 +35,7 @@ public class Helper {
             }
             if(Character.isUpperCase(c) && Character.isLowerCase(source.charAt(i-1)))
                 wordFlag = true;
-            sb.append(wordFlag ? Character.toUpperCase(c) : Character.toUpperCase(c));
+            sb.append(wordFlag ? Character.toUpperCase(c) : Character.toLowerCase(c));
         }
         return sb.toString();
     }
