@@ -150,16 +150,4 @@ class OrderByClauseTest {
         new QueryVerification(query).assertSectionEquals("ORDER BY", "`oVer_writtenColumn-name`");
     }
 
-    /*
-     * Error Cases
-     */
-
-    // This test might not be correct here as it does not purely look at the query
-    @Test
-    void testCannotCallOrderOnSameColumnTwice() {
-        Query<Datatype> query = setUpModel(Datatype.class).query()
-                .order("primitiveInteger", true);
-
-        assertThrows(ORMQueryException.class, () -> query.order("primitiveInteger"));
-    }
 }
