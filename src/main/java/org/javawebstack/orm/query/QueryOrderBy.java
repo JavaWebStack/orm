@@ -2,69 +2,77 @@ package org.javawebstack.orm.query;
 
 import org.javawebstack.orm.TableInfo;
 
-import java.util.LinkedList;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 /**
- * The QueryOrderBy class serves as an aggregation of order by elements. It extends a list, because the order of the
- * order by statements is of relevance.
+ * The QueryOrderBy class encodes an Order By Statement.
  */
-public class QueryOrderBy extends LinkedList<QueryOrderByElement>{
+public class QueryOrderBy {
 
-    /**
-     * Add a new order by statement. If a statement with the same column name already exists it will not add the
-     * statement.
-     *
-     * @param columnName The column name to order by.
-     * @param desc If the column should be order descendingly.
-     * @return True if adding the statement was successful. False otherwise.
-     */
-    public boolean add(String columnName, boolean desc) {
-        return this.add(new QueryColumn(columnName), desc);
+    private final QueryColumn queryColumn;
+    private final boolean desc;
+
+    QueryOrderBy(String columnName, boolean desc) {
+        queryColumn = new QueryColumn(columnName);
+        this.desc = desc;
+    }
+
+    QueryOrderBy(QueryColumn column, boolean desc) {
+        this.queryColumn = column;
+        this.desc = desc;
     }
 
     /**
-     * Add a new order by statement. If a statement with the same column name already exists it will not add the
-     * statement.
+     * Retrieves the QueryColumn of the statement which encodes the column name.
      *
-     * @param column The column to be ordered by. It will retrieve the name from the QueryColumn.
-     * @param desc If the column should be order descendingly.
-     * @return True if adding the statement was successful. False otherwise.
+     * @return The encoding QueryColumn object.
      */
-    public boolean add(QueryColumn column, boolean desc) {
-        return this.add(new QueryOrderByElement(column, desc));
+    public QueryColumn getQueryColumn() {
+        return queryColumn;
     }
 
-    @Override
     /**
-     * Add a new order by statement. If a statement with the same column name already exists it will not add the
-     * statement.
+     * Retrieves the information if this column is ordered ascendingly or descendingly.
      *
-     * @param element The direct QueryOrderByElement which encodes the order by statement.
-     * @return True if adding the statement was successful. False otherwise.
+     * @return false if ascending, true if descending.
      */
-    public boolean add(QueryOrderByElement element) {
-        boolean hasBeenAdded = false;
-        if(!willOverwrite(element))
-            hasBeenAdded = super.add(element);
-
-        return hasBeenAdded;
+    public boolean isDesc() {
+        return desc;
     }
 
-    private boolean willOverwrite(QueryOrderByElement element) {
-        return this.stream().anyMatch(element::hasEqualColumn);
+    /**
+     * Compares the encoded column name.
+     *
+     * @param o An object to compare to.
+     * @return True if the object is a QueryOrderBy with a QueryColumn with generates the same identifier.
+     */
+    public boolean hasEqualColumn(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        QueryOrderBy that = (QueryOrderBy) o;
+        return getQueryColumn().equals(that.getQueryColumn());
     }
 
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        QueryOrderBy that = (QueryOrderBy) o;
+        return isDesc() == that.isDesc() && getQueryColumn().equals(that.getQueryColumn());
+    }
 
-    // The toString methods are specific to MySQL so they might have to be replaced later on.
-    @Override
+    public int hashCode() {
+        return Objects.hash(getQueryColumn(), isDesc());
+    }
+
     public String toString() {
-        return toString(null);
+        return this.toString(null);
     }
 
     public String toString(TableInfo info) {
-        return this.stream()
-                .map(singleOrderByElement -> singleOrderByElement.toString(info))
-                .collect(Collectors.joining(","));
+        String stringifiedOrderBy = getQueryColumn().toString(info);
+        if (isDesc())
+            stringifiedOrderBy += " DESC";
+        return stringifiedOrderBy;
     }
+
 }

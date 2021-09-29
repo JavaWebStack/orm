@@ -66,10 +66,10 @@ public class MySQLQueryStringBuilder implements QueryStringBuilder {
             parameters.addAll(group.getParameters());
         }
 
-        QueryOrderBy orderBy = query.getOrder();
+        List<QueryOrderBy> orderBy = query.getOrder();
         if (!orderBy.isEmpty()) {
             sb.append(" ORDER BY ")
-                .append(orderBy.toString(repo.getInfo()));
+                .append(orderBy.stream().map(ob -> ob.toString(repo.getInfo())).collect(Collectors.joining(",")));
         }
 
         Integer offset = query.getOffset();

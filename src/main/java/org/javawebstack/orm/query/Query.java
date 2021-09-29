@@ -20,10 +20,10 @@ public class Query<T extends Model> {
     private final Repo<T> repo;
     private final Class<T> model;
     private List<String> select = new ArrayList<>();
-    private final QueryGroup<T> where;
+    private final QueryGroup<T> where = new QueryGroup<>();
     private Integer offset;
     private Integer limit;
-    private QueryOrderBy order;
+    private List<QueryOrderBy> order = new ArrayList<>();
     private boolean withDeleted = false;
     private final List<QueryColumn> groupBy = new ArrayList<>();
     private QueryGroup<T> having;
@@ -35,8 +35,6 @@ public class Query<T extends Model> {
     public Query(Repo<T> repo, Class<T> model) {
         this.repo = repo;
         this.model = model;
-        this.where = new QueryGroup<>();
-        this.order = new QueryOrderBy();
     }
 
     public boolean isWithDeleted() {
@@ -67,7 +65,7 @@ public class Query<T extends Model> {
         return offset;
     }
 
-    public QueryOrderBy getOrder() {
+    public List<QueryOrderBy> getOrder() {
         return order;
     }
 
@@ -325,47 +323,16 @@ public class Query<T extends Model> {
         return this;
     }
 
-    /**
-     * Sorts the results by the given column name ascendingly.
-     *
-     * @param columnName The name of the column to sort ascendingly by.
-     * @return The Query object with the given order by information added.
-     * @throws ORMQueryException if the order operation is called twice on a column specification with the same name.
-     */
     public Query<T> order(String columnName) throws ORMQueryException {
         return order(columnName, false);
     }
 
-    /**
-     * Sorts the results by the given column name with the given order direction.
-     *
-     * @param columnName The name of the column to sort ascendingly by.
-     * @param desc If true it will order descendingly, if false it will order ascendingly.
-     * @return The Query object with the given order by information added.
-     * @throws ORMQueryException if the order operation is called twice on a column specification with the same name.
-     */
     public Query<T> order(String columnName, boolean desc) throws ORMQueryException {
         return order(new QueryColumn(columnName), desc);
     }
 
-    /**
-     * Sorts the results by the given column  with the given order direction.
-     *
-     * @param column The column encoded as QueryColumn object.
-     * @param desc If true it will order descendingly, if false it will order ascendingly.
-     * @return The Query object with the given order by information added.
-     * @throws ORMQueryException if the order operation is called twice on a column specification with the same name.
-     */
     public Query<T> order(QueryColumn column, boolean desc) throws ORMQueryException{
-        boolean success = this.order.add(column, desc);
-        if(!success) {
-            throw new ORMQueryException(String.format(
-                "The column %s could not be ordered %s. This is probably caused by calling .order() on this column twice.",
-                column.toString(),
-                desc ? "descendingly" : "ascendingly"
-            ));
-        }
-
+        this.order.add(new QueryOrderBy(column, desc));
         return this;
     }
 
