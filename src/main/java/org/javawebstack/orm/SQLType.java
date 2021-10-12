@@ -15,6 +15,7 @@ public enum SQLType {
 
     FLOAT(Float.class),
     DOUBLE(Double.class),
+    DECIMAL(Double.class),
 
     // No native char method except for a char stream
     CHAR(String.class),
@@ -27,10 +28,15 @@ public enum SQLType {
 
     DATE(Date.class),
     TIMESTAMP(Timestamp.class),
+    DATETIME(Timestamp.class),
 
     ENUM(String.class),
 
-    VARBINARY(byte[].class);
+    VARBINARY(byte[].class),
+    TINYBLOB(byte[].class),
+    BLOB(byte[].class),
+    MEDIUMBLOB(byte[].class),
+    LONGBLOB(byte[].class);
 
     private final Class<?> javaType;
 
