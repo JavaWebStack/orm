@@ -57,19 +57,12 @@ for(User user : Repo.get(User.class).all()){
 
 ## Maven
 
-### Repository
-```xml
-<repository>
-    <id>javawebstack</id>
-    <url>https://repo.javawebstack.org</url>
-</repository>
-```
 ### Dependency
 ```xml
 <dependency>
     <groupId>org.javawebstack</groupId>
     <artifactId>orm</artifactId>
-    <version>1.0.0-SNAPSHOT<!-- VERSION --></version>
+    <version>1.0.0</version>
 </dependency>
 ```
 

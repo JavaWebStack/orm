@@ -52,14 +52,6 @@ public class Repo<T extends Model> {
         return filter;
     }
 
-    public Query<T> filter(Map<String, String> filter) {
-        return query().filter(filter);
-    }
-
-    public Query<T> search(String search) {
-        return query().search(search);
-    }
-
     public Query<T> query() {
         return new Query<>((Class<T>) info.getModelClass());
     }
@@ -78,10 +70,6 @@ public class Repo<T extends Model> {
 
     public Query<T> whereId(Object right) {
         return query().whereId(right);
-    }
-
-    public <M extends Model> Query<T> whereExists(Class<M> model, Function<Query<M>, Query<M>> consumer) {
-        return query().whereExists(model, consumer);
     }
 
     public Query<T> accessible(Object accessor) {
@@ -197,10 +185,6 @@ public class Repo<T extends Model> {
 
     public List<T> all() {
         return query().all();
-    }
-
-    public Stream<T> stream() {
-        return query().stream();
     }
 
     public int count() {
