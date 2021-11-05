@@ -5,7 +5,7 @@ JWS Object Relational Mapping
 
 ![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/JavaWebStack/orm/Maven%20Deploy/master)
 ![GitHub](https://img.shields.io/github/license/JavaWebStack/orm)
-![Maven metadata URL](https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Frepo.javawebstack.org%2Forg%2Fjavawebstack%2Form%2Fmaven-metadata.xml)
+![Maven metadata URL](https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Frepo1.maven.org%2Fmaven2%2Forg%2Fjavawebstack%2Form%2Fmaven-metadata.xml)
 ![GitHub contributors](https://img.shields.io/github/contributors/JavaWebStack/orm)
 ![Lines of code](https://img.shields.io/tokei/lines/github/JavaWebStack/orm)
 ![Discord](https://img.shields.io/discord/815612319378833408?color=%237289DA&label=discord)
