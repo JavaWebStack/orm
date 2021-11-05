@@ -251,7 +251,7 @@ public class Model {
             Repo<?> selfRepo = Repo.get(getClass());
             Repo<T> otherRepo = Repo.get(other);
             Object id = selfRepo.getInfo().getField(selfFieldName).get(this);
-            return otherRepo.whereExists(pivot, q -> {
+            return otherRepo.query().whereExists(pivot, q -> {
                 q.where(pivot, selfPivotFieldName, "=", id).where(pivot, otherPivotFieldName, "=", other, otherFieldName);
                 if (pivotFilter != null)
                     q = pivotFilter.apply(q);
