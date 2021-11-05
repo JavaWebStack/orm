@@ -26,15 +26,20 @@ jobs:
         with:
           java-version: 1.8
       - name: Build
-        run: mvn -DnewVersion=1.0-SNAPSHOT -B package -Dmaven.test.skip=true
+        run: mvn -B package -Dmaven.test.skip=true
       - name: Test
         run: mvn -B test
         env:
           MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
           MYSQL_USERNAME: test
           MYSQL_PASSWORD: test
+      - name: Install GPG Key
+        run: echo -e "$GPG_PRIVATE_KEY" | gpg --import --no-tty --batch --yes
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
       - name: Deploy to JavaWebStack Repository
-        run: mvn deploy -B -DnewVersion=1.0-SNAPSHOT -s build/settings.xml -Dmaven.test.skip=true
+        run: mvn deploy -B -s build/settings.xml -Dmaven.test.skip=true
         env:
           DEPLOYMENT_USERNAME: ${{ secrets.DEPLOYMENT_USERNAME }}
           DEPLOYMENT_PASSWORD: ${{ secrets.DEPLOYMENT_PASSWORD }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}

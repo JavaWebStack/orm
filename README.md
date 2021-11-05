@@ -3,11 +3,11 @@
 JWS Object Relational Mapping
 </p>
 
-![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/JavaWebStack/ORM/Maven%20Deploy/master)
-![GitHub](https://img.shields.io/github/license/JavaWebStack/ORM)
-![Maven metadata URL](https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Frepo.javawebstack.org%2Forg%2Fjavawebstack%2FORM%2Fmaven-metadata.xml)
-![GitHub contributors](https://img.shields.io/github/contributors/JavaWebStack/ORM)
-![Lines of code](https://img.shields.io/tokei/lines/github/JavaWebStack/ORM)
+![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/JavaWebStack/orm/Maven%20Deploy/master)
+![GitHub](https://img.shields.io/github/license/JavaWebStack/orm)
+![Maven metadata URL](https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Frepo.javawebstack.org%2Forg%2Fjavawebstack%2Form%2Fmaven-metadata.xml)
+![GitHub contributors](https://img.shields.io/github/contributors/JavaWebStack/orm)
+![Lines of code](https://img.shields.io/tokei/lines/github/JavaWebStack/orm)
 ![Discord](https://img.shields.io/discord/815612319378833408?color=%237289DA&label=discord)
 ![Twitter Follow](https://img.shields.io/twitter/follow/JavaWebStack?style=social) 
 
@@ -68,21 +68,8 @@ for(User user : Repo.get(User.class).all()){
 ```xml
 <dependency>
     <groupId>org.javawebstack</groupId>
-    <artifactId>ORM</artifactId>
-    <version>1.0-SNAPSHOT<!-- VERSION --></version>
-</dependency>
-```
-#### or Jitpack
-```xml
-<repository>
-    <id>jitpack.io</id>
-    <url>https://jitpack.io</url>
-</repository>
-
-<dependency>
-    <groupId>com.github.JavaWebStack</groupId>
-    <artifactId>ORM</artifactId>
-    <version>COMMIT_HASH</version>
+    <artifactId>orm</artifactId>
+    <version>1.0.0-SNAPSHOT<!-- VERSION --></version>
 </dependency>
 ```
 
@@ -92,7 +79,7 @@ You also need to add the driver you want to use. JavaWebStack ORM comes with a w
 <dependency>
     <groupId>mysql</groupId>
     <artifactId>mysql-connector-java</artifactId>
-    <version>8.0.25</version>
+    <version>8.0.27</version>
     <scope>compile</scope>
 </dependency>
 ```

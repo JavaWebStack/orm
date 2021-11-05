@@ -14,5 +14,14 @@
             <username>${env.DEPLOYMENT_USERNAME}</username>
             <password>${env.DEPLOYMENT_PASSWORD}</password>
         </server>
+        <server>
+            <id>ossrh</id>
+            <username>JavaWebStack</username>
+            <password>${env.OSSRH_PASSWORD}</password>
+        </server>
+        <server>
+            <id>gpg</id>
+            <passphrase>${env.GPG_PASSPHRASE}</passphrase>
+        </server>
     </servers>
 </settings>
