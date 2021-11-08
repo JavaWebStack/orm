@@ -32,6 +32,18 @@
             <organization>JavaWebStack</organization>
             <organizationUrl>https://javawebstack.org</organizationUrl>
         </developer>
+        <developer>
+            <name>Timothy Gillespie</name>
+            <email>timothy@gillespie.eu</email>
+            <organization>JavaWebStack</organization>
+            <organizationUrl>https://javawebstack.org</organizationUrl>
+        </developer>
+        <developer>
+            <name>Julian Gojani</name>
+            <email>julian@gojani.xyz</email>
+            <organization>JavaWebStack</organization>
+            <organizationUrl>https://javawebstack.org</organizationUrl>
+        </developer>
     </developers>
 
     <scm>
