@@ -29,7 +29,7 @@ public class TableInfo {
     private final Class<? extends Model> modelClass;
     private String primaryKey;
     private final List<String> uniqueKeys = new ArrayList<>();
-    private final Constructor<?> constructor;
+    private Constructor<?> constructor;
     private String relationField;
     private final Map<String, String> filterable = new HashMap<>();
     private final List<String> searchable = new ArrayList<>();
@@ -42,6 +42,18 @@ public class TableInfo {
     public TableInfo(Class<? extends Model> model, ORMConfig config) throws ORMConfigurationException {
         this.config = config;
         this.modelClass = model;
+        if (model.getSuperclass() != Model.class) {
+            Class<? extends Model> superModel = (Class<? extends Model>) model.getSuperclass();
+            if (Modifier.isAbstract(superModel.getModifiers())) {
+                constructInfo(superModel);
+            } else {
+                throw new ORMConfigurationException("The parent model has to be abstract!");
+            }
+        }
+        constructInfo(model);
+    }
+
+    private void constructInfo (Class<? extends Model> model) throws ORMConfigurationException {
         if (model.isAnnotationPresent(Table.class)) {
             Table table = model.getDeclaredAnnotationsByType(Table.class)[0];
             tableName = table.value();
@@ -82,7 +94,7 @@ public class TableInfo {
             else
                 fieldSize = fieldConfig.size();
 
-                SQLType sqlType = config.getType(field.getType(), fieldSize);
+            SQLType sqlType = config.getType(field.getType(), fieldSize);
             if (sqlType != null) {
                 sqlTypes.put(fieldName, sqlType);
                 sqlTypeParameters.put(fieldName, config.getTypeParameters(field.getType(), fieldSize));
