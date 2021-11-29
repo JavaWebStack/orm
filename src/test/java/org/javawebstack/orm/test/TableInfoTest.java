@@ -38,6 +38,13 @@ public class TableInfoTest extends ORMTestCase {
         assertEquals(fetchedChild.content, child.content);
     }
 
+    @Test
+    public void testNonAbstractParent () throws ORMConfigurationException {
+        ORMConfig config = new ORMConfig()
+                .setDefaultSize(255);
+
+        assertThrows(ORMConfigurationException.class, () -> ORM.register(SecondChild.class, sql(), config), "The parent model has to be abstract!");
+    }
 
     public static abstract class Parent extends Model {
         @Column(ai = true, key = KeyType.PRIMARY)
@@ -45,6 +52,16 @@ public class TableInfoTest extends ORMTestCase {
     }
 
     public static class Child extends Parent {
+        @Column
+        public String content;
+    }
+
+    public static class NonAbstractParent extends Model {
+        @Column(ai = true, key = KeyType.PRIMARY)
+        public int id;
+    }
+
+    public static class SecondChild extends NonAbstractParent {
         @Column
         public String content;
     }
