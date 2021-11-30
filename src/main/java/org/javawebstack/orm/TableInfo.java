@@ -42,14 +42,17 @@ public class TableInfo {
     public TableInfo(Class<? extends Model> model, ORMConfig config) throws ORMConfigurationException {
         this.config = config;
         this.modelClass = model;
-        if (model.getSuperclass() != Model.class) {
-            Class<? extends Model> superModel = (Class<? extends Model>) model.getSuperclass();
-            if (Modifier.isAbstract(superModel.getModifiers())) {
-                constructInfo(superModel);
+
+        Stack<Class<?>> superClasses = Helper.getSuperClassesTill(model, Model.class);
+        while (!superClasses.isEmpty()) {
+            Class<? extends Model> superClass = (Class<? extends Model>) superClasses.pop();
+            if (Modifier.isAbstract(superClass.getModifiers())) {
+                constructInfo(superClass);
             } else {
                 throw new ORMConfigurationException("The parent model has to be abstract!");
             }
         }
+
         constructInfo(model);
     }
 
