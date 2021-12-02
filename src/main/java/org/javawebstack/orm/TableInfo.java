@@ -47,7 +47,7 @@ public class TableInfo {
         while (!superClasses.isEmpty()) {
             Class<? extends Model> superClass = (Class<? extends Model>) superClasses.pop();
             if (Modifier.isAbstract(superClass.getModifiers())) {
-                constructInfo(superClass);
+                analyzeColumns(superClass);
             } else {
                 throw new ORMConfigurationException("The parent model has to be abstract!");
             }
@@ -57,6 +57,21 @@ public class TableInfo {
     }
 
     private void constructInfo (Class<? extends Model> model) throws ORMConfigurationException {
+        analyzeTable(model);
+        analyzeColumns(model);
+
+        if (!fields.containsKey(idField))
+            idField = "uuid";
+        if (!fields.containsKey(idField))
+            throw new ORMConfigurationException("No id field found!");
+
+        if (config.isIdPrimaryKey()) {
+            if (primaryKey == null)
+                primaryKey = idField;
+        }
+    }
+    
+    private void analyzeTable(Class<? extends Model> model) throws ORMConfigurationException {
         if (model.isAnnotationPresent(Table.class)) {
             Table table = model.getDeclaredAnnotationsByType(Table.class)[0];
             tableName = table.value();
@@ -74,6 +89,26 @@ public class TableInfo {
         } catch (NoSuchMethodException e) {
             throw new ORMConfigurationException("The model class has no empty constructor!");
         }
+        if (model.isAnnotationPresent(RelationField.class)) {
+            relationField = model.getDeclaredAnnotationsByType(RelationField.class)[0].value();
+        } else {
+            relationField = Helper.pascalToCamelCase(model.getSimpleName()) + ((getIdType().equals(UUID.class) && !idField.equalsIgnoreCase("id")) ? "UUID" : "Id");
+        }
+        if (model.isAnnotationPresent(SoftDelete.class)) {
+            softDelete = model.getDeclaredAnnotationsByType(SoftDelete.class)[0];
+            if (!fields.containsKey(softDelete.value()))
+                throw new ORMConfigurationException("Missing soft-delete field '" + softDelete.value() + "'");
+        }
+        if (model.isAnnotationPresent(Dates.class)) {
+            dates = model.getDeclaredAnnotationsByType(Dates.class)[0];
+            if (!fields.containsKey(dates.create()))
+                throw new ORMConfigurationException("Missing dates field '" + dates.create() + "'");
+            if (!fields.containsKey(dates.update()))
+                throw new ORMConfigurationException("Missing dates field '" + dates.update() + "'");
+        }
+    }
+
+    private void analyzeColumns(Class<? extends Model> model) throws ORMConfigurationException {
         for (Field field : model.getDeclaredFields()) {
             if (Modifier.isStatic(field.getModifiers()))
                 continue;
@@ -120,31 +155,6 @@ public class TableInfo {
             }
             if (field.isAnnotationPresent(Searchable.class))
                 this.searchable.add(fieldName);
-        }
-        if (!fields.containsKey(idField))
-            idField = "uuid";
-        if (!fields.containsKey(idField))
-            throw new ORMConfigurationException("No id field found!");
-        if (model.isAnnotationPresent(RelationField.class)) {
-            relationField = model.getDeclaredAnnotationsByType(RelationField.class)[0].value();
-        } else {
-            relationField = Helper.pascalToCamelCase(model.getSimpleName()) + ((getIdType().equals(UUID.class) && !idField.equalsIgnoreCase("id")) ? "UUID" : "Id");
-        }
-        if (config.isIdPrimaryKey()) {
-            if (primaryKey == null)
-                primaryKey = idField;
-        }
-        if (model.isAnnotationPresent(SoftDelete.class)) {
-            softDelete = model.getDeclaredAnnotationsByType(SoftDelete.class)[0];
-            if (!fields.containsKey(softDelete.value()))
-                throw new ORMConfigurationException("Missing soft-delete field '" + softDelete.value() + "'");
-        }
-        if (model.isAnnotationPresent(Dates.class)) {
-            dates = model.getDeclaredAnnotationsByType(Dates.class)[0];
-            if (!fields.containsKey(dates.create()))
-                throw new ORMConfigurationException("Missing dates field '" + dates.create() + "'");
-            if (!fields.containsKey(dates.update()))
-                throw new ORMConfigurationException("Missing dates field '" + dates.update() + "'");
         }
     }
 
