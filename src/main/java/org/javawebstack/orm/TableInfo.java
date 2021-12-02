@@ -57,8 +57,8 @@ public class TableInfo {
     }
 
     private void constructInfo (Class<? extends Model> model) throws ORMConfigurationException {
-        analyzeTable(model);
         analyzeColumns(model);
+        analyzeTable(model);
 
         if (!fields.containsKey(idField))
             idField = "uuid";
