@@ -22,4 +22,6 @@ public interface SQL {
 
     void removeQueryLogger(QueryLogger logger);
 
+    SQL fork();
+
 }

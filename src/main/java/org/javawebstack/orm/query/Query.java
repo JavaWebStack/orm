@@ -3,7 +3,9 @@ package org.javawebstack.orm.query;
 import org.javawebstack.orm.Model;
 import org.javawebstack.orm.Repo;
 import org.javawebstack.orm.SQLMapper;
+import org.javawebstack.orm.Session;
 import org.javawebstack.orm.exception.ORMQueryException;
+import org.javawebstack.orm.wrapper.SQL;
 import org.javawebstack.orm.wrapper.builder.SQLQueryString;
 
 import java.sql.ResultSet;
@@ -19,6 +21,7 @@ public class Query<T extends Model> {
 
     private final Repo<T> repo;
     private final Class<T> model;
+    private SQL connection;
     private List<String> select = new ArrayList<>();
     private final QueryGroup<T> where = new QueryGroup<>();
     private Integer offset;
@@ -35,6 +38,15 @@ public class Query<T extends Model> {
     public Query(Repo<T> repo, Class<T> model) {
         this.repo = repo;
         this.model = model;
+        Session session = Session.current();
+        this.connection = repo.getConnection();
+        if(session != null && session.getConnection() != null)
+            this.connection = session.getConnection();
+    }
+
+    public Query<T> via(SQL connection) {
+        this.connection = connection;
+        return this;
     }
 
     public boolean isWithDeleted() {
@@ -356,9 +368,9 @@ public class Query<T extends Model> {
     }
 
     public void finalDelete() {
-        SQLQueryString qs = repo.getConnection().builder().buildDelete(this);
+        SQLQueryString qs = connection.builder().buildDelete(this);
         try {
-            repo.getConnection().write(qs.getQuery(), qs.getParameters().toArray());
+            connection.write(qs.getQuery(), qs.getParameters().toArray());
         } catch (SQLException throwables) {
             throw new ORMQueryException(throwables);
         }
@@ -385,11 +397,11 @@ public class Query<T extends Model> {
     }
 
     public T refresh(T entity) {
-        SQLQueryString qs = repo.getConnection().builder().buildQuery(this);
+        SQLQueryString qs = connection.builder().buildQuery(this);
         try {
-            ResultSet rs = repo.getConnection().read(qs.getQuery(), qs.getParameters().toArray());
+            ResultSet rs = connection.read(qs.getQuery(), qs.getParameters().toArray());
             SQLMapper.mapBack(repo, rs, entity);
-            repo.getConnection().close(rs);
+            connection.close(rs);
             return entity;
         } catch (SQLException throwables) {
             throw new ORMQueryException(throwables);
@@ -401,20 +413,20 @@ public class Query<T extends Model> {
     }
 
     public void update(Map<String, Object> values) {
-        SQLQueryString queryString = repo.getConnection().builder().buildUpdate(this, values);
+        SQLQueryString queryString = connection.builder().buildUpdate(this, values);
         try {
-            repo.getConnection().write(queryString.getQuery(), queryString.getParameters().toArray());
+            connection.write(queryString.getQuery(), queryString.getParameters().toArray());
         } catch (SQLException throwables) {
             throw new ORMQueryException(throwables);
         }
     }
 
     public List<T> all() {
-        SQLQueryString qs = repo.getConnection().builder().buildQuery(this);
+        SQLQueryString qs = connection.builder().buildQuery(this);
         try {
-            ResultSet rs = repo.getConnection().read(qs.getQuery(), qs.getParameters().toArray());
+            ResultSet rs = connection.read(qs.getQuery(), qs.getParameters().toArray());
             List<T> list = SQLMapper.map(repo, rs, new ArrayList<>());
-            repo.getConnection().close(rs);
+            connection.close(rs);
             return list;
         } catch (SQLException throwables) {
             throw new ORMQueryException(throwables);
@@ -437,13 +449,13 @@ public class Query<T extends Model> {
     }
 
     public int count() {
-        SQLQueryString qs = repo.getConnection().builder().buildQuery(this.select("count(*)"));
+        SQLQueryString qs = connection.builder().buildQuery(this.select("count(*)"));
         try {
-            ResultSet rs = repo.getConnection().read(qs.getQuery(), qs.getParameters().toArray());
+            ResultSet rs = connection.read(qs.getQuery(), qs.getParameters().toArray());
             int c = 0;
             if (rs.next())
                 c = rs.getInt(1);
-            repo.getConnection().close(rs);
+            connection.close(rs);
             return c;
         } catch (SQLException throwables) {
             throw new ORMQueryException(throwables);
