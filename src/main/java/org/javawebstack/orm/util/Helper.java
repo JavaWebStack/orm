@@ -1,5 +1,7 @@
 package org.javawebstack.orm.util;
 
+import java.util.Stack;
+
 public class Helper {
 
     public static String toSnakeCase(String source) {
@@ -41,4 +43,15 @@ public class Helper {
         return sb.toString();
     }
 
+    public static Stack<Class<?>> getSuperClassesTill(Class<?> clazz, Class<?> target) {
+        Stack<Class<?>> stack = new Stack<>();
+        Class<?> superClass = clazz.getSuperclass();
+
+        while (superClass != null && superClass != target) {
+            stack.push(superClass);
+            superClass = superClass.getSuperclass();
+        }
+
+        return stack;
+    }
 }

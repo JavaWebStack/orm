@@ -29,7 +29,7 @@ public class TableInfo {
     private final Class<? extends Model> modelClass;
     private String primaryKey;
     private final List<String> uniqueKeys = new ArrayList<>();
-    private final Constructor<?> constructor;
+    private Constructor<?> constructor;
     private String relationField;
     private final Map<String, String> filterable = new HashMap<>();
     private final List<String> searchable = new ArrayList<>();
@@ -42,6 +42,36 @@ public class TableInfo {
     public TableInfo(Class<? extends Model> model, ORMConfig config) throws ORMConfigurationException {
         this.config = config;
         this.modelClass = model;
+
+        Stack<Class<?>> superClasses = Helper.getSuperClassesTill(model, Model.class);
+        while (!superClasses.isEmpty()) {
+            Class<? extends Model> superClass = (Class<? extends Model>) superClasses.pop();
+            if (Modifier.isAbstract(superClass.getModifiers())) {
+                analyzeColumns(superClass);
+            } else {
+                throw new ORMConfigurationException("The parent model has to be abstract!");
+            }
+        }
+
+        constructInfo(model);
+    }
+
+    private void constructInfo (Class<? extends Model> model) throws ORMConfigurationException {
+        analyzeColumns(model);
+        analyzeTable(model);
+
+        if (!fields.containsKey(idField))
+            idField = "uuid";
+        if (!fields.containsKey(idField))
+            throw new ORMConfigurationException("No id field found!");
+
+        if (config.isIdPrimaryKey()) {
+            if (primaryKey == null)
+                primaryKey = idField;
+        }
+    }
+    
+    private void analyzeTable(Class<? extends Model> model) throws ORMConfigurationException {
         if (model.isAnnotationPresent(Table.class)) {
             Table table = model.getDeclaredAnnotationsByType(Table.class)[0];
             tableName = table.value();
@@ -59,6 +89,26 @@ public class TableInfo {
         } catch (NoSuchMethodException e) {
             throw new ORMConfigurationException("The model class has no empty constructor!");
         }
+        if (model.isAnnotationPresent(RelationField.class)) {
+            relationField = model.getDeclaredAnnotationsByType(RelationField.class)[0].value();
+        } else {
+            relationField = Helper.pascalToCamelCase(model.getSimpleName()) + ((getIdType().equals(UUID.class) && !idField.equalsIgnoreCase("id")) ? "UUID" : "Id");
+        }
+        if (model.isAnnotationPresent(SoftDelete.class)) {
+            softDelete = model.getDeclaredAnnotationsByType(SoftDelete.class)[0];
+            if (!fields.containsKey(softDelete.value()))
+                throw new ORMConfigurationException("Missing soft-delete field '" + softDelete.value() + "'");
+        }
+        if (model.isAnnotationPresent(Dates.class)) {
+            dates = model.getDeclaredAnnotationsByType(Dates.class)[0];
+            if (!fields.containsKey(dates.create()))
+                throw new ORMConfigurationException("Missing dates field '" + dates.create() + "'");
+            if (!fields.containsKey(dates.update()))
+                throw new ORMConfigurationException("Missing dates field '" + dates.update() + "'");
+        }
+    }
+
+    private void analyzeColumns(Class<? extends Model> model) throws ORMConfigurationException {
         for (Field field : model.getDeclaredFields()) {
             if (Modifier.isStatic(field.getModifiers()))
                 continue;
@@ -82,7 +132,7 @@ public class TableInfo {
             else
                 fieldSize = fieldConfig.size();
 
-                SQLType sqlType = config.getType(field.getType(), fieldSize);
+            SQLType sqlType = config.getType(field.getType(), fieldSize);
             if (sqlType != null) {
                 sqlTypes.put(fieldName, sqlType);
                 sqlTypeParameters.put(fieldName, config.getTypeParameters(field.getType(), fieldSize));
@@ -105,31 +155,6 @@ public class TableInfo {
             }
             if (field.isAnnotationPresent(Searchable.class))
                 this.searchable.add(fieldName);
-        }
-        if (!fields.containsKey(idField))
-            idField = "uuid";
-        if (!fields.containsKey(idField))
-            throw new ORMConfigurationException("No id field found!");
-        if (model.isAnnotationPresent(RelationField.class)) {
-            relationField = model.getDeclaredAnnotationsByType(RelationField.class)[0].value();
-        } else {
-            relationField = Helper.pascalToCamelCase(model.getSimpleName()) + ((getIdType().equals(UUID.class) && !idField.equalsIgnoreCase("id")) ? "UUID" : "Id");
-        }
-        if (config.isIdPrimaryKey()) {
-            if (primaryKey == null)
-                primaryKey = idField;
-        }
-        if (model.isAnnotationPresent(SoftDelete.class)) {
-            softDelete = model.getDeclaredAnnotationsByType(SoftDelete.class)[0];
-            if (!fields.containsKey(softDelete.value()))
-                throw new ORMConfigurationException("Missing soft-delete field '" + softDelete.value() + "'");
-        }
-        if (model.isAnnotationPresent(Dates.class)) {
-            dates = model.getDeclaredAnnotationsByType(Dates.class)[0];
-            if (!fields.containsKey(dates.create()))
-                throw new ORMConfigurationException("Missing dates field '" + dates.create() + "'");
-            if (!fields.containsKey(dates.update()))
-                throw new ORMConfigurationException("Missing dates field '" + dates.update() + "'");
         }
     }
 
