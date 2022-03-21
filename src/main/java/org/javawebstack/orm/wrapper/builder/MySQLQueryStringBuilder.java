@@ -1,10 +1,12 @@
 package org.javawebstack.orm.wrapper.builder;
 
-import org.javawebstack.orm.Repo;
-import org.javawebstack.orm.SQLMapper;
-import org.javawebstack.orm.TableInfo;
+import org.javawebstack.orm.*;
+import org.javawebstack.orm.exception.ORMQueryException;
 import org.javawebstack.orm.query.*;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.*;
@@ -14,6 +16,16 @@ import java.util.stream.IntStream;
 public class MySQLQueryStringBuilder implements QueryStringBuilder {
 
     public static final MySQLQueryStringBuilder INSTANCE = new MySQLQueryStringBuilder();
+
+    private static Method accessibleAccessMethod;
+
+    static {
+        try {
+            accessibleAccessMethod = Accessible.class.getDeclaredMethod("access", Query.class, QueryGroup.class, Object.class);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+    }
 
     public SQLQueryString buildInsert(TableInfo info, Map<String, Object> values) {
         List<Object> params = new ArrayList<>();
@@ -48,6 +60,18 @@ public class MySQLQueryStringBuilder implements QueryStringBuilder {
                 .append('`');
         QueryGroup<?> where = query.getWhereGroup();
         checkWithDeleted(repo, query.isWithDeleted(), where);
+        if(query.shouldApplyAccessible()) {
+            QueryGroup<?> actualWhere = where;
+            where = new QueryGroup<>()
+                    .and(q -> (QueryGroup<Model>) actualWhere)
+                    .and(q -> {
+                        try {
+                            return (QueryGroup<Model>) accessibleAccessMethod.invoke(repo.getAccessible(), query, q, query.getAccessor());
+                        } catch (IllegalAccessException | InvocationTargetException e) {
+                            throw new ORMQueryException(e);
+                        }
+                    });
+        }
         if (!where.getQueryElements().isEmpty()) {
             SQLQueryString qs = convertGroup(repo.getInfo(), where);
             sb.append(" WHERE ").append(qs.getQuery());
