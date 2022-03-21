@@ -58,27 +58,21 @@ public class MySQLQueryStringBuilder implements QueryStringBuilder {
                 .append(" FROM `")
                 .append(repo.getInfo().getTableName())
                 .append('`');
-        QueryGroup<?> where = query.getWhereGroup();
+        QueryGroup<Model> where = (QueryGroup<Model>) query.getWhereGroup();
         checkWithDeleted(repo, query.isWithDeleted(), where);
         if(query.shouldApplyAccessible()) {
-            if(where.getQueryElements().isEmpty()) {
-                try {
-                    where = (QueryGroup<Model>) accessibleAccessMethod.invoke(repo.getAccessible(), query, where, query.getAccessor());
-                } catch (IllegalAccessException | InvocationTargetException e) {
-                    throw new ORMQueryException(e);
-                }
+            QueryGroup<Model> accessChecks;
+            try {
+                accessChecks = (QueryGroup<Model>) accessibleAccessMethod.invoke(repo.getAccessible(), query, new QueryGroup<>(), query.getAccessor());
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new ORMQueryException(e);
             }
-            QueryGroup<?> actualWhere = where;
-            where = new QueryGroup<>()
-                    .and(q -> (QueryGroup<Model>) actualWhere)
-                    .and(q -> {
-                        try {
-                            return (QueryGroup<Model>) accessibleAccessMethod.invoke(repo.getAccessible(), query, q, query.getAccessor());
-                        } catch (IllegalAccessException | InvocationTargetException e) {
-                            throw new ORMQueryException(e);
-                        }
-                    });
-
+            QueryGroup<Model> actualWhere = where;
+            where = new QueryGroup<>();
+            if(!actualWhere.getQueryElements().isEmpty())
+                where.and(q -> actualWhere);
+            if(!accessChecks.getQueryElements().isEmpty())
+                where.and(q -> accessChecks);
         }
         if (!where.getQueryElements().isEmpty()) {
             SQLQueryString qs = convertGroup(repo.getInfo(), where);
