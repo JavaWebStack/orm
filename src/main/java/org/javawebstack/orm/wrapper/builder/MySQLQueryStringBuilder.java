@@ -61,6 +61,13 @@ public class MySQLQueryStringBuilder implements QueryStringBuilder {
         QueryGroup<?> where = query.getWhereGroup();
         checkWithDeleted(repo, query.isWithDeleted(), where);
         if(query.shouldApplyAccessible()) {
+            if(where.getQueryElements().isEmpty()) {
+                try {
+                    where = (QueryGroup<Model>) accessibleAccessMethod.invoke(repo.getAccessible(), query, where, query.getAccessor());
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    throw new ORMQueryException(e);
+                }
+            }
             QueryGroup<?> actualWhere = where;
             where = new QueryGroup<>()
                     .and(q -> (QueryGroup<Model>) actualWhere)
@@ -71,6 +78,7 @@ public class MySQLQueryStringBuilder implements QueryStringBuilder {
                             throw new ORMQueryException(e);
                         }
                     });
+
         }
         if (!where.getQueryElements().isEmpty()) {
             SQLQueryString qs = convertGroup(repo.getInfo(), where);
