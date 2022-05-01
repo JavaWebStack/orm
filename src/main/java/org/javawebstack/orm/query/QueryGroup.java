@@ -3,6 +3,7 @@ package org.javawebstack.orm.query;
 import org.javawebstack.orm.Model;
 import org.javawebstack.orm.Repo;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -64,6 +65,11 @@ public class QueryGroup<T extends Model> implements QueryElement {
             return whereNull(left);
         if(condition.equalsIgnoreCase("!=") && right == null)
             return whereNotNull(left);
+        if((condition.equalsIgnoreCase("IN") || condition.equalsIgnoreCase("NOT IN")) && (right == null || Array.getLength(right) == 0)) {
+            left = 1;
+            condition = "=";
+            right = 2;
+        }
         if (queryElements.size() > 0)
             queryElements.add(QueryConjunction.AND);
         queryElements.add(new QueryCondition(left instanceof String ? new QueryColumn((String) left) : left, condition, right));
@@ -109,6 +115,11 @@ public class QueryGroup<T extends Model> implements QueryElement {
             return orIsNull(left);
         if(condition.equalsIgnoreCase("!=") && right == null)
             return orNotNull(left);
+        if((condition.equalsIgnoreCase("IN") || condition.equalsIgnoreCase("NOT IN")) && (right == null || Array.getLength(right) == 0)) {
+            left = 1;
+            condition = "=";
+            right = 2;
+        }
         if (queryElements.size() > 0)
             queryElements.add(QueryConjunction.OR);
         queryElements.add(new QueryCondition(left instanceof String ? new QueryColumn((String) left) : left, condition, right));
