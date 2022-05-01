@@ -1,7 +1,7 @@
 package org.javawebstack.orm.wrapper.builder;
 
 import org.javawebstack.orm.TableInfo;
-import org.javawebstack.orm.query.*;
+import org.javawebstack.orm.query.Query;
 
 import java.util.Map;
 

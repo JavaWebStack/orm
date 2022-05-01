@@ -26,7 +26,7 @@ public class Query<T extends Model> {
     private final QueryGroup<T> where = new QueryGroup<>();
     private Integer offset;
     private Integer limit;
-    private List<QueryOrderBy> order = new ArrayList<>();
+    private final List<QueryOrderBy> order = new ArrayList<>();
     private boolean withDeleted = false;
     private final List<QueryColumn> groupBy = new ArrayList<>();
     private QueryGroup<T> having;
@@ -400,9 +400,13 @@ public class Query<T extends Model> {
         SQLQueryString qs = connection.builder().buildQuery(this);
         try {
             ResultSet rs = connection.read(qs.getQuery(), qs.getParameters().toArray());
-            SQLMapper.mapBack(repo, rs, entity);
-            connection.close(rs);
-            return entity;
+            if(rs.next()) {
+                SQLMapper.mapBack(repo, rs, entity);
+                connection.close(rs);
+                return entity;
+            } else {
+                return null;
+            }
         } catch (SQLException throwables) {
             throw new ORMQueryException(throwables);
         }

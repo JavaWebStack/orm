@@ -1,8 +1,6 @@
 package org.javawebstack.orm.query;
 
 import org.javawebstack.orm.Model;
-import org.javawebstack.orm.TableInfo;
-import org.javawebstack.orm.wrapper.builder.SQLQueryString;
 
 public class QueryExists<T extends Model> implements QueryElement {
 

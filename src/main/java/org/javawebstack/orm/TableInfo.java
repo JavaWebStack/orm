@@ -6,7 +6,6 @@ import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.javawebstack.orm.util.Helper;
 import org.javawebstack.orm.util.KeyType;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
