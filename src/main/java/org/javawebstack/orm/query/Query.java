@@ -30,6 +30,8 @@ public class Query<T extends Model> {
     private boolean withDeleted = false;
     private final List<QueryColumn> groupBy = new ArrayList<>();
     private QueryGroup<T> having;
+    private boolean applyAccessible = false;
+    private Object accessor;
 
     public Query(Class<T> model) {
         this(Repo.get(model), model);
@@ -51,6 +53,14 @@ public class Query<T extends Model> {
 
     public boolean isWithDeleted() {
         return withDeleted;
+    }
+
+    public boolean shouldApplyAccessible() {
+        return applyAccessible;
+    }
+
+    public Object getAccessor() {
+        return accessor;
     }
 
     public QueryGroup<T> getWhereGroup() {
@@ -318,7 +328,9 @@ public class Query<T extends Model> {
     }
 
     public Query<T> accessible(Object accessor) {
-        return repo.accessible(this, accessor);
+        this.applyAccessible = true;
+        this.accessor = accessor;
+        return this;
     }
 
     public Query<T> filter(Map<String, String> filter) {

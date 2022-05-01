@@ -1,10 +1,12 @@
 package org.javawebstack.orm.wrapper.builder;
 
-import org.javawebstack.orm.Repo;
-import org.javawebstack.orm.SQLMapper;
-import org.javawebstack.orm.TableInfo;
+import org.javawebstack.orm.*;
+import org.javawebstack.orm.exception.ORMQueryException;
 import org.javawebstack.orm.query.*;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -17,6 +19,16 @@ import java.util.stream.IntStream;
 public class MySQLQueryStringBuilder implements QueryStringBuilder {
 
     public static final MySQLQueryStringBuilder INSTANCE = new MySQLQueryStringBuilder();
+
+    private static Method accessibleAccessMethod;
+
+    static {
+        try {
+            accessibleAccessMethod = Accessible.class.getDeclaredMethod("access", Query.class, QueryGroup.class, Object.class);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+    }
 
     public SQLQueryString buildInsert(TableInfo info, Map<String, Object> values) {
         List<Object> params = new ArrayList<>();
@@ -49,8 +61,22 @@ public class MySQLQueryStringBuilder implements QueryStringBuilder {
                 .append(" FROM `")
                 .append(repo.getInfo().getTableName())
                 .append('`');
-        QueryGroup<?> where = query.getWhereGroup();
+        QueryGroup<Model> where = (QueryGroup<Model>) query.getWhereGroup();
         checkWithDeleted(repo, query.isWithDeleted(), where);
+        if(query.shouldApplyAccessible()) {
+            QueryGroup<Model> accessChecks;
+            try {
+                accessChecks = (QueryGroup<Model>) accessibleAccessMethod.invoke(repo.getAccessible(), query, new QueryGroup<>(), query.getAccessor());
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new ORMQueryException(e);
+            }
+            QueryGroup<Model> actualWhere = where;
+            where = new QueryGroup<>();
+            if(!actualWhere.getQueryElements().isEmpty())
+                where.and(q -> actualWhere);
+            if(!accessChecks.getQueryElements().isEmpty())
+                where.and(q -> accessChecks);
+        }
         if (!where.getQueryElements().isEmpty()) {
             SQLQueryString qs = convertGroup(repo.getInfo(), where);
             sb.append(" WHERE ").append(qs.getQuery());
