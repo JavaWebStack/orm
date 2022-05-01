@@ -144,18 +144,6 @@ public class Query<T extends Model> {
         return orWhere(left, "LIKE", right);
     }
 
-    public QueryGroup<T> whereMorph(String name, Class<? extends Model> type) {
-        return where.whereMorph(name, type);
-    }
-
-    public QueryGroup<T> whereMorph(String name, Class<? extends Model> type, Object id) {
-        return where.whereMorph(name, type, id);
-    }
-
-    public QueryGroup<T> whereMorph(String name, Model entity) {
-        return where.whereMorph(name, entity);
-    }
-
     public Query<T> orWhere(Class<? extends Model> leftTable, String left, String operator, Class<? extends Model> rightTable, String right) {
         if (rightTable != null)
             right = Repo.get(rightTable).getInfo().getTableName() + "." + Repo.get(rightTable).getInfo().getColumnName(right);
@@ -212,33 +200,25 @@ public class Query<T extends Model> {
         return orWhereId(operator, new QueryColumn(Repo.get(other).getInfo().getTableName() + "." + Repo.get(other).getInfo().getColumnName(field)));
     }
 
+    @Deprecated
     public Query<T> isNull(Object left) {
         where.isNull(left);
         return this;
     }
 
+    @Deprecated
     public Query<T> notNull(Object left) {
         where.notNull(left);
         return this;
     }
     
     public Query<T> whereNull(Object left) {
-        where.isNull(left);
+        where.whereNull(left);
         return this;
     }
     
     public Query<T> whereNotNull(Object left) {
-        where.notNull(left);
-        return this;
-    }
-
-    public Query<T> lessThan(Object left, Object right) {
-        where.lessThan(left, right);
-        return this;
-    }
-
-    public Query<T> greaterThan(Object left, Object right) {
-        where.greaterThan(left, right);
+        where.whereNotNull(left);
         return this;
     }
 
@@ -252,23 +232,25 @@ public class Query<T extends Model> {
         return this;
     }
 
+    @Deprecated
     public Query<T> orIsNull(Object left) {
         where.orIsNull(left);
         return this;
     }
 
+    @Deprecated
     public Query<T> orNotNull(Object left) {
         where.orNotNull(left);
         return this;
     }
 
-    public Query<T> orLessThan(Object left, Object right) {
-        where.orLessThan(left, right);
+    public Query<T> orWhereNull(Object left) {
+        where.orWhereNull(left);
         return this;
     }
 
-    public Query<T> orGreaterThan(Object left, Object right) {
-        where.orGreaterThan(left, right);
+    public Query<T> orWhereNotNull(Object left) {
+        where.orWhereNotNull(left);
         return this;
     }
 

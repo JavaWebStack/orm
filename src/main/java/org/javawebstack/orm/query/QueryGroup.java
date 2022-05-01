@@ -29,16 +29,30 @@ public class QueryGroup<T extends Model> implements QueryElement {
         return queryElements;
     }
 
+    @Deprecated
     public QueryGroup<T> and(Function<QueryGroup<T>, QueryGroup<T>> group) {
+        return where(group);
+    }
+
+    public QueryGroup<T> where(Function<QueryGroup<T>, QueryGroup<T>> group) {
         QueryGroup<T> innerGroup = group.apply(new QueryGroup<>());
+        if(innerGroup.queryElements.size() == 0)
+            return this;
         if (queryElements.size() > 0)
             queryElements.add(QueryConjunction.AND);
         queryElements.add(innerGroup);
         return this;
     }
 
+    @Deprecated
     public QueryGroup<T> or(Function<QueryGroup<T>, QueryGroup<T>> group) {
+        return orWhere(group);
+    }
+
+    public QueryGroup<T> orWhere(Function<QueryGroup<T>, QueryGroup<T>> group) {
         QueryGroup<T> innerGroup = group.apply(new QueryGroup<>());
+        if(innerGroup.queryElements.size() == 0)
+            return this;
         if (queryElements.size() > 0)
             queryElements.add(QueryConjunction.OR);
         queryElements.add(innerGroup);
@@ -68,28 +82,18 @@ public class QueryGroup<T extends Model> implements QueryElement {
         return where(left, operator, right);
     }
 
-    public QueryGroup<T> whereMorph(String name, Class<? extends Model> type) {
-        return where(name + "Type", Repo.get(type).getInfo().getMorphType());
-    }
-
-    public QueryGroup<T> whereMorph(String name, Class<? extends Model> type, Object id) {
-        return whereMorph(name, type).where(name + "Id", id);
-    }
-
-    public QueryGroup<T> whereMorph(String name, Model entity) {
-        return whereMorph(name, entity.getClass(), Repo.get(entity.getClass()).getId(entity));
-    }
-
     public QueryGroup<T> where(Object left, Object right) {
         return where(left, "=", right);
     }
 
+    @Deprecated
     public QueryGroup<T> isNull(Object left) {
-        return where(left, "IS NULL", null);
+        return whereNull(left);
     }
 
+    @Deprecated
     public QueryGroup<T> notNull(Object left) {
-        return where(left, "IS NOT NULL", null);
+        return whereNotNull(left);
     }
     
     public QueryGroup<T> whereNull(Object left) {
@@ -98,14 +102,6 @@ public class QueryGroup<T extends Model> implements QueryElement {
     
     public QueryGroup<T> whereNotNull(Object left) {
         return where(left, "IS NOT NULL", null);
-    }
-
-    public QueryGroup<T> lessThan(Object left, Object right) {
-        return where(left, "<", right);
-    }
-
-    public QueryGroup<T> greaterThan(Object left, Object right) {
-        return where(left, ">", right);
     }
 
     public QueryGroup<T> orWhere(Object left, String condition, Object right) {
@@ -147,20 +143,22 @@ public class QueryGroup<T extends Model> implements QueryElement {
         return orWhereMorph(name, entity.getClass(), Repo.get(entity.getClass()).getId(entity));
     }
 
+    @Deprecated
     public QueryGroup<T> orIsNull(Object left) {
+        return orWhereNull(left);
+    }
+
+    @Deprecated
+    public QueryGroup<T> orNotNull(Object left) {
+        return orWhereNotNull(left);
+    }
+
+    public QueryGroup<T> orWhereNull(Object left) {
         return orWhere(left, "IS NULL", null);
     }
 
-    public QueryGroup<T> orNotNull(Object left) {
+    public QueryGroup<T> orWhereNotNull(Object left) {
         return orWhere(left, "IS NOT NULL", null);
-    }
-
-    public QueryGroup<T> orLessThan(Object left, Object right) {
-        return orWhere(left, "<", right);
-    }
-
-    public QueryGroup<T> orGreaterThan(Object left, Object right) {
-        return orWhere(left, ">", right);
     }
 
     public <M extends Model> QueryGroup<T> whereExists(Class<M> model, Function<Query<M>, Query<M>> consumer) {
