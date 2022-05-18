@@ -120,6 +120,7 @@ public class Repo<T extends Model> {
                     map.remove(idCol);
             }
             SQLQueryString qs = getConnection().builder().buildInsert(info, map);
+            SQL connection = Session.current() != null ? Session.current().getConnection() : this.connection;
             int id = connection.write(qs.getQuery(), qs.getParameters().toArray());
             if (info.isAutoIncrement())
                 info.getField(info.getIdField()).set(entry, id);

@@ -9,7 +9,8 @@ import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.javawebstack.orm.util.KeyType;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TableInfoTest extends ORMTestCase {
     @Test

@@ -1,7 +1,5 @@
 package org.javawebstack.orm.test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.javawebstack.orm.wrapper.MySQL;
 import org.javawebstack.orm.wrapper.SQLDriverFactory;
 import org.javawebstack.orm.wrapper.SQLDriverNotFoundException;
@@ -10,6 +8,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class SQLDriverFactoryTest {
 

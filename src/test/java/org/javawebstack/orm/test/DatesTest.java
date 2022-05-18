@@ -10,9 +10,9 @@ import org.javawebstack.orm.annotation.SoftDelete;
 import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.sql.Timestamp;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class DatesTest extends ORMTestCase {
     @Test
