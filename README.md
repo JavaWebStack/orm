@@ -62,7 +62,7 @@ for(User user : Repo.get(User.class).all()){
 <dependency>
     <groupId>org.javawebstack</groupId>
     <artifactId>orm</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.3</version>
 </dependency>
 ```
 
@@ -72,7 +72,7 @@ You also need to add the driver you want to use. JavaWebStack ORM comes with a w
 <dependency>
     <groupId>mysql</groupId>
     <artifactId>mysql-connector-java</artifactId>
-    <version>8.0.27</version>
+    <version>8.0.30</version>
     <scope>compile</scope>
 </dependency>
 ```
