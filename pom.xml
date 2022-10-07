@@ -56,8 +56,15 @@
         <dependency>
             <groupId>org.javawebstack</groupId>
             <artifactId>abstract-data</artifactId>
-            <version>1.0.2</version>
+            <version>1.0.4</version>
         </dependency>
+        <!--- Temporary fix for transitive vulnerabilities -->
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.33</version>
+        </dependency>
+        <!--- ============================================ -->
         <dependency>
             <groupId>org.atteo</groupId>
             <artifactId>evo-inflector</artifactId>
@@ -71,7 +78,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.8.2</version>
+            <version>5.9.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -89,7 +96,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.28</version>
+            <version>8.0.30</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
