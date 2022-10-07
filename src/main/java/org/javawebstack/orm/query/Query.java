@@ -3,7 +3,9 @@ package org.javawebstack.orm.query;
 import org.javawebstack.orm.Model;
 import org.javawebstack.orm.Repo;
 import org.javawebstack.orm.SQLMapper;
+import org.javawebstack.orm.Session;
 import org.javawebstack.orm.exception.ORMQueryException;
+import org.javawebstack.orm.wrapper.SQL;
 import org.javawebstack.orm.wrapper.builder.SQLQueryString;
 
 import java.sql.ResultSet;
@@ -19,14 +21,17 @@ public class Query<T extends Model> {
 
     private final Repo<T> repo;
     private final Class<T> model;
+    private SQL connection;
     private List<String> select = new ArrayList<>();
     private final QueryGroup<T> where = new QueryGroup<>();
     private Integer offset;
     private Integer limit;
-    private List<QueryOrderBy> order = new ArrayList<>();
+    private final List<QueryOrderBy> order = new ArrayList<>();
     private boolean withDeleted = false;
     private final List<QueryColumn> groupBy = new ArrayList<>();
     private QueryGroup<T> having;
+    private boolean applyAccessible = false;
+    private Object accessor;
 
     public Query(Class<T> model) {
         this(Repo.get(model), model);
@@ -35,10 +40,27 @@ public class Query<T extends Model> {
     public Query(Repo<T> repo, Class<T> model) {
         this.repo = repo;
         this.model = model;
+        Session session = Session.current();
+        this.connection = repo.getConnection();
+        if(session != null && session.getConnection() != null)
+            this.connection = session.getConnection();
+    }
+
+    public Query<T> via(SQL connection) {
+        this.connection = connection;
+        return this;
     }
 
     public boolean isWithDeleted() {
         return withDeleted;
+    }
+
+    public boolean shouldApplyAccessible() {
+        return applyAccessible;
+    }
+
+    public Object getAccessor() {
+        return accessor;
     }
 
     public QueryGroup<T> getWhereGroup() {
@@ -122,18 +144,6 @@ public class Query<T extends Model> {
         return orWhere(left, "LIKE", right);
     }
 
-    public QueryGroup<T> whereMorph(String name, Class<? extends Model> type) {
-        return where.whereMorph(name, type);
-    }
-
-    public QueryGroup<T> whereMorph(String name, Class<? extends Model> type, Object id) {
-        return where.whereMorph(name, type, id);
-    }
-
-    public QueryGroup<T> whereMorph(String name, Model entity) {
-        return where.whereMorph(name, entity);
-    }
-
     public Query<T> orWhere(Class<? extends Model> leftTable, String left, String operator, Class<? extends Model> rightTable, String right) {
         if (rightTable != null)
             right = Repo.get(rightTable).getInfo().getTableName() + "." + Repo.get(rightTable).getInfo().getColumnName(right);
@@ -190,33 +200,25 @@ public class Query<T extends Model> {
         return orWhereId(operator, new QueryColumn(Repo.get(other).getInfo().getTableName() + "." + Repo.get(other).getInfo().getColumnName(field)));
     }
 
+    @Deprecated
     public Query<T> isNull(Object left) {
         where.isNull(left);
         return this;
     }
 
+    @Deprecated
     public Query<T> notNull(Object left) {
         where.notNull(left);
         return this;
     }
     
     public Query<T> whereNull(Object left) {
-        where.isNull(left);
+        where.whereNull(left);
         return this;
     }
     
     public Query<T> whereNotNull(Object left) {
-        where.notNull(left);
-        return this;
-    }
-
-    public Query<T> lessThan(Object left, Object right) {
-        where.lessThan(left, right);
-        return this;
-    }
-
-    public Query<T> greaterThan(Object left, Object right) {
-        where.greaterThan(left, right);
+        where.whereNotNull(left);
         return this;
     }
 
@@ -230,23 +232,25 @@ public class Query<T extends Model> {
         return this;
     }
 
+    @Deprecated
     public Query<T> orIsNull(Object left) {
         where.orIsNull(left);
         return this;
     }
 
+    @Deprecated
     public Query<T> orNotNull(Object left) {
         where.orNotNull(left);
         return this;
     }
 
-    public Query<T> orLessThan(Object left, Object right) {
-        where.orLessThan(left, right);
+    public Query<T> orWhereNull(Object left) {
+        where.orWhereNull(left);
         return this;
     }
 
-    public Query<T> orGreaterThan(Object left, Object right) {
-        where.orGreaterThan(left, right);
+    public Query<T> orWhereNotNull(Object left) {
+        where.orWhereNotNull(left);
         return this;
     }
 
@@ -306,7 +310,9 @@ public class Query<T extends Model> {
     }
 
     public Query<T> accessible(Object accessor) {
-        return repo.accessible(this, accessor);
+        this.applyAccessible = true;
+        this.accessor = accessor;
+        return this;
     }
 
     public Query<T> filter(Map<String, String> filter) {
@@ -356,9 +362,9 @@ public class Query<T extends Model> {
     }
 
     public void finalDelete() {
-        SQLQueryString qs = repo.getConnection().builder().buildDelete(this);
+        SQLQueryString qs = connection.builder().buildDelete(this);
         try {
-            repo.getConnection().write(qs.getQuery(), qs.getParameters().toArray());
+            connection.write(qs.getQuery(), qs.getParameters().toArray());
         } catch (SQLException throwables) {
             throw new ORMQueryException(throwables);
         }
@@ -385,12 +391,16 @@ public class Query<T extends Model> {
     }
 
     public T refresh(T entity) {
-        SQLQueryString qs = repo.getConnection().builder().buildQuery(this);
+        SQLQueryString qs = connection.builder().buildQuery(this);
         try {
-            ResultSet rs = repo.getConnection().read(qs.getQuery(), qs.getParameters().toArray());
-            SQLMapper.mapBack(repo, rs, entity);
-            repo.getConnection().close(rs);
-            return entity;
+            ResultSet rs = connection.read(qs.getQuery(), qs.getParameters().toArray());
+            if(rs.next()) {
+                SQLMapper.mapBack(repo, rs, entity);
+                connection.close(rs);
+                return entity;
+            } else {
+                return null;
+            }
         } catch (SQLException throwables) {
             throw new ORMQueryException(throwables);
         }
@@ -401,20 +411,20 @@ public class Query<T extends Model> {
     }
 
     public void update(Map<String, Object> values) {
-        SQLQueryString queryString = repo.getConnection().builder().buildUpdate(this, values);
+        SQLQueryString queryString = connection.builder().buildUpdate(this, values);
         try {
-            repo.getConnection().write(queryString.getQuery(), queryString.getParameters().toArray());
+            connection.write(queryString.getQuery(), queryString.getParameters().toArray());
         } catch (SQLException throwables) {
             throw new ORMQueryException(throwables);
         }
     }
 
     public List<T> all() {
-        SQLQueryString qs = repo.getConnection().builder().buildQuery(this);
+        SQLQueryString qs = connection.builder().buildQuery(this);
         try {
-            ResultSet rs = repo.getConnection().read(qs.getQuery(), qs.getParameters().toArray());
+            ResultSet rs = connection.read(qs.getQuery(), qs.getParameters().toArray());
             List<T> list = SQLMapper.map(repo, rs, new ArrayList<>());
-            repo.getConnection().close(rs);
+            connection.close(rs);
             return list;
         } catch (SQLException throwables) {
             throw new ORMQueryException(throwables);
@@ -437,13 +447,13 @@ public class Query<T extends Model> {
     }
 
     public int count() {
-        SQLQueryString qs = repo.getConnection().builder().buildQuery(this.select("count(*)"));
+        SQLQueryString qs = connection.builder().buildQuery(this.select("count(*)"));
         try {
-            ResultSet rs = repo.getConnection().read(qs.getQuery(), qs.getParameters().toArray());
+            ResultSet rs = connection.read(qs.getQuery(), qs.getParameters().toArray());
             int c = 0;
             if (rs.next())
                 c = rs.getInt(1);
-            repo.getConnection().close(rs);
+            connection.close(rs);
             return c;
         } catch (SQLException throwables) {
             throw new ORMQueryException(throwables);

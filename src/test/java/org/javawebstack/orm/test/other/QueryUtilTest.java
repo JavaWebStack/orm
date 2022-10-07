@@ -6,7 +6,9 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.javawebstack.orm.test.shared.util.QueryStringUtil;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

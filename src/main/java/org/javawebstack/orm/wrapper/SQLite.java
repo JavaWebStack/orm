@@ -17,6 +17,10 @@ public class SQLite extends BaseSQL {
         this.file = file;
     }
 
+    public SQL fork() {
+        return new SQLite(file);
+    }
+
     public Connection getConnection() {
         try {
             if (c == null || c.isClosed()) {

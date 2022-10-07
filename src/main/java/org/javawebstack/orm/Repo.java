@@ -17,8 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Function;
-import java.util.stream.Stream;
 
 public class Repo<T extends Model> {
 
@@ -73,11 +71,11 @@ public class Repo<T extends Model> {
     }
 
     public Query<T> accessible(Object accessor) {
-        return accessible(query(), accessor);
+        return query().accessible(accessor);
     }
 
-    public Query<T> accessible(Query<T> query, Object accessor) {
-        return accessible == null ? query : accessible.access(query, accessor);
+    public Accessible getAccessible() {
+        return accessible;
     }
 
     public void save(T entry) {
@@ -122,6 +120,7 @@ public class Repo<T extends Model> {
                     map.remove(idCol);
             }
             SQLQueryString qs = getConnection().builder().buildInsert(info, map);
+            SQL connection = Session.current() != null ? Session.current().getConnection() : this.connection;
             int id = connection.write(qs.getQuery(), qs.getParameters().toArray());
             if (info.isAutoIncrement())
                 info.getField(info.getIdField()).set(entry, id);

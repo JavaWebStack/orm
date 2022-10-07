@@ -32,6 +32,10 @@ public class MySQL extends BaseSQL {
         this.timeout = timeout * 1000L;
     }
 
+    public SQL fork() {
+        return new MySQL(host, port, database, username, password, (int) (timeout / 1000L));
+    }
+
     public Connection getConnection() {
         long now = System.currentTimeMillis();
         if (now > lastQuery + timeout) {

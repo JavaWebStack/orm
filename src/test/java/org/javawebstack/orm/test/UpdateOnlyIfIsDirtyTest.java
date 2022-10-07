@@ -7,7 +7,8 @@ import org.javawebstack.orm.test.shared.models.JustString;
 import org.javawebstack.orm.wrapper.QueryLogger;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class UpdateOnlyIfIsDirtyTest extends ORMTestCase {
 

@@ -1,15 +1,19 @@
 package org.javawebstack.orm.test.querybuilding;
 
-import org.javawebstack.orm.exception.ORMQueryException;
 import org.javawebstack.orm.query.Query;
 import org.javawebstack.orm.test.exception.SectionIndexOutOfBoundException;
 import org.javawebstack.orm.test.shared.models.Datatype;
 import org.javawebstack.orm.test.shared.models.columnnames.OverwrittenColumnName;
 import org.javawebstack.orm.test.shared.verification.QueryVerification;
 import org.junit.jupiter.api.Test;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Random;
+
 import static org.javawebstack.orm.test.shared.setup.ModelSetup.setUpModel;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 // This class tests the query generation for order by statements an MySQL
 class OrderByClauseTest {

@@ -7,7 +7,9 @@ import org.javawebstack.orm.Repo;
 import org.javawebstack.orm.annotation.Column;
 import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ExampleTest extends ORMTestCase {
 

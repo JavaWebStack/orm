@@ -109,7 +109,7 @@ public class DefaultMapper implements TypeMapper {
     }
 
     public SQLType getType(Class<?> type, int size) {
-        if (type.equals(String.class) || type.equals(char[].class))
+        if (type.equals(String.class) || type.equals(char[].class)) {
             // Upper limit of 4294967295 exceeds the int boundaries
             if (size > MAX_SIZE_MEDIUMTEXT)
                 return SQLType.LONGTEXT;
@@ -119,12 +119,18 @@ public class DefaultMapper implements TypeMapper {
                 return SQLType.VARCHAR;
             if (size == 1)
                 return SQLType.CHAR;
+        }
         if (type.equals(UUID.class))
             return SQLType.VARCHAR;
         if (type.equals(char.class))
             return SQLType.CHAR;
-        if (type.isEnum())
-            return SQLType.ENUM;
+        if (type.isEnum()) {
+            if(size < 1) {
+                return SQLType.ENUM;
+            } else {
+                return SQLType.VARCHAR;
+            }
+        }
         if (type.equals(boolean.class) || type.equals(Boolean.class) || type.equals(byte.class) || type.equals(Byte.class))
             return SQLType.TINYINT;
         if (type.equals(short.class) || type.equals(Short.class))
@@ -147,8 +153,13 @@ public class DefaultMapper implements TypeMapper {
     }
 
     public String getTypeParameters(Class<?> type, int size) {
-        if (type.isEnum())
-            return Arrays.stream(((Class<? extends Enum<?>>) type).getEnumConstants()).map(c -> "'" + c.name() + "'").collect(Collectors.joining(","));
+        if (type.isEnum()) {
+            if(size < 1) {
+                return Arrays.stream(((Class<? extends Enum<?>>) type).getEnumConstants()).map(c -> "'" + c.name() + "'").collect(Collectors.joining(","));
+            } else {
+                return String.valueOf(size);
+            }
+        }
         if (type.equals(String.class) || type.equals(char[].class))
             return size > MAX_SIZE_VARCHAR || size < 1 ? null : String.valueOf(size);
         if (type.equals(byte[].class))
