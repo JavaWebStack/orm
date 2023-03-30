@@ -136,6 +136,8 @@ public class AutoMigrator {
             StringBuilder sb = new StringBuilder("CREATE ");
             if (index.unique())
                 sb.append("UNIQUE ");
+            if (index.type() != Index.Type.AUTO)
+                sb.append("USING ").append(index.type().name()).append(" ");
             sb.append("INDEX `")
                     .append(id)
                     .append("` ON `")
