@@ -136,11 +136,10 @@ public class AutoMigrator {
             StringBuilder sb = new StringBuilder("CREATE ");
             if (index.unique())
                 sb.append("UNIQUE ");
+            sb.append("INDEX `").append(id).append("` ");
             if (index.type() != Index.Type.AUTO)
                 sb.append("USING ").append(index.type().name()).append(" ");
-            sb.append("INDEX `")
-                    .append(id)
-                    .append("` ON `")
+            sb.append("ON `")
                     .append(info.getTableName())
                     .append("` (")
                     .append(columns)
