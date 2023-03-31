@@ -4,7 +4,7 @@ import java.lang.annotation.*;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-@Repeatable(Indices.class)
+@Repeatable(Index.Indices.class)
 public @interface Index {
     Type type() default Type.AUTO;
     boolean unique() default false;
@@ -15,5 +15,11 @@ public @interface Index {
         AUTO,
         BTREE,
         HASH
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    @interface Indices {
+        Index[] value();
     }
 }
