@@ -1,6 +1,5 @@
 package org.javawebstack.orm.migration;
 
-import jdk.internal.joptsimple.internal.Strings;
 import org.javawebstack.orm.Repo;
 import org.javawebstack.orm.TableInfo;
 import org.javawebstack.orm.annotation.Index;
@@ -129,7 +128,7 @@ public class AutoMigrator {
         List<String> existingIndices = getIndices(sql, info.getTableName());
         for (Index index : info.getIndices()) {
             String columns = Stream.of(index.value()).map(info::getColumnName).collect(Collectors.joining(","));
-            String id = index.id().length() > 0 ? index.id() : "idx_" + Strings.join(index.value(), "_");
+            String id = index.id().length() > 0 ? index.id() : "idx_" + String.join("_", index.value());
             if (existingIndices.contains(id))
                 continue;
 
