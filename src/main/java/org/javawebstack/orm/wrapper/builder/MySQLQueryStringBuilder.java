@@ -1,5 +1,6 @@
 package org.javawebstack.orm.wrapper.builder;
 
+import org.javawebstack.abstractdata.AbstractArray;
 import org.javawebstack.orm.*;
 import org.javawebstack.orm.exception.ORMQueryException;
 import org.javawebstack.orm.query.*;
@@ -8,12 +9,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class MySQLQueryStringBuilder implements QueryStringBuilder {
 
@@ -213,6 +212,12 @@ public class MySQLQueryStringBuilder implements QueryStringBuilder {
             sb.append(' ');
             if (condition.getOperator().endsWith("IN")) {
                 Object[] values = (Object[]) condition.getRight();
+                if (values.length == 1) {
+                    if (values[0] instanceof Collection)
+                        values = ((Collection<?>) values[0]).toArray();
+                    else if (values[0] instanceof Stream)
+                        values = ((Stream<?>) values[0]).toArray();
+                }
                 sb.append("(").append(IntStream.range(0, values.length).mapToObj(i -> "?").collect(Collectors.joining(","))).append(")");
                 parameters.addAll(Arrays.asList(values));
             } else if (condition.getRight() instanceof QueryColumn) {
