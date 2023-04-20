@@ -4,7 +4,7 @@ import org.javawebstack.orm.wrapper.SQL;
 
 import java.util.function.Consumer;
 
-public class Session {
+public class Session implements AutoCloseable {
 
     private static ThreadLocal<Session> sessions = new ThreadLocal<>();
 
@@ -43,4 +43,7 @@ public class Session {
         sessions.remove();
     }
 
+    public void close() throws Exception {
+        end();
+    }
 }
