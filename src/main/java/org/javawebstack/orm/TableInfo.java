@@ -106,13 +106,12 @@ public class TableInfo {
             if (!fields.containsKey(dates.update()))
                 throw new ORMConfigurationException("Missing dates field '" + dates.update() + "'");
         }
-        if (model.isAnnotationPresent(Index.class)) {
-            Index[] unfilteredIndices = model.getDeclaredAnnotationsByType(Index.class);
-            for (Index index : unfilteredIndices) {
-                if (index.value().length == 0)
-                    continue;
-                indices.add(index);
-            }
+
+        Index[] unfilteredIndices = model.getAnnotationsByType(Index.class);
+        for (Index index : unfilteredIndices) {
+            if (index.value().length == 0)
+                continue;
+            indices.add(index);
         }
     }
 

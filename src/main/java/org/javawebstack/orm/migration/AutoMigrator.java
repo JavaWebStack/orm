@@ -127,7 +127,7 @@ public class AutoMigrator {
 
         List<String> existingIndices = getIndices(sql, info.getTableName());
         for (Index index : info.getIndices()) {
-            String columns = Stream.of(index.value()).map(info::getColumnName).collect(Collectors.joining(","));
+            String columns = Stream.of(index.value()).map(info::getColumnName).map(s -> "`" + s + "`").collect(Collectors.joining(","));
             String id = index.id().length() > 0 ? index.id() : "idx_" + String.join("_", index.value());
             if (existingIndices.contains(id))
                 continue;
