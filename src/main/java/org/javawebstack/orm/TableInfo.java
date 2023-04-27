@@ -32,6 +32,7 @@ public class TableInfo {
     private String relationField;
     private final Map<String, String> filterable = new HashMap<>();
     private final List<String> searchable = new ArrayList<>();
+    private final List<Index> indices = new ArrayList<>();
 
     private static final Class<?>[] appliesDefaultSize = {
             String.class,
@@ -104,6 +105,13 @@ public class TableInfo {
                 throw new ORMConfigurationException("Missing dates field '" + dates.create() + "'");
             if (!fields.containsKey(dates.update()))
                 throw new ORMConfigurationException("Missing dates field '" + dates.update() + "'");
+        }
+
+        Index[] unfilteredIndices = model.getAnnotationsByType(Index.class);
+        for (Index index : unfilteredIndices) {
+            if (index.value().length == 0)
+                continue;
+            indices.add(index);
         }
     }
 
@@ -292,4 +300,7 @@ public class TableInfo {
         return relationField;
     }
 
+    public List<Index> getIndices() {
+        return indices;
+    }
 }

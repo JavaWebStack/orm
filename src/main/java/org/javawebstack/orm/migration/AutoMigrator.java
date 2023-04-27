@@ -2,6 +2,7 @@ package org.javawebstack.orm.migration;
 
 import org.javawebstack.orm.Repo;
 import org.javawebstack.orm.TableInfo;
+import org.javawebstack.orm.annotation.Index;
 import org.javawebstack.orm.exception.ORMQueryException;
 import org.javawebstack.orm.wrapper.SQL;
 
@@ -12,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class AutoMigrator {
 
@@ -122,6 +124,31 @@ public class AutoMigrator {
                 }
             }
         }
+
+        List<String> existingIndices = getIndices(sql, info.getTableName());
+        for (Index index : info.getIndices()) {
+            String columns = Stream.of(index.value()).map(info::getColumnName).map(s -> "`" + s + "`").collect(Collectors.joining(","));
+            String id = index.id().length() > 0 ? index.id() : "idx_" + String.join("_", index.value());
+            if (existingIndices.contains(id))
+                continue;
+
+            StringBuilder sb = new StringBuilder("CREATE ");
+            if (index.unique())
+                sb.append("UNIQUE ");
+            sb.append("INDEX `").append(id).append("` ");
+            if (index.type() != Index.Type.AUTO)
+                sb.append("USING ").append(index.type().name()).append(" ");
+            sb.append("ON `")
+                    .append(info.getTableName())
+                    .append("` (")
+                    .append(columns)
+                    .append(");");
+            try {
+                sql.write(sb.toString());
+            } catch (SQLException throwables) {
+                throw new ORMQueryException(throwables);
+            }
+        }
     }
 
     private static Map<String, String> getColumnKeys(SQL sql, String tableName) {
@@ -132,6 +159,19 @@ public class AutoMigrator {
                 columnKeys.put(rs.getString(1), rs.getString(4));
             }
             return columnKeys;
+        } catch (SQLException throwables) {
+            throw new ORMQueryException(throwables);
+        }
+    }
+
+    private static List<String> getIndices(SQL sql, String tableName) {
+        try {
+            List<String> indices = new ArrayList<>();
+            ResultSet rs = sql.read("SHOW INDEX FROM `" + tableName + "`;");
+            while (rs.next()) {
+                indices.add(rs.getString(1));
+            }
+            return indices;
         } catch (SQLException throwables) {
             throw new ORMQueryException(throwables);
         }
