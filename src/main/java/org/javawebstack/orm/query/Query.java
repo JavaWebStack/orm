@@ -361,6 +361,10 @@ public class Query<T extends Model> {
         return this;
     }
 
+    public Query<T> onlyDeleted() {
+        return withDeleted().whereNotNull(repo.getInfo().getSoftDeleteField());
+    }
+
     public void finalDelete() {
         SQLQueryString qs = connection.builder().buildDelete(this);
         try {
