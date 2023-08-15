@@ -212,12 +212,6 @@ public class MySQLQueryStringBuilder implements QueryStringBuilder {
             sb.append(' ');
             if (condition.getOperator().endsWith("IN")) {
                 Object[] values = (Object[]) condition.getRight();
-                if (values.length == 1) {
-                    if (values[0] instanceof Collection)
-                        values = ((Collection<?>) values[0]).toArray();
-                    else if (values[0] instanceof Stream)
-                        values = ((Stream<?>) values[0]).toArray();
-                }
                 sb.append("(").append(IntStream.range(0, values.length).mapToObj(i -> "?").collect(Collectors.joining(","))).append(")");
                 parameters.addAll(Arrays.asList(values));
             } else if (condition.getRight() instanceof QueryColumn) {
