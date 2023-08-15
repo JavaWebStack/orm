@@ -6,8 +6,10 @@ import org.javawebstack.orm.Repo;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 /**
  * Queries grouped via the QueryGroup class will be put inside parenthesis.
@@ -37,9 +39,9 @@ public class QueryGroup<T extends Model> implements QueryElement {
 
     public QueryGroup<T> where(Function<QueryGroup<T>, QueryGroup<T>> group) {
         QueryGroup<T> innerGroup = group.apply(new QueryGroup<>());
-        if(innerGroup.queryElements.size() == 0)
+        if(innerGroup.queryElements.isEmpty())
             return this;
-        if (queryElements.size() > 0)
+        if (!queryElements.isEmpty())
             queryElements.add(QueryConjunction.AND);
         queryElements.add(innerGroup);
         return this;
@@ -52,9 +54,9 @@ public class QueryGroup<T extends Model> implements QueryElement {
 
     public QueryGroup<T> orWhere(Function<QueryGroup<T>, QueryGroup<T>> group) {
         QueryGroup<T> innerGroup = group.apply(new QueryGroup<>());
-        if(innerGroup.queryElements.size() == 0)
+        if(innerGroup.queryElements.isEmpty())
             return this;
-        if (queryElements.size() > 0)
+        if (!queryElements.isEmpty())
             queryElements.add(QueryConjunction.OR);
         queryElements.add(innerGroup);
         return this;
@@ -65,12 +67,22 @@ public class QueryGroup<T extends Model> implements QueryElement {
             return whereNull(left);
         if(condition.equalsIgnoreCase("!=") && right == null)
             return whereNotNull(left);
-        if((condition.equalsIgnoreCase("IN") || condition.equalsIgnoreCase("NOT IN")) && (right == null || Array.getLength(right) == 0)) {
-            left = 1;
-            condition = "=";
-            right = 2;
+
+        if(condition.equalsIgnoreCase("IN") || condition.equalsIgnoreCase("NOT IN")) {
+            Object[] values = (Object[]) right;
+            if (values != null && values.length == 1) {
+                if (values[0] instanceof Collection)
+                    values = ((Collection<?>) values[0]).toArray();
+                else if (values[0] instanceof Stream)
+                    values = ((Stream<?>) values[0]).toArray();
+            }
+            if(values == null || values.length == 0) {
+                left = 1;
+                condition = "=";
+                right = 2;
+            }
         }
-        if (queryElements.size() > 0)
+        if (!queryElements.isEmpty())
             queryElements.add(QueryConjunction.AND);
         queryElements.add(new QueryCondition(left instanceof String ? new QueryColumn((String) left) : left, condition, right));
         return this;
@@ -120,7 +132,7 @@ public class QueryGroup<T extends Model> implements QueryElement {
             condition = "=";
             right = 2;
         }
-        if (queryElements.size() > 0)
+        if (!queryElements.isEmpty())
             queryElements.add(QueryConjunction.OR);
         queryElements.add(new QueryCondition(left instanceof String ? new QueryColumn((String) left) : left, condition, right));
         return this;
@@ -173,7 +185,7 @@ public class QueryGroup<T extends Model> implements QueryElement {
     }
 
     public <M extends Model> QueryGroup<T> whereExists(Class<M> model, Function<Query<M>, Query<M>> consumer) {
-        if (queryElements.size() > 0)
+        if (!queryElements.isEmpty())
             queryElements.add(QueryConjunction.AND);
         Query<M> query = consumer.apply(new Query<>(model).limit(1));
         queryElements.add(new QueryExists<>(query, false));
@@ -181,7 +193,7 @@ public class QueryGroup<T extends Model> implements QueryElement {
     }
 
     public <M extends Model> QueryGroup<T> orWhereExists(Class<M> model, Function<Query<M>, Query<M>> consumer) {
-        if (queryElements.size() > 0)
+        if (!queryElements.isEmpty())
             queryElements.add(QueryConjunction.OR);
         Query<M> query = consumer.apply(new Query<>(model).limit(1));
         queryElements.add(new QueryExists<>(query, false));
@@ -189,7 +201,7 @@ public class QueryGroup<T extends Model> implements QueryElement {
     }
 
     public <M extends Model> QueryGroup<T> whereNotExists(Class<M> model, Function<Query<M>, Query<M>> consumer) {
-        if (queryElements.size() > 0)
+        if (!queryElements.isEmpty())
             queryElements.add(QueryConjunction.AND);
         Query<M> query = consumer.apply(new Query<>(model).limit(1));
         queryElements.add(new QueryExists<>(query, true));
@@ -197,7 +209,7 @@ public class QueryGroup<T extends Model> implements QueryElement {
     }
 
     public <M extends Model> QueryGroup<T> orWhereNotExists(Class<M> model, Function<Query<M>, Query<M>> consumer) {
-        if (queryElements.size() > 0)
+        if (!queryElements.isEmpty())
             queryElements.add(QueryConjunction.OR);
         Query<M> query = consumer.apply(new Query<>(model).limit(1));
         queryElements.add(new QueryExists<>(query, true));
