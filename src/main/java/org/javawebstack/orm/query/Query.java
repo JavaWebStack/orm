@@ -464,8 +464,17 @@ public class Query<T extends Model> {
         }
     }
 
+    @Deprecated
     public boolean hasRecords() {
-        return count() > 0;
+        return isNotEmpty();
+    }
+
+    public boolean isNotEmpty() {
+        return limit(1).count() > 0;
+    }
+
+    public boolean isEmpty() {
+        return !isNotEmpty();
     }
 
 }
