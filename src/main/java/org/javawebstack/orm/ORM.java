@@ -1,8 +1,8 @@
 package org.javawebstack.orm;
 
+import org.javawebstack.orm.connection.pool.SQLPool;
 import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.javawebstack.orm.migration.AutoMigrator;
-import org.javawebstack.orm.wrapper.SQL;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Modifier;
@@ -19,25 +19,25 @@ public class ORM {
         return (Repo<T>) repositories.get(model);
     }
 
-    public static <T extends Model> Repo<T> register(Class<T> model, SQL sql, ORMConfig config) throws ORMConfigurationException {
-        Repo<T> repo = new Repo<>(model, sql, config);
+    public static <T extends Model> Repo<T> register(Class<T> model, SQLPool pool, ORMConfig config) throws ORMConfigurationException {
+        Repo<T> repo = new Repo<>(model, pool, config);
         repositories.put(model, repo);
         return repo;
     }
 
-    public static <T extends Model> Repo<T> register(Class<T> model, SQL sql) throws ORMConfigurationException {
-        return register(model, sql, new ORMConfig());
+    public static <T extends Model> Repo<T> register(Class<T> model, SQLPool pool) throws ORMConfigurationException {
+        return register(model, pool, new ORMConfig());
     }
 
-    public static void register(Package p, SQL sql, ORMConfig config) throws ORMConfigurationException {
+    public static void register(Package p, SQLPool pool, ORMConfig config) throws ORMConfigurationException {
         for (Class<? extends Model> model : new Reflections(p.getName()).getSubTypesOf(Model.class)) {
             if (!Modifier.isAbstract(model.getModifiers()))
-                ORM.register(model, sql, config);
+                ORM.register(model, pool, config);
         }
     }
 
-    public static void register(Package p, SQL sql) throws ORMConfigurationException {
-        register(p, sql, new ORMConfig());
+    public static void register(Package p, SQLPool pool) throws ORMConfigurationException {
+        register(p, pool, new ORMConfig());
     }
 
     public static void unregister(Class<? extends Model> model) {

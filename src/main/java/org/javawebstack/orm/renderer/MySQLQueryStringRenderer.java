@@ -1,6 +1,5 @@
-package org.javawebstack.orm.wrapper.builder;
+package org.javawebstack.orm.renderer;
 
-import org.javawebstack.abstractdata.AbstractArray;
 import org.javawebstack.orm.*;
 import org.javawebstack.orm.exception.ORMQueryException;
 import org.javawebstack.orm.query.*;
@@ -12,11 +11,10 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
-public class MySQLQueryStringBuilder implements QueryStringBuilder {
+public class MySQLQueryStringRenderer implements QueryStringRenderer {
 
-    public static final MySQLQueryStringBuilder INSTANCE = new MySQLQueryStringBuilder();
+    public static final MySQLQueryStringRenderer INSTANCE = new MySQLQueryStringRenderer();
 
     private static Method accessibleAccessMethod;
 

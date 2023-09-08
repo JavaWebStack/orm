@@ -1,4 +1,4 @@
-package org.javawebstack.orm.wrapper;
+package org.javawebstack.orm.connection;
 
 import org.javawebstack.orm.exception.ORMQueryException;
 

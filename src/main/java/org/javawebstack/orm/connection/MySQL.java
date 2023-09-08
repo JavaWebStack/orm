@@ -1,8 +1,8 @@
-package org.javawebstack.orm.wrapper;
+package org.javawebstack.orm.connection;
 
 import org.javawebstack.orm.exception.ORMQueryException;
-import org.javawebstack.orm.wrapper.builder.MySQLQueryStringBuilder;
-import org.javawebstack.orm.wrapper.builder.QueryStringBuilder;
+import org.javawebstack.orm.renderer.MySQLQueryStringRenderer;
+import org.javawebstack.orm.renderer.QueryStringRenderer;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -93,6 +93,16 @@ public class MySQL extends BaseSQL {
         return c;
     }
 
+    public void close() {
+        if(c != null) {
+            try {
+                if(!c.isClosed())
+                    c.close();
+            } catch (SQLException ignored) {}
+            c = null;
+        }
+    }
+
     private static String buildQuery(Map<String, String> params) {
         return params.entrySet().stream().map(e -> urlEncode(e.getKey()) + "=" + urlEncode(e.getValue())).collect(Collectors.joining("&"));
     }
@@ -105,10 +115,9 @@ public class MySQL extends BaseSQL {
         return s;
     }
 
-    public QueryStringBuilder builder() {
-        return MySQLQueryStringBuilder.INSTANCE;
+    public QueryStringRenderer builder() {
+        return MySQLQueryStringRenderer.INSTANCE;
     }
-
 
 }
 

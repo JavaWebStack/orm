@@ -1,8 +1,8 @@
 package org.javawebstack.orm.test;
 
-import org.javawebstack.orm.wrapper.MySQL;
-import org.javawebstack.orm.wrapper.SQLDriverFactory;
-import org.javawebstack.orm.wrapper.SQLDriverNotFoundException;
+import org.javawebstack.orm.connection.MySQL;
+import org.javawebstack.orm.util.SQLDriverFactory;
+import org.javawebstack.orm.util.SQLDriverNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

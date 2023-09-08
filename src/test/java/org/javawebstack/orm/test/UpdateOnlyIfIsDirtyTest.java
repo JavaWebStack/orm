@@ -4,7 +4,7 @@ import org.javawebstack.orm.ORM;
 import org.javawebstack.orm.ORMConfig;
 import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.javawebstack.orm.test.shared.models.JustString;
-import org.javawebstack.orm.wrapper.QueryLogger;
+import org.javawebstack.orm.connection.QueryLogger;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;

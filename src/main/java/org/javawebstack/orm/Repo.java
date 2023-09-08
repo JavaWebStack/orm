@@ -1,13 +1,14 @@
 package org.javawebstack.orm;
 
+import org.javawebstack.orm.connection.pool.PooledSQL;
+import org.javawebstack.orm.connection.pool.SQLPool;
 import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.javawebstack.orm.exception.ORMQueryException;
 import org.javawebstack.orm.filter.DefaultQueryFilter;
 import org.javawebstack.orm.filter.QueryFilter;
 import org.javawebstack.orm.migration.AutoMigrator;
 import org.javawebstack.orm.query.Query;
-import org.javawebstack.orm.wrapper.SQL;
-import org.javawebstack.orm.wrapper.builder.SQLQueryString;
+import org.javawebstack.orm.renderer.SQLQueryString;
 
 import java.lang.reflect.Field;
 import java.sql.SQLException;
@@ -25,14 +26,14 @@ public class Repo<T extends Model> {
     }
 
     private final TableInfo info;
-    private final SQL connection;
+    private final SQLPool pool;
     private final List<Observer<T>> observers = new ArrayList<>();
     private Accessible accessible;
     private QueryFilter filter;
 
-    public Repo(Class<T> clazz, SQL connection, ORMConfig config) throws ORMConfigurationException {
+    public Repo(Class<T> clazz, SQLPool pool, ORMConfig config) throws ORMConfigurationException {
         this.info = new TableInfo(clazz, config);
-        this.connection = connection;
+        this.pool = pool;
         filter = new DefaultQueryFilter(info.getFilterable(), info.getSearchable());
     }
 
@@ -119,12 +120,13 @@ public class Repo<T extends Model> {
                 if (map.containsKey(idCol) && map.get(idCol) == null)
                     map.remove(idCol);
             }
-            SQLQueryString qs = getConnection().builder().buildInsert(info, map);
-            SQL connection = Session.current() != null ? Session.current().getConnection() : this.connection;
-            int id = connection.write(qs.getQuery(), qs.getParameters().toArray());
-            if (info.isAutoIncrement())
-                info.getField(info.getIdField()).set(entry, id);
-            entry.setEntryExists(true);
+            try(PooledSQL connection = pool.get()) {
+                SQLQueryString qs = connection.builder().buildInsert(info, map);
+                int id = connection.write(qs.getQuery(), qs.getParameters().toArray());
+                if (info.isAutoIncrement())
+                    info.getField(info.getIdField()).set(entry, id);
+                entry.setEntryExists(true);
+            }
         } catch (SQLException | IllegalAccessException throwables) {
             throw new ORMQueryException(throwables);
         }
@@ -217,8 +219,8 @@ public class Repo<T extends Model> {
         AutoMigrator.migrate(this);
     }
 
-    public SQL getConnection() {
-        return connection;
+    public SQLPool getPool() {
+        return pool;
     }
 
     public TableInfo getInfo() {

@@ -1,7 +1,7 @@
 package org.javawebstack.orm.test.shared.settings;
 
-import org.javawebstack.orm.wrapper.MySQL;
-import org.javawebstack.orm.wrapper.SQL;
+import org.javawebstack.orm.connection.MySQL;
+import org.javawebstack.orm.connection.SQL;
 
 import java.io.File;
 import java.io.FileInputStream;

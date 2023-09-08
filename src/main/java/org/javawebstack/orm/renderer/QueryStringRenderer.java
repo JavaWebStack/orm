@@ -1,11 +1,11 @@
-package org.javawebstack.orm.wrapper.builder;
+package org.javawebstack.orm.renderer;
 
 import org.javawebstack.orm.TableInfo;
 import org.javawebstack.orm.query.Query;
 
 import java.util.Map;
 
-public interface QueryStringBuilder {
+public interface QueryStringRenderer {
 
     SQLQueryString buildInsert(TableInfo info, Map<String, Object> values);
     SQLQueryString buildQuery(Query<?> query);

@@ -3,10 +3,10 @@ package org.javawebstack.orm.query;
 import org.javawebstack.orm.Model;
 import org.javawebstack.orm.Repo;
 import org.javawebstack.orm.SQLMapper;
-import org.javawebstack.orm.Session;
+import org.javawebstack.orm.connection.pool.PooledSQL;
 import org.javawebstack.orm.exception.ORMQueryException;
-import org.javawebstack.orm.wrapper.SQL;
-import org.javawebstack.orm.wrapper.builder.SQLQueryString;
+import org.javawebstack.orm.connection.SQL;
+import org.javawebstack.orm.renderer.SQLQueryString;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -21,7 +21,6 @@ public class Query<T extends Model> {
 
     private final Repo<T> repo;
     private final Class<T> model;
-    private SQL connection;
     private List<String> select = new ArrayList<>();
     private final QueryGroup<T> where = new QueryGroup<>();
     private Integer offset;
@@ -40,15 +39,6 @@ public class Query<T extends Model> {
     public Query(Repo<T> repo, Class<T> model) {
         this.repo = repo;
         this.model = model;
-        Session session = Session.current();
-        this.connection = repo.getConnection();
-        if(session != null && session.getConnection() != null)
-            this.connection = session.getConnection();
-    }
-
-    public Query<T> via(SQL connection) {
-        this.connection = connection;
-        return this;
     }
 
     public boolean isWithDeleted() {
@@ -366,11 +356,13 @@ public class Query<T extends Model> {
     }
 
     public void finalDelete() {
-        SQLQueryString qs = connection.builder().buildDelete(this);
-        try {
-            connection.write(qs.getQuery(), qs.getParameters().toArray());
-        } catch (SQLException throwables) {
-            throw new ORMQueryException(throwables);
+        try(PooledSQL connection = repo.getPool().get()) {
+            SQLQueryString qs = connection.builder().buildDelete(this);
+            try {
+                connection.write(qs.getQuery(), qs.getParameters().toArray());
+            } catch (SQLException throwables) {
+                throw new ORMQueryException(throwables);
+            }
         }
     }
 
@@ -395,18 +387,20 @@ public class Query<T extends Model> {
     }
 
     public T refresh(T entity) {
-        SQLQueryString qs = connection.builder().buildQuery(this);
-        try {
-            ResultSet rs = connection.read(qs.getQuery(), qs.getParameters().toArray());
-            if(rs.next()) {
-                SQLMapper.mapBack(repo, rs, entity);
-                connection.close(rs);
-                return entity;
-            } else {
-                return null;
+        try(PooledSQL connection = repo.getPool().get()) {
+            SQLQueryString qs = connection.builder().buildQuery(this);
+            try {
+                ResultSet rs = connection.read(qs.getQuery(), qs.getParameters().toArray());
+                if(rs.next()) {
+                    SQLMapper.mapBack(repo, rs, entity);
+                    connection.close(rs);
+                    return entity;
+                } else {
+                    return null;
+                }
+            } catch (SQLException throwables) {
+                throw new ORMQueryException(throwables);
             }
-        } catch (SQLException throwables) {
-            throw new ORMQueryException(throwables);
         }
     }
 
@@ -415,23 +409,27 @@ public class Query<T extends Model> {
     }
 
     public void update(Map<String, Object> values) {
-        SQLQueryString queryString = connection.builder().buildUpdate(this, values);
-        try {
-            connection.write(queryString.getQuery(), queryString.getParameters().toArray());
-        } catch (SQLException throwables) {
-            throw new ORMQueryException(throwables);
+        try(PooledSQL connection = repo.getPool().get()) {
+            SQLQueryString queryString = connection.builder().buildUpdate(this, values);
+            try {
+                connection.write(queryString.getQuery(), queryString.getParameters().toArray());
+            } catch (SQLException throwables) {
+                throw new ORMQueryException(throwables);
+            }
         }
     }
 
     public List<T> all() {
-        SQLQueryString qs = connection.builder().buildQuery(this);
-        try {
-            ResultSet rs = connection.read(qs.getQuery(), qs.getParameters().toArray());
-            List<T> list = SQLMapper.map(repo, rs, new ArrayList<>());
-            connection.close(rs);
-            return list;
-        } catch (SQLException throwables) {
-            throw new ORMQueryException(throwables);
+        try(PooledSQL connection = repo.getPool().get()) {
+            SQLQueryString qs = connection.builder().buildQuery(this);
+            try {
+                ResultSet rs = connection.read(qs.getQuery(), qs.getParameters().toArray());
+                List<T> list = SQLMapper.map(repo, rs, new ArrayList<>());
+                connection.close(rs);
+                return list;
+            } catch (SQLException throwables) {
+                throw new ORMQueryException(throwables);
+            }
         }
     }
 
@@ -451,16 +449,18 @@ public class Query<T extends Model> {
     }
 
     public int count() {
-        SQLQueryString qs = connection.builder().buildQuery(this.select("count(*)"));
-        try {
-            ResultSet rs = connection.read(qs.getQuery(), qs.getParameters().toArray());
-            int c = 0;
-            if (rs.next())
-                c = rs.getInt(1);
-            connection.close(rs);
-            return c;
-        } catch (SQLException throwables) {
-            throw new ORMQueryException(throwables);
+        try(PooledSQL connection = repo.getPool().get()) {
+            SQLQueryString qs = connection.builder().buildQuery(this.select("count(*)"));
+            try {
+                ResultSet rs = connection.read(qs.getQuery(), qs.getParameters().toArray());
+                int c = 0;
+                if (rs.next())
+                    c = rs.getInt(1);
+                connection.close(rs);
+                return c;
+            } catch (SQLException throwables) {
+                throw new ORMQueryException(throwables);
+            }
         }
     }
 

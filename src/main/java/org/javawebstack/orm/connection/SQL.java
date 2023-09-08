@@ -1,6 +1,6 @@
-package org.javawebstack.orm.wrapper;
+package org.javawebstack.orm.connection;
 
-import org.javawebstack.orm.wrapper.builder.QueryStringBuilder;
+import org.javawebstack.orm.renderer.QueryStringRenderer;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -15,13 +15,15 @@ public interface SQL {
     int write(String queryString, Object... parameters) throws SQLException;
 
     void close(ResultSet resultSet);
+    void close();
 
-    QueryStringBuilder builder();
+    QueryStringRenderer builder();
 
     void addQueryLogger(QueryLogger logger);
 
     void removeQueryLogger(QueryLogger logger);
 
+    @Deprecated
     SQL fork();
 
 }

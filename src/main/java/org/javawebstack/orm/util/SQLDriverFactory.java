@@ -1,4 +1,8 @@
-package org.javawebstack.orm.wrapper;
+package org.javawebstack.orm.util;
+
+import org.javawebstack.orm.connection.MySQL;
+import org.javawebstack.orm.connection.SQL;
+import org.javawebstack.orm.connection.SQLite;
 
 import java.util.HashMap;
 import java.util.Map;

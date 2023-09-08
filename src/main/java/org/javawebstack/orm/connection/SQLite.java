@@ -1,7 +1,7 @@
-package org.javawebstack.orm.wrapper;
+package org.javawebstack.orm.connection;
 
-import org.javawebstack.orm.wrapper.builder.MySQLQueryStringBuilder;
-import org.javawebstack.orm.wrapper.builder.QueryStringBuilder;
+import org.javawebstack.orm.renderer.MySQLQueryStringRenderer;
+import org.javawebstack.orm.renderer.QueryStringRenderer;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -42,8 +42,18 @@ public class SQLite extends BaseSQL {
         return c;
     }
 
-    public QueryStringBuilder builder() {
-        return MySQLQueryStringBuilder.INSTANCE; // TODO Build a custom one for SQLite
+    public void close() {
+        if(c != null) {
+            try {
+                if(!c.isClosed())
+                    c.close();
+            } catch (SQLException ignored) {}
+            c = null;
+        }
+    }
+
+    public QueryStringRenderer builder() {
+        return MySQLQueryStringRenderer.INSTANCE; // TODO Build a custom one for SQLite
     }
 
 
