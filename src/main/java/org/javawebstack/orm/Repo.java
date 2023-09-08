@@ -175,7 +175,7 @@ public class Repo<T extends Model> {
     }
 
     public T refresh(T entry) {
-        where(info.getIdField(), getId(entry)).refresh(entry);
+        where(info.getIdField(), getId(entry)).withDeleted().refresh(entry);
         entry.updateOriginal();
         return entry;
     }
