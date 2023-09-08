@@ -1,5 +1,6 @@
 package org.javawebstack.orm;
 
+import org.javawebstack.commons.inject.Injector;
 import org.javawebstack.orm.query.Query;
 
 import java.lang.reflect.Field;
@@ -22,6 +23,9 @@ public class Model {
 
     {
         updateOriginal();
+        Injector injector = Repo.get(getClass()).getInfo().getConfig().getInjector();
+        if(injector != null)
+            injector.inject(this);
     }
 
     static {

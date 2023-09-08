@@ -1,5 +1,6 @@
 package org.javawebstack.orm;
 
+import org.javawebstack.commons.inject.Injector;
 import org.javawebstack.orm.exception.ORMQueryException;
 import org.javawebstack.orm.mapper.DefaultMapper;
 import org.javawebstack.orm.mapper.TypeMapper;

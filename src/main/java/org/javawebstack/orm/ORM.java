@@ -10,11 +10,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 public class ORM {
-
-    public static final Logger LOGGER = Logger.getLogger("ORM");
 
     private static final Map<Class<? extends Model>, Repo<?>> repositories = new HashMap<>();
 
