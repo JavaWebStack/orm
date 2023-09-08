@@ -1,6 +1,8 @@
 package org.javawebstack.orm;
 
+import org.javawebstack.orm.connection.SQL;
 import org.javawebstack.orm.connection.pool.SQLPool;
+import org.javawebstack.orm.connection.pool.SingletonPool;
 import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.javawebstack.orm.migration.AutoMigrator;
 import org.reflections.Reflections;
@@ -38,6 +40,26 @@ public class ORM {
 
     public static void register(Package p, SQLPool pool) throws ORMConfigurationException {
         register(p, pool, new ORMConfig());
+    }
+
+    @Deprecated
+    public static <T extends Model> Repo<T> register(Class<T> model, SQL sql, ORMConfig config) throws ORMConfigurationException {
+        return register(model, new SingletonPool(sql), config);
+    }
+
+    @Deprecated
+    public static <T extends Model> Repo<T> register(Class<T> model, SQL sql) throws ORMConfigurationException {
+        return register(model, new SingletonPool(sql));
+    }
+
+    @Deprecated
+    public static void register(Package p, SQL sql, ORMConfig config) throws ORMConfigurationException {
+        register(p, new SingletonPool(sql), config);
+    }
+
+    @Deprecated
+    public static void register(Package p, SQL sql) throws ORMConfigurationException {
+        register(p, new SingletonPool(sql));
     }
 
     public static void unregister(Class<? extends Model> model) {
