@@ -62,6 +62,8 @@ public class MySQLQueryStringBuilder implements QueryStringBuilder {
         QueryGroup<Model> where = (QueryGroup<Model>) query.getWhereGroup();
         checkWithDeleted(repo, query.isWithDeleted(), where);
         if(query.shouldApplyAccessible()) {
+            if(repo.getAccessible() == null)
+                throw new ORMQueryException("No accessible was set on the repository for " + repo.getInfo().getModelClass().getName());
             QueryGroup<Model> accessChecks;
             try {
                 accessChecks = (QueryGroup<Model>) accessibleAccessMethod.invoke(repo.getAccessible(), query, new QueryGroup<>(), query.getAccessor());
