@@ -3,6 +3,7 @@ package org.javawebstack.orm.test.querybuilding;
 import org.javawebstack.orm.Model;
 import org.javawebstack.orm.ORM;
 import org.javawebstack.orm.Repo;
+import org.javawebstack.orm.connection.pool.PooledSQL;
 import org.javawebstack.orm.exception.ORMConfigurationException;
 import org.javawebstack.orm.test.ORMTestCase;
 import org.javawebstack.orm.test.shared.models.tablenames.*;
@@ -68,6 +69,8 @@ class FromClauseTest extends ORMTestCase {
      */
     private String getBaseQuery(Class<? extends Model> clazz) throws ORMConfigurationException {
         ORM.register(clazz, sql());
-        return Repo.get(clazz).getConnection().builder().buildQuery(Repo.get(clazz).query()).getQuery();
+        try(PooledSQL sql = Repo.get(clazz).getPool().get()) {
+            return sql.builder().buildQuery(Repo.get(clazz).query()).getQuery();
+        }
     }
 }

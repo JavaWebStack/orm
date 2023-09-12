@@ -1,5 +1,6 @@
 package org.javawebstack.orm.test.shared.verification;
 
+import org.javawebstack.orm.connection.pool.PooledSQL;
 import org.javawebstack.orm.query.Query;
 import org.javawebstack.orm.test.exception.SectionIndexOutOfBoundException;
 import org.javawebstack.orm.test.shared.util.QueryStringUtil;
@@ -145,8 +146,10 @@ public class QueryVerification {
      * @return The order sensitive string list of inner sections.
      */
     public List<String> getSectionList(String topLevelKeyword) {
-        return new QueryStringUtil(this.query.getRepo().getConnection().builder().buildQuery(this.query).getQuery())
-                .getTopLevelSectionsByKeyword(topLevelKeyword);
+        try(PooledSQL sql = this.query.getRepo().getPool().get()) {
+            return new QueryStringUtil(sql.builder().buildQuery(this.query).getQuery())
+                    .getTopLevelSectionsByKeyword(topLevelKeyword);
+        }
     }
 
     private void failDueToSectionIndexOutOfBounds(SectionIndexOutOfBoundException exception) {
