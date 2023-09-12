@@ -15,6 +15,7 @@ public class SQLPool {
     private final Queue<SQL> connectionQueue = new LinkedBlockingQueue<>();
     private final Set<QueryLogger> loggers = new HashSet<>();
     private boolean closing;
+    private PoolQueryLogger queryLogger = new PoolQueryLogger();
 
     public SQLPool(PoolScaling scaling, Supplier<SQL> supplier) {
         this.scaling = scaling;
@@ -64,6 +65,7 @@ public class SQLPool {
             return;
         while (newScale > connections.size()) {
             SQL sql = supplier.get();
+            sql.addQueryLogger(queryLogger);
             connections.add(sql);
             connectionQueue.add(sql);
         }
