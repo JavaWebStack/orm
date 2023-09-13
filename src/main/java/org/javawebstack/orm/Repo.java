@@ -52,7 +52,7 @@ public class Repo<T extends Model> {
     }
 
     public Query<T> query() {
-        return new Query<>((Class<T>) info.getModelClass());
+        return new Query<>((Class<T>) info.getModelClass(), info.getConfig().isImmutableQuery());
     }
 
     public Query<T> where(Object left, String operator, Object right) {

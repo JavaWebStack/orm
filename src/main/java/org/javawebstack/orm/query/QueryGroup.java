@@ -23,9 +23,39 @@ import java.util.stream.Stream;
 public class QueryGroup<T extends Model> implements QueryElement {
 
     private final List<QueryElement> queryElements = new ArrayList<>();
+    private boolean immutable;
 
     public QueryGroup(QueryElement... queryElements) {
+        this(false, queryElements);
+    }
+
+    public QueryGroup(boolean immutable, QueryElement... queryElements) {
         this.queryElements.addAll(Arrays.asList(queryElements));
+        this.immutable = immutable;
+    }
+
+    public QueryGroup<T> clone() {
+        return new QueryGroup(immutable, queryElements.toArray(new QueryElement[0]));
+    }
+
+    public QueryGroup<T> mutable() {
+        if(!this.immutable)
+            return this;
+        QueryGroup<T> cloned = clone();
+        cloned.immutable = false;
+        return cloned;
+    }
+
+    public QueryGroup<T> immutable() {
+        if(this.immutable)
+            return this;
+        QueryGroup<T> cloned = clone();
+        cloned.immutable = true;
+        return cloned;
+    }
+
+    public boolean isImmutable() {
+        return immutable;
     }
 
     public List<QueryElement> getQueryElements() {
@@ -38,13 +68,14 @@ public class QueryGroup<T extends Model> implements QueryElement {
     }
 
     public QueryGroup<T> where(Function<QueryGroup<T>, QueryGroup<T>> group) {
+        QueryGroup<T> q = immutable ? clone() : this;
         QueryGroup<T> innerGroup = group.apply(new QueryGroup<>());
         if(innerGroup.queryElements.isEmpty())
-            return this;
-        if (!queryElements.isEmpty())
-            queryElements.add(QueryConjunction.AND);
-        queryElements.add(innerGroup);
-        return this;
+            return q;
+        if (!q.queryElements.isEmpty())
+            q.queryElements.add(QueryConjunction.AND);
+        q.queryElements.add(innerGroup);
+        return q;
     }
 
     @Deprecated
@@ -53,13 +84,14 @@ public class QueryGroup<T extends Model> implements QueryElement {
     }
 
     public QueryGroup<T> orWhere(Function<QueryGroup<T>, QueryGroup<T>> group) {
+        QueryGroup<T> q = immutable ? clone() : this;
         QueryGroup<T> innerGroup = group.apply(new QueryGroup<>());
         if(innerGroup.queryElements.isEmpty())
-            return this;
-        if (!queryElements.isEmpty())
-            queryElements.add(QueryConjunction.OR);
-        queryElements.add(innerGroup);
-        return this;
+            return q;
+        if (!q.queryElements.isEmpty())
+            q.queryElements.add(QueryConjunction.OR);
+        q.queryElements.add(innerGroup);
+        return q;
     }
 
     public QueryGroup<T> where(Object left, String condition, Object right) {
@@ -82,10 +114,11 @@ public class QueryGroup<T extends Model> implements QueryElement {
                 right = 2;
             }
         }
-        if (!queryElements.isEmpty())
-            queryElements.add(QueryConjunction.AND);
-        queryElements.add(new QueryCondition(left instanceof String ? new QueryColumn((String) left) : left, condition, right));
-        return this;
+        QueryGroup<T> q = immutable ? clone() : this;
+        if (!q.queryElements.isEmpty())
+            q.queryElements.add(QueryConjunction.AND);
+        q.queryElements.add(new QueryCondition(left instanceof String ? new QueryColumn((String) left) : left, condition, right));
+        return q;
     }
 
     public QueryGroup<T> where(Class<? extends Model> leftTable, String left, String operator, Class<? extends Model> rightTable, String right) {
@@ -123,6 +156,7 @@ public class QueryGroup<T extends Model> implements QueryElement {
     }
 
     public QueryGroup<T> orWhere(Object left, String condition, Object right) {
+        QueryGroup<T> q = immutable ? clone() : this;
         if(condition.equalsIgnoreCase("=") && right == null)
             return orIsNull(left);
         if(condition.equalsIgnoreCase("!=") && right == null)
@@ -132,10 +166,10 @@ public class QueryGroup<T extends Model> implements QueryElement {
             condition = "=";
             right = 2;
         }
-        if (!queryElements.isEmpty())
-            queryElements.add(QueryConjunction.OR);
-        queryElements.add(new QueryCondition(left instanceof String ? new QueryColumn((String) left) : left, condition, right));
-        return this;
+        if (!q.queryElements.isEmpty())
+            q.queryElements.add(QueryConjunction.OR);
+        q.queryElements.add(new QueryCondition(left instanceof String ? new QueryColumn((String) left) : left, condition, right));
+        return q;
     }
 
     public QueryGroup<T> orWhere(Object left, Object right) {
@@ -185,35 +219,39 @@ public class QueryGroup<T extends Model> implements QueryElement {
     }
 
     public <M extends Model> QueryGroup<T> whereExists(Class<M> model, Function<Query<M>, Query<M>> consumer) {
-        if (!queryElements.isEmpty())
-            queryElements.add(QueryConjunction.AND);
-        Query<M> query = consumer.apply(new Query<>(model).limit(1));
-        queryElements.add(new QueryExists<>(query, false));
-        return this;
+        QueryGroup<T> q = immutable ? clone() : this;
+        if (!q.queryElements.isEmpty())
+            q.queryElements.add(QueryConjunction.AND);
+        Query<M> query = consumer.apply(new Query<>(model, immutable).limit(1));
+        q.queryElements.add(new QueryExists<>(query, false));
+        return q;
     }
 
     public <M extends Model> QueryGroup<T> orWhereExists(Class<M> model, Function<Query<M>, Query<M>> consumer) {
-        if (!queryElements.isEmpty())
-            queryElements.add(QueryConjunction.OR);
-        Query<M> query = consumer.apply(new Query<>(model).limit(1));
-        queryElements.add(new QueryExists<>(query, false));
-        return this;
+        QueryGroup<T> q = immutable ? clone() : this;
+        if (!q.queryElements.isEmpty())
+            q.queryElements.add(QueryConjunction.OR);
+        Query<M> query = consumer.apply(new Query<>(model, immutable).limit(1));
+        q.queryElements.add(new QueryExists<>(query, false));
+        return q;
     }
 
     public <M extends Model> QueryGroup<T> whereNotExists(Class<M> model, Function<Query<M>, Query<M>> consumer) {
-        if (!queryElements.isEmpty())
-            queryElements.add(QueryConjunction.AND);
-        Query<M> query = consumer.apply(new Query<>(model).limit(1));
-        queryElements.add(new QueryExists<>(query, true));
-        return this;
+        QueryGroup<T> q = immutable ? clone() : this;
+        if (!q.queryElements.isEmpty())
+            q.queryElements.add(QueryConjunction.AND);
+        Query<M> query = consumer.apply(new Query<>(model, immutable).limit(1));
+        q.queryElements.add(new QueryExists<>(query, true));
+        return q;
     }
 
     public <M extends Model> QueryGroup<T> orWhereNotExists(Class<M> model, Function<Query<M>, Query<M>> consumer) {
-        if (!queryElements.isEmpty())
-            queryElements.add(QueryConjunction.OR);
-        Query<M> query = consumer.apply(new Query<>(model).limit(1));
-        queryElements.add(new QueryExists<>(query, true));
-        return this;
+        QueryGroup<T> q = immutable ? clone() : this;
+        if (!q.queryElements.isEmpty())
+            q.queryElements.add(QueryConjunction.OR);
+        Query<M> query = consumer.apply(new Query<>(model, immutable).limit(1));
+        q.queryElements.add(new QueryExists<>(query, true));
+        return q;
     }
 
     public QueryGroup<T> has(Query<?> relation, String operator, int count) {

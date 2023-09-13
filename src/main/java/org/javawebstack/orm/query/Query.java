@@ -5,7 +5,6 @@ import org.javawebstack.orm.Repo;
 import org.javawebstack.orm.SQLMapper;
 import org.javawebstack.orm.connection.pool.PooledSQL;
 import org.javawebstack.orm.exception.ORMQueryException;
-import org.javawebstack.orm.connection.SQL;
 import org.javawebstack.orm.renderer.SQLQueryString;
 
 import java.sql.ResultSet;
@@ -22,7 +21,7 @@ public class Query<T extends Model> {
     private final Repo<T> repo;
     private final Class<T> model;
     private List<String> select = new ArrayList<>();
-    private final QueryGroup<T> where = new QueryGroup<>();
+    private QueryGroup<T> where;
     private Integer offset;
     private Integer limit;
     private final List<QueryOrderBy> order = new ArrayList<>();
@@ -31,14 +30,60 @@ public class Query<T extends Model> {
     private QueryGroup<T> having;
     private boolean applyAccessible = false;
     private Object accessor;
+    private boolean immutable;
 
     public Query(Class<T> model) {
         this(Repo.get(model), model);
     }
 
+    public Query(Class<T> model, boolean immutable) {
+        this(Repo.get(model), model, immutable);
+    }
+
     public Query(Repo<T> repo, Class<T> model) {
+        this(repo, model, false);
+    }
+
+    public Query(Repo<T> repo, Class<T> model, boolean immutable) {
         this.repo = repo;
         this.model = model;
+        this.immutable = immutable;
+        this.where = new QueryGroup<>(immutable);
+    }
+
+    public Query<T> clone() {
+        Query<T> cloned = new Query<>(repo, model, immutable);
+        cloned.select.addAll(select);
+        cloned.where = where.clone();
+        cloned.offset = offset;
+        cloned.limit = limit;
+        cloned.order.addAll(order);
+        cloned.withDeleted = withDeleted;
+        cloned.groupBy.addAll(groupBy);
+        cloned.having = having.clone();
+        cloned.applyAccessible = applyAccessible;
+        cloned.accessor = accessor;
+        return cloned;
+    }
+
+    public Query<T> mutable() {
+        if(!immutable)
+            return this;
+        Query<T> cloned = clone();
+        cloned.immutable = false;
+        return cloned;
+    }
+
+    public Query<T> immutable() {
+        if(immutable)
+            return this;
+        Query<T> cloned = clone();
+        cloned.immutable = true;
+        return cloned;
+    }
+
+    public boolean isImmutable() {
+        return immutable;
     }
 
     public boolean isWithDeleted() {
@@ -90,28 +135,33 @@ public class Query<T extends Model> {
     }
 
     public Query<T> select(String... columns) {
-        this.select = Arrays.asList(columns);
-        return this;
+        Query<T> q = immutable ? clone() : this;
+        q.select = Arrays.asList(columns);
+        return q;
     }
 
     public Query<T> and(Function<QueryGroup<T>, QueryGroup<T>> group) {
-        where.and(group);
-        return this;
+        Query<T> q = immutable ? clone() : this;
+        q.where = q.where.and(group);
+        return q;
     }
 
     public Query<T> or(Function<QueryGroup<T>, QueryGroup<T>> group) {
-        where.or(group);
-        return this;
+        Query<T> q = immutable ? clone() : this;
+        q.where = q.where.or(group);
+        return q;
     }
 
     public Query<T> where(Object left, String condition, Object right) {
-        where.where(left, condition, right);
-        return this;
+        Query<T> q = immutable ? clone() : this;
+        q.where = q.where.where(left, condition, right);
+        return q;
     }
 
     public Query<T> where(Object left, Object right) {
-        where.where(left, right);
-        return this;
+        Query<T> q = immutable ? clone() : this;
+        q.where = q.where.where(left, right);
+        return q;
     }
 
     public Query<T> where(Class<? extends Model> leftTable, String left, String operator, Class<? extends Model> rightTable, String right) {
@@ -146,16 +196,22 @@ public class Query<T extends Model> {
         return orWhere(left, operator, right);
     }
 
-    public QueryGroup<T> orWhereMorph(String name, Class<? extends Model> type) {
-        return where.orWhereMorph(name, type);
+    public Query<T> orWhereMorph(String name, Class<? extends Model> type) {
+        Query<T> q = immutable ? clone() : this;
+        q.where = q.where.orWhereMorph(name, type);
+        return q;
     }
 
-    public QueryGroup<T> orWhereMorph(String name, Class<? extends Model> type, Object id) {
-        return where.orWhereMorph(name, type, id);
+    public Query<T> orWhereMorph(String name, Class<? extends Model> type, Object id) {
+        Query<T> q = immutable ? clone() : this;
+        q.where = q.where.orWhereMorph(name, type, id);
+        return q;
     }
 
-    public QueryGroup<T> orWhereMorph(String name, Model entity) {
-        return where.orWhereMorph(name, entity);
+    public Query<T> orWhereMorph(String name, Model entity) {
+        Query<T> q = immutable ? clone() : this;
+        q.where = q.where.orWhereMorph(name, entity);
+        return q;
     }
 
     public Query<T> whereId(String operator, Object right) {
@@ -192,107 +248,127 @@ public class Query<T extends Model> {
 
     @Deprecated
     public Query<T> isNull(Object left) {
-        where.isNull(left);
-        return this;
+        Query<T> q = immutable ? clone() : this;
+        q.where = q.where.isNull(left);
+        return q;
     }
 
     @Deprecated
     public Query<T> notNull(Object left) {
-        where.notNull(left);
-        return this;
+        Query<T> q = immutable ? clone() : this;
+        q.where = q.where.notNull(left);
+        return q;
     }
     
     public Query<T> whereNull(Object left) {
-        where.whereNull(left);
-        return this;
+        Query<T> q = immutable ? clone() : this;
+        q.where = q.where.whereNull(left);
+        return q;
     }
     
     public Query<T> whereNotNull(Object left) {
-        where.whereNotNull(left);
-        return this;
+        Query<T> q = immutable ? clone() : this;
+        q.where = q.where.whereNotNull(left);
+        return q;
     }
 
     public Query<T> orWhere(Object left, String condition, Object right) {
-        where.orWhere(left, condition, right);
-        return this;
+        Query<T> q = immutable ? clone() : this;
+        q.where = q.where.orWhere(left, condition, right);
+        return q;
     }
 
     public Query<T> orWhere(Object left, Object right) {
-        where.orWhere(left, right);
-        return this;
+        Query<T> q = immutable ? clone() : this;
+        q.where = q.where.orWhere(left, right);
+        return q;
     }
 
     @Deprecated
     public Query<T> orIsNull(Object left) {
-        where.orIsNull(left);
+        Query<T> q = immutable ? clone() : this;
+        q.where = q.where.orIsNull(left);
         return this;
     }
 
     @Deprecated
     public Query<T> orNotNull(Object left) {
-        where.orNotNull(left);
+        Query<T> q = immutable ? clone() : this;
+        q.where = q.where.orNotNull(left);
         return this;
     }
 
     public Query<T> orWhereNull(Object left) {
-        where.orWhereNull(left);
+        Query<T> q = immutable ? clone() : this;
+        q.where = q.where.orWhereNull(left);
         return this;
     }
 
     public Query<T> orWhereNotNull(Object left) {
-        where.orWhereNotNull(left);
+        Query<T> q = immutable ? clone() : this;
+        q.where = q.where.orWhereNotNull(left);
         return this;
     }
 
     public <M extends Model> Query<T> whereExists(Class<M> model, Function<Query<M>, Query<M>> consumer) {
-        where.whereExists(model, consumer);
+        Query<T> q = immutable ? clone() : this;
+        q.where = q.where.whereExists(model, consumer);
         return this;
     }
 
     public <M extends Model> Query<T> orWhereExists(Class<M> model, Function<Query<M>, Query<M>> consumer) {
-        where.orWhereExists(model, consumer);
+        Query<T> q = immutable ? clone() : this;
+        q.where = q.where.orWhereExists(model, consumer);
         return this;
     }
 
     public Query<T> whereIn(Object left, Object... values) {
-        where.whereIn(left, values);
+        Query<T> q = immutable ? clone() : this;
+        q.where = q.where.whereIn(left, values);
         return this;
     }
 
     public Query<T> whereNotIn(Object left, Object... values) {
-        where.whereNotIn(left, values);
-        return this;
+        Query<T> q = immutable ? clone() : this;
+        q.where = q.where.whereNotIn(left, values);
+        return q;
     }
 
     public Query<T> orWhereIn(Object left, Object... values) {
-        where.orWhereIn(left, values);
-        return this;
+        Query<T> q = immutable ? clone() : this;
+        q.where = q.where.orWhereIn(left, values);
+        return q;
     }
 
     public Query<T> orWhereNotIn(Object left, Object... values) {
-        where.orWhereNotIn(left, values);
+        Query<T> q = immutable ? clone() : this;
+        q.where = q.where.orWhereNotIn(left, values);
         return this;
     }
 
     public Query<T> groupBy(String column) {
-        groupBy.add(new QueryColumn(column));
+        Query<T> q = immutable ? clone() : this;
+        q.groupBy.add(new QueryColumn(column));
         return this;
     }
 
     public Query<T> groupBy(QueryColumn column) {
-        groupBy.add(column);
-        return this;
+        Query<T> q = immutable ? clone() : this;
+        q.groupBy.add(column);
+        return q;
     }
 
     public Query<T> having(Consumer<QueryGroup<T>> consumer) {
-        having = new QueryGroup<>();
+        Query<T> q = immutable ? clone() : this;
+        q.having = new QueryGroup<>(immutable);
         consumer.accept(having);
-        return this;
+        return q;
     }
 
     public Query<T> has(Query<?> relation, String operator, int count) {
-        where.has(relation, operator, count);
-        return this;
+        Query<T> q = immutable ? clone() : this;
+        q.where = q.where.has(relation, operator, count);
+        return q;
     }
 
     public Query<T> has(Query<?> relation) {
@@ -300,23 +376,28 @@ public class Query<T extends Model> {
     }
 
     public Query<T> accessible(Object accessor) {
-        this.applyAccessible = true;
-        this.accessor = accessor;
-        return this;
+        Query<T> q = immutable ? clone() : this;
+        q.applyAccessible = true;
+        q.accessor = accessor;
+        return q;
     }
 
     public Query<T> filter(Map<String, String> filter) {
+        Query<T> q = immutable ? clone() : this;
         if (filter == null)
-            return this;
-        repo.getFilter().filter(this, filter);
-        return this;
+            return q;
+        q = q.mutable();
+        repo.getFilter().filter(q, filter);
+        return immutable ? q.immutable() : q;
     }
 
     public Query<T> search(String search) {
+        Query<T> q = immutable ? clone() : this;
         if (search == null || search.length() == 0)
             return this;
-        repo.getFilter().search(this, search);
-        return this;
+        q = q.mutable();
+        repo.getFilter().search(q, search);
+        return immutable ? q.immutable() : q;
     }
 
     public Query<T> order(String columnName) throws ORMQueryException {
@@ -327,9 +408,10 @@ public class Query<T extends Model> {
         return order(new QueryColumn(columnName), desc);
     }
 
-    public Query<T> order(QueryColumn column, boolean desc) throws ORMQueryException{
-        this.order.add(new QueryOrderBy(column, desc));
-        return this;
+    public Query<T> order(QueryColumn column, boolean desc) throws ORMQueryException {
+        Query<T> q = immutable ? clone() : this;
+        q.order.add(new QueryOrderBy(column, desc));
+        return q;
     }
 
     public Query<T> limit(int offset, int limit) {
@@ -337,18 +419,21 @@ public class Query<T extends Model> {
     }
 
     public Query<T> limit(int limit) {
-        this.limit = limit;
-        return this;
+        Query<T> q = immutable ? clone() : this;
+        q.limit = limit;
+        return q;
     }
 
     public Query<T> offset(int offset) {
-        this.offset = offset;
-        return this;
+        Query<T> q = immutable ? clone() : this;
+        q.offset = offset;
+        return q;
     }
 
     public Query<T> withDeleted() {
-        withDeleted = true;
-        return this;
+        Query<T> q = immutable ? clone() : this;
+        q.withDeleted = true;
+        return q;
     }
 
     public Query<T> onlyDeleted() {
@@ -383,7 +468,7 @@ public class Query<T extends Model> {
             return;
         Map<String, Object> values = new HashMap<>();
         values.put(repo.getInfo().getColumnName(repo.getInfo().getSoftDeleteField()), null);
-        withDeleted().update(values);
+        clone().withDeleted().update(values);
     }
 
     public T refresh(T entity) {

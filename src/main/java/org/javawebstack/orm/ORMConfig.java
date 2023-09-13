@@ -17,6 +17,7 @@ public class ORMConfig {
     private final List<TypeMapper> typeMappers = new ArrayList<>();
     private boolean preventUnnecessaryUpdates = true;
     private Injector injector;
+    private boolean immutableQuery = false;
 
     public ORMConfig() {
         typeMappers.add(new DefaultMapper());
@@ -57,6 +58,11 @@ public class ORMConfig {
         return this;
     }
 
+    public ORMConfig setImmutableQuery(boolean immutableQuery) {
+        this.immutableQuery = immutableQuery;
+        return this;
+    }
+
     public boolean isCamelToSnakeCase() {
         return camelToSnakeCase;
     }
@@ -79,6 +85,10 @@ public class ORMConfig {
 
     public boolean isIdAutoIncrement() {
         return idAutoIncrement;
+    }
+
+    public boolean isImmutableQuery() {
+        return immutableQuery;
     }
 
     public TypeMapper getTypeMapper(Class<?> type, int size) {
