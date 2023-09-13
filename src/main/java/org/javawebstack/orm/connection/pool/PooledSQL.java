@@ -16,6 +16,8 @@ public class PooledSQL implements SQL, AutoCloseable {
     private boolean closed;
 
     public PooledSQL(SQLPool pool, SQL connection) {
+        if(connection == null)
+            throw new IllegalArgumentException("connection can not be null");
         this.pool = pool;
         this.connection = connection;
     }

@@ -4,6 +4,7 @@ import org.javawebstack.orm.connection.QueryLogger;
 import org.javawebstack.orm.connection.SQL;
 
 import java.util.*;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Supplier;
 
@@ -12,7 +13,7 @@ public class SQLPool {
     private final PoolScaling scaling;
     private final Supplier<SQL> supplier;
     private final List<SQL> connections = new ArrayList<>();
-    private final Queue<SQL> connectionQueue = new LinkedBlockingQueue<>();
+    private final BlockingQueue<SQL> connectionQueue = new LinkedBlockingQueue<>();
     private final Set<QueryLogger> loggers = new HashSet<>();
     private boolean closing;
     private PoolQueryLogger queryLogger = new PoolQueryLogger();
@@ -31,9 +32,13 @@ public class SQLPool {
         if(closing)
             throw new IllegalStateException("Pool has already been closed");
         scale();
-        SQL sql = connectionQueue.poll();
-        scale();
-        return new PooledSQL(this, sql);
+        try {
+            SQL sql = connectionQueue.take();
+            scale();
+            return new PooledSQL(this, sql);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void release(SQL sql) {
