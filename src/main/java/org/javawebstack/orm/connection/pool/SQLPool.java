@@ -68,17 +68,20 @@ public class SQLPool {
         int newScale = scaling.scale(connections.size(), connections.size() - connectionQueue.size());
         if(newScale == connections.size())
             return;
-        while (newScale > connections.size()) {
-            SQL sql = supplier.get();
-            sql.addQueryLogger(queryLogger);
-            connections.add(sql);
-            connectionQueue.add(sql);
+        synchronized(this) {
+            while (newScale > connections.size()) {
+                SQL sql = supplier.get();
+                sql.addQueryLogger(queryLogger);
+                connections.add(sql);
+                connectionQueue.add(sql);
+            }
+            while (newScale < connections.size() && connectionQueue.size() > 0) {
+                SQL sql = connectionQueue.poll();
+                sql.close();
+                connections.remove(sql);
+            }
         }
-        while (newScale < connections.size() && connectionQueue.size() > 0) {
-            SQL sql = connectionQueue.poll();
-            sql.close();
-            connections.remove(sql);
-        }
+
     }
 
     public void close() {
