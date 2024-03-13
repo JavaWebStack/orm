@@ -63,7 +63,7 @@ public class AutoMigrator {
                     sb.append('(')
                             .append(parameterTypes)
                             .append(')');
-                sb.append(info.isNotNull(fieldName)  ? " NOT NULL" : " NULL");
+                sb.append(info.isNotNull(fieldName) ? " NOT NULL" : " NULL");
                 if (info.isAutoIncrement() && info.getIdField().equals(fieldName))
                     sb.append(" AUTO_INCREMENT");
                 if (columnKeys.containsKey(columnName)) {
