@@ -289,6 +289,15 @@ public class TableInfo {
     public boolean isNotNull(String fieldName) {
         if (idField.equals(fieldName))
             return true;
+
+        if (hasDates()) {
+            if (fieldName.equals(getCreatedField()))
+                return true;
+            if (fieldName.equals(getUpdatedField()))
+                return true;
+        }
+
+
         return false;
     }
 
