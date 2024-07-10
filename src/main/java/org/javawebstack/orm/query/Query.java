@@ -249,8 +249,18 @@ public class Query<T extends Model> {
         return this;
     }
 
+    public <M extends Model> Query<T> whereNotExists(Class<M> model, Function<Query<M>, Query<M>> consumer) {
+        where.whereNotExists(model, consumer);
+        return this;
+    }
+
     public <M extends Model> Query<T> orWhereExists(Class<M> model, Function<Query<M>, Query<M>> consumer) {
         where.orWhereExists(model, consumer);
+        return this;
+    }
+
+    public <M extends Model> Query<T> orWhereNotExists(Class<M> model, Function<Query<M>, Query<M>> consumer) {
+        where.orWhereNotExists(model, consumer);
         return this;
     }
 
