@@ -11,6 +11,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 public class MySQL extends BaseSQL {
@@ -65,7 +66,7 @@ public class MySQL extends BaseSQL {
             if (c == null || c.isClosed()) {
                 try {
                     Class.forName("com.mysql.cj.jdbc.Driver");
-                    Map<String, String> params = new HashMap<>();
+                    Properties params = new Properties();
                     params.put("user", this.username);
                     params.put("password", this.password);
                     params.put("autoReconnect", "true");
@@ -74,7 +75,7 @@ public class MySQL extends BaseSQL {
                     params.put("UseUnicode", "yes");
                     params.put("characterEncoding", "UTF-8");
                     params.putAll(customParams);
-                    c = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database + "?" + buildQuery(params));
+                    c = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database, params);
                 } catch (SQLException e) {
                     System.out.println("Error: at getConnection()[MySQL.java]  SQLException   " + e.getMessage());
                 } catch (ClassNotFoundException e) {
@@ -101,18 +102,6 @@ public class MySQL extends BaseSQL {
             } catch (SQLException ignored) {}
             c = null;
         }
-    }
-
-    private static String buildQuery(Map<String, String> params) {
-        return params.entrySet().stream().map(e -> urlEncode(e.getKey()) + "=" + urlEncode(e.getValue())).collect(Collectors.joining("&"));
-    }
-
-    private static String urlEncode(String s) {
-        try {
-            return URLEncoder.encode(s, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-        }
-        return s;
     }
 
     public QueryStringRenderer builder() {
