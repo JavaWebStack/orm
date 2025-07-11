@@ -50,8 +50,10 @@ public class SQLPool {
                 sql.close();
                 return;
             }
-            if(!connectionQueue.contains(sql))
-                connectionQueue.add(sql);
+            synchronized (connectionQueue) {
+                if(!connectionQueue.contains(sql))
+                    connectionQueue.add(sql);
+            }
             scale();
         }
     }
@@ -70,7 +72,7 @@ public class SQLPool {
         int newScale = scaling.scale(connections.size(), connections.size() - connectionQueue.size());
         if(newScale == connections.size())
             return;
-        synchronized (this) {
+        synchronized (connectionQueue) {
             while (newScale > connections.size()) {
                 SQL sql = supplier.get();
                 sql.addQueryLogger(queryLogger);
