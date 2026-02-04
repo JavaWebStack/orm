@@ -5,19 +5,9 @@
 >
     <servers>
         <server>
-            <id>javawebstack-snapshots</id>
-            <username>${env.DEPLOYMENT_USERNAME}</username>
-            <password>${env.DEPLOYMENT_PASSWORD}</password>
-        </server>
-        <server>
-            <id>javawebstack-releases</id>
-            <username>${env.DEPLOYMENT_USERNAME}</username>
-            <password>${env.DEPLOYMENT_PASSWORD}</password>
-        </server>
-        <server>
-            <id>ossrh</id>
-            <username>${env.OSSRH_USERNAME}</username>
-            <password>${env.OSSRH_PASSWORD}</password>
+            <id>central</id>
+            <username>${env.CENTRAL_USERNAME}</username>
+            <password>${env.CENTRAL_PASSWORD}</password>
         </server>
         <server>
             <id>gpg</id>
