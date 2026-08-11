@@ -50,14 +50,15 @@ public class MySQLQueryStringRenderer implements QueryStringRenderer {
         List<Object> parameters = new ArrayList<>();
         StringBuilder sb = new StringBuilder("SELECT ");
         if (query.isDistinct()) {
-            if (query.getDistinctColumn() != null) {
+            sb.append("DISTINCT ");
+            // Prepend distinctColumn only when no explicit select list is set (i.e. SELECT *).
+            // With an explicit select list (e.g. count(*)) the column position must not shift.
+            if (query.getDistinctColumn() != null && query.getSelect().isEmpty()) {
                 String col = new QueryColumn(query.getDistinctColumn()).toString(repo.getInfo());
-                sb.append("DISTINCT ").append(col).append(", ");
-            } else {
-                sb.append("DISTINCT ");
+                sb.append(col).append(", ");
             }
         }
-        if(query.getSelect().size() == 0)
+        if(query.getSelect().isEmpty())
             sb.append("*");
         else
             sb.append(String.join(",", query.getSelect()));

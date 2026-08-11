@@ -105,6 +105,7 @@ public class Query<T extends Model> {
 
     public Query<T> distinct() {
         this.distinct = true;
+        this.distinctColumn = null;
         return this;
     }
 
