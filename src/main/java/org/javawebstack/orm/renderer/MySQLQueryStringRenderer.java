@@ -49,6 +49,14 @@ public class MySQLQueryStringRenderer implements QueryStringRenderer {
         Repo<?> repo = query.getRepo();
         List<Object> parameters = new ArrayList<>();
         StringBuilder sb = new StringBuilder("SELECT ");
+        if (query.isDistinct()) {
+            if (query.getDistinctColumn() != null) {
+                String col = new QueryColumn(query.getDistinctColumn()).toString(repo.getInfo());
+                sb.append("DISTINCT ").append(col).append(", ");
+            } else {
+                sb.append("DISTINCT ");
+            }
+        }
         if(query.getSelect().size() == 0)
             sb.append("*");
         else
