@@ -5,7 +5,6 @@ import org.javawebstack.orm.Repo;
 import org.javawebstack.orm.SQLMapper;
 import org.javawebstack.orm.connection.pool.PooledSQL;
 import org.javawebstack.orm.exception.ORMQueryException;
-import org.javawebstack.orm.connection.SQL;
 import org.javawebstack.orm.renderer.SQLQueryString;
 
 import java.sql.ResultSet;
@@ -31,6 +30,8 @@ public class Query<T extends Model> {
     private QueryGroup<T> having;
     private boolean applyAccessible = false;
     private Object accessor;
+    private boolean distinct = false;
+    private String distinctColumn = null;
 
     public Query(Class<T> model) {
         this(Repo.get(model), model);
@@ -43,6 +44,14 @@ public class Query<T extends Model> {
 
     public boolean isWithDeleted() {
         return withDeleted;
+    }
+
+    public boolean isDistinct() {
+        return distinct;
+    }
+
+    public String getDistinctColumn() {
+        return distinctColumn;
     }
 
     public boolean shouldApplyAccessible() {
@@ -91,6 +100,25 @@ public class Query<T extends Model> {
 
     public Query<T> select(String... columns) {
         this.select = Arrays.asList(columns);
+        return this;
+    }
+
+    public Query<T> distinct() {
+        this.distinct = true;
+        this.distinctColumn = null;
+        return this;
+    }
+
+    public Query<T> distinct(String column) {
+        this.distinct = true;
+        this.distinctColumn = column;
+        return this;
+    }
+
+    public Query<T> distinct(boolean distinct) {
+        this.distinct = distinct;
+        if (!distinct)
+            this.distinctColumn = null;
         return this;
     }
 
